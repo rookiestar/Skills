@@ -1,0 +1,420 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "keypoint_schema.json",
+  "title": "Knowledge Point",
+  "description": "Daily English learning knowledge point with emoji-enhanced display",
+  "type": "object",
+  "required": ["date", "topic_fingerprint", "category", "topic", "scene", "expressions", "alternatives", "chinglish_trap", "examples"],
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of this knowledge point (YYYY-MM-DD)"
+    },
+    "topic_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$",
+      "description": "Unique identifier for deduplication (e.g., 'asking_favor_casual')"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["oral", "written"],
+      "description": "Whether this is primarily spoken or written English"
+    },
+    "topic": {
+      "type": "string",
+      "enum": ["movies", "news", "gaming", "sports", "workplace", "social", "daily_life"],
+      "description": "The theme category for this knowledge point"
+    },
+    "scene": {
+      "type": "object",
+      "required": ["context", "formality"],
+      "properties": {
+        "context": {
+          "type": "string",
+          "description": "Brief description of the situation where this expression is used"
+        },
+        "formality": {
+          "type": "string",
+          "enum": ["casual", "neutral", "formal"],
+          "description": "Level of formality"
+        }
+      }
+    },
+    "expressions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["phrase", "usage_note"],
+        "properties": {
+          "phrase": {
+            "type": "string",
+            "description": "The American English expression"
+          },
+          "pronunciation_tip": {
+            "type": "string",
+            "description": "How to pronounce naturally (e.g., 'gonna' not 'going to')"
+          },
+          "usage_note": {
+            "type": "string",
+            "description": "When and how to use this expression"
+          }
+        }
+      }
+    },
+    "alternatives": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "string"
+      },
+      "description": "Other ways to say the same thing"
+    },
+    "chinglish_trap": {
+      "type": "object",
+      "required": ["wrong", "correct", "explanation"],
+      "properties": {
+        "wrong": {
+          "type": "string",
+          "description": "What Chinese speakers typically say incorrectly"
+        },
+        "correct": {
+          "type": "string",
+          "description": "The natural American way to say it"
+        },
+        "explanation": {
+          "type": "string",
+          "description": "Why the wrong version sounds off or unnatural"
+        }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["situation", "dialogue"],
+        "properties": {
+          "situation": {
+            "type": "string",
+            "description": "Context for this example dialogue"
+          },
+          "dialogue": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "string"
+            },
+            "description": "Example dialogue lines (e.g., ['A: Hey!', 'B: What\\'s up?'])"
+          }
+        }
+      }
+    },
+    "extended_learning": {
+      "type": "object",
+      "properties": {
+        "related_phrases": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "string"
+          },
+          "description": "Related expressions to explore"
+        },
+        "cultural_note": {
+          "type": "string",
+          "description": "Brief cultural context or usage tip"
+        },
+        "common_mistakes": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "string"
+          },
+          "description": "Common mistakes to avoid"
+        }
+      }
+    },
+    "references": {
+      "type": "object",
+      "description": "Authoritative reference links for verification and deep dive",
+      "properties": {
+        "dictionary": {
+          "type": "object",
+          "description": "Dictionary definition reference",
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": ["merriam-webster", "cambridge", "oxford", "dictionary.com"],
+              "description": "Dictionary source name"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Direct link to the definition"
+            },
+            "note": {
+              "type": "string",
+              "description": "Brief note about what you'll find (e.g., 'Definition and examples')"
+            }
+          },
+          "required": ["source", "url"]
+        },
+        "usage_context": {
+          "type": "object",
+          "description": "Real-world usage examples (video/context)",
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": ["youglish", "sentencestack", "tatoeba"],
+              "description": "Usage context source name"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Direct link to usage examples"
+            },
+            "note": {
+              "type": "string",
+              "description": "Brief note (e.g., 'Hear it in 500+ YouTube videos')"
+            }
+          },
+          "required": ["source", "url"]
+        },
+        "etymology": {
+          "type": "object",
+          "description": "Word origin and history (optional)",
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": ["etymonline", "wiktionary"],
+              "description": "Etymology source name"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Direct link to etymology"
+            },
+            "note": {
+              "type": "string",
+              "description": "Brief note about the origin"
+            }
+          }
+        },
+        "frequency": {
+          "type": "object",
+          "description": "Usage frequency data (optional)",
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": ["google-ngram", "corpus"],
+              "description": "Frequency data source"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Direct link to frequency chart"
+            },
+            "note": {
+              "type": "string",
+              "description": "Brief note (e.g., 'Usage trend since 1800')"
+            }
+          }
+        }
+      },
+      "required": ["dictionary", "usage_context"]
+    },
+    "display": {
+      "type": "object",
+      "description": "Emoji-enhanced display format for IM/chat interfaces",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Main title with emoji (e.g., '🏢 今日知识点 | Today\\'s Knowledge Point')"
+        },
+        "topic_tag": {
+          "type": "string",
+          "description": "Topic label with emoji (e.g., '🏷️ 主题: 职场口语 | Workplace Oral')"
+        },
+        "formality_tag": {
+          "type": "string",
+          "description": "Formality level with emoji (e.g., '📊 正式度: 中性 | Neutral')"
+        },
+        "scene_intro": {
+          "type": "string",
+          "description": "Scene section header with emoji"
+        },
+        "scene_text": {
+          "type": "string",
+          "description": "Brief scene description for quick reading"
+        },
+        "expressions_title": {
+          "type": "string",
+          "description": "Expressions section header with emoji"
+        },
+        "expressions_formatted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "emoji": {
+                "type": "string",
+                "description": "Expression emoji (e.g., '✨')"
+              },
+              "phrase": {
+                "type": "string",
+                "description": "The phrase with bold formatting (e.g., '**Let\\'s touch base**')"
+              },
+              "phrase_plain": {
+                "type": "string",
+                "description": "The phrase without formatting (e.g., 'Let\\'s touch base')"
+              },
+              "pronunciation": {
+                "type": "string",
+                "description": "Pronunciation tip with emoji (e.g., '🔊 Sounds like...')"
+              },
+              "usage": {
+                "type": "string",
+                "description": "Usage note with emoji (e.g., '💡 Brief, informal check-in')"
+              }
+            }
+          }
+        },
+        "alternatives_title": {
+          "type": "string",
+          "description": "Alternatives section header with emoji"
+        },
+        "alternatives_formatted": {
+          "type": "string",
+          "description": "Bullet list of alternatives with emoji"
+        },
+        "chinglish_title": {
+          "type": "string",
+          "description": "Chinglish trap section header with emoji"
+        },
+        "chinglish_formatted": {
+          "type": "string",
+          "description": "Wrong/Correct comparison with emoji (❌/✅)"
+        },
+        "examples_title": {
+          "type": "string",
+          "description": "Examples section header with emoji"
+        },
+        "examples_formatted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "situation_emoji": {
+                "type": "string",
+                "description": "Situation emoji (e.g., '☕', '📧')"
+              },
+              "situation": {
+                "type": "string",
+                "description": "Brief situation name"
+              },
+              "dialogue": {
+                "type": "string",
+                "description": "Formatted dialogue with speaker emoji and bold key phrases"
+              },
+              "key_phrase_highlight": {
+                "type": "string",
+                "description": "The highlighted key phrase with bold (e.g., '**touch base**')"
+              }
+            }
+          }
+        },
+        "extended_title": {
+          "type": "string",
+          "description": "Extended learning section header with emoji"
+        },
+        "extended_formatted": {
+          "type": "string",
+          "description": "Multi-line formatted extended learning content"
+        },
+        "references_title": {
+          "type": "string",
+          "description": "References section header with emoji (e.g., '📖 权威参考 | References')"
+        },
+        "references_formatted": {
+          "type": "string",
+          "description": "Formatted reference links with markdown (e.g., '📚 [Merriam-Webster](url) - Description')"
+        },
+        "footer": {
+          "type": "string",
+          "description": "Footer with date info (no XP - keypoints are for learning only, XP comes from quizzes)"
+        }
+      }
+    },
+    "generated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether LLM content has been fully generated. CRITICAL: Set to true after generation to prevent re-generation"
+    },
+    "audio": {
+      "type": "object",
+      "description": "Audio resources for this knowledge point (generated by TTS)",
+      "properties": {
+        "dialogue": {
+          "type": "array",
+          "description": "Dialogue audio files with speaker information",
+          "items": {
+            "type": "object",
+            "properties": {
+              "speaker": {
+                "type": "string",
+                "description": "Speaker identifier (A, B, etc.)"
+              },
+              "text": {
+                "type": "string",
+                "description": "The spoken text"
+              },
+              "audio_url": {
+                "type": "string",
+                "description": "Relative path to audio file (e.g., 'audio/2026-02-21/dialogue_0_0_A.mp3')"
+              },
+              "error": {
+                "type": "string",
+                "description": "Error message if audio generation failed"
+              }
+            }
+          }
+        },
+        "expressions": {
+          "type": "array",
+          "description": "Expression pronunciation audio files",
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "description": "The expression phrase"
+              },
+              "audio_url": {
+                "type": "string",
+                "description": "Relative path to audio file (e.g., 'audio/2026-02-21/expression_1.mp3')"
+              },
+              "error": {
+                "type": "string",
+                "description": "Error message if audio generation failed"
+              }
+            }
+          }
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When audio was generated (ISO 8601 format)"
+        },
+        "provider": {
+          "type": "string",
+          "description": "TTS provider used (e.g., 'xunfei', 'edge-tts')"
+        }
+      }
+    }
+  }
+}

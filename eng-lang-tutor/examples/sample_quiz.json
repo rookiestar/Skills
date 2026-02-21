@@ -1,0 +1,92 @@
+{
+  "quiz_date": "2026-02-20",
+  "keypoint_fingerprint": "workplace_touch_base",
+  "questions": [
+    {
+      "id": 1,
+      "type": "multiple_choice",
+      "question": "Your colleague asks to 'touch base' about a project. What do they mean?",
+      "context": "You receive a Slack message: 'Hey, can we touch base on the Q4 report?'",
+      "options": [
+        "A. They want to have a formal presentation",
+        "B. They want to have a brief check-in conversation",
+        "C. They want to cancel the project",
+        "D. They want you to write the entire report"
+      ],
+      "correct_answer": "B",
+      "explanation": "'Touch base' means having a brief, informal check-in. It comes from baseball and implies a quick connection, not a formal meeting.",
+      "xp_value": 10,
+      "display": {
+        "type_emoji": "🔤",
+        "type_name": "选择题 | Multiple Choice",
+        "question_formatted": "💬 Your colleague asks to **'touch base'**. What do they mean?",
+        "context_formatted": "📱 Slack: \"Hey, can we **touch base** on the Q4 report?\"",
+        "options_formatted": [
+          "⬜ A. They want a formal presentation",
+          "⬜ B. They want a brief check-in",
+          "⬜ C. They want to cancel the project",
+          "⬜ D. They want you to write the report"
+        ],
+        "correct_feedback": "✅ Correct! **'Touch base'** = quick check-in ⚡",
+        "wrong_feedback": "❌ Not quite. **'Touch base'** means a brief, informal chat!",
+        "key_phrase": "**touch base**",
+        "xp_display": "💎 +10 XP"
+      }
+    },
+    {
+      "id": 2,
+      "type": "chinglish_fix",
+      "question": "Identify and fix the Chinglish expression in this email:",
+      "context": "\"Hi Team, I want to communicate with you about the project. Let's discuss together tomorrow.\"",
+      "correct_answer": "touch base / sync up / check in",
+      "explanation": "'Communicate with you' and 'discuss together' are direct translations that sound formal and awkward. Americans would say 'touch base' or 'sync up' instead.",
+      "xp_value": 15,
+      "display": {
+        "type_emoji": "🔧",
+        "type_name": "Chinglish 修正 | Fix the Chinglish",
+        "question_formatted": "🔧 Find and fix the Chinglish expressions:",
+        "email_formatted": "📧 Original email:\n\"Hi Team, I want to 'communicate with you' about the project. Let's 'discuss together' tomorrow.\"",
+        "hint": "💡 Hint: How would an American say this naturally?",
+        "correct_feedback": "✅ Fixed! **\"Let's touch base\"** or **\"Let's sync up\"** sounds much better! 🎉",
+        "wrong_feedback": "❌ 'Communicate with you' → **'touch base'**\n❌ 'Discuss together' → **'sync up'**",
+        "answer_formatted": "📝 Better: \"Hi Team, can we **touch base** about the project? Let's **sync up** tomorrow.\"",
+        "key_phrase": "**touch base / sync up**",
+        "xp_display": "💎 +15 XP"
+      }
+    },
+    {
+      "id": 3,
+      "type": "fill_blank",
+      "question": "Complete the sentence with the correct expression:",
+      "context": "You want to suggest a quick meeting with your manager. You say: 'I wanted to ___ on the project timeline.'",
+      "word_bank": ["touch base", "discuss together", "communicate"],
+      "correct_answer": "touch base",
+      "explanation": "'Touch base' is the natural American expression for suggesting a quick check-in. 'Discuss together' sounds awkward and redundant.",
+      "xp_value": 12,
+      "display": {
+        "type_emoji": "✏️",
+        "type_name": "填空题 | Fill in the Blank",
+        "question_formatted": "✏️ Complete the sentence:",
+        "context_formatted": "💼 To your manager: \"I wanted to **___** on the project timeline.\"",
+        "word_bank_formatted": "📦 Word Bank: [ **touch base** | 'discuss together' ❌ | 'communicate' ❌ ]",
+        "correct_feedback": "✅ Perfect! **'Touch base'** is the way to go! 🎯",
+        "wrong_feedback": "❌ 'Discuss together' sounds awkward. Try **'touch base'**!",
+        "key_phrase": "**touch base**",
+        "xp_display": "💎 +12 XP"
+      }
+    }
+  ],
+  "total_xp": 37,
+  "passing_score": 70,
+  "display": {
+    "header": "📝 今日测验 | Daily Quiz",
+    "date": "📅 2026-02-20",
+    "topic": "🏷️ Topic: **workplace_touch_base**",
+    "instructions": "🎯 3道小题，答对2道就过关！3 questions, get 2 right to pass!",
+    "progress_bar": "⬜⬜⬜ 0/3 questions",
+    "key_phrase_summary": "🔑 Key Phrase: **touch base** = 快速沟通/碰头",
+    "xp_summary": "💎 Total XP: 37 | 🏆 Pass: 2/3 correct",
+    "footer": "───────────────────\n💪 Good luck! 加油! 🚀"
+  },
+  "generated": true
+}
