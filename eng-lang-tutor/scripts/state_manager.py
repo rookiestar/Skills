@@ -364,11 +364,12 @@ class StateManager:
                 'error_message': f'No keypoint found for {target_date}'
             }
 
-        # Prepare output path
+        # Prepare output path - directly to OpenClaw media directory
+        # OpenClaw only allows media from ~/.openclaw/media/
         date_str = target_date.strftime('%Y-%m-%d')
-        self.audio_dir.mkdir(parents=True, exist_ok=True)
-        output_path = self.audio_dir / date_str / "keypoint_full.mp3"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        media_dir = Path.home() / '.openclaw' / 'media' / 'eng-lang-tutor' / date_str
+        media_dir.mkdir(parents=True, exist_ok=True)
+        output_path = media_dir / "keypoint_full.mp3"
 
         try:
             # Initialize TTS and composer (handle both package and direct imports)
@@ -382,18 +383,11 @@ class StateManager:
             tts = TTSManager.from_env()
             composer = AudioComposer(tts)
 
-            # Compose audio
+            # Compose audio directly to media directory
             result = composer.compose_keypoint_audio(keypoint, output_path)
 
             if result.success:
-                # Copy to OpenClaw media directory (required for message tool access)
-                # OpenClaw only allows media from ~/.openclaw/media/
-                media_dir = Path.home() / '.openclaw' / 'media' / 'eng-lang-tutor' / date_str
-                media_dir.mkdir(parents=True, exist_ok=True)
-                media_path = media_dir / "keypoint_full.mp3"
-                shutil.copy2(output_path, media_path)
-
-                # Return path relative to ~/.openclaw/media/ for message tool
+                # Path relative to ~/.openclaw/media/ for message tool
                 audio_path = f"eng-lang-tutor/{date_str}/keypoint_full.mp3"
 
                 # Update keypoint with audio metadata
