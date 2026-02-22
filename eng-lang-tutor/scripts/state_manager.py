@@ -324,19 +324,7 @@ class StateManager:
                         'duration_seconds': audio_result.get('duration_seconds'),
                         'generated_at': datetime.now().isoformat()
                     }
-                    # Inject [AUDIO:...] tag for Gateway to send voice message
-                    audio_tag = f"[AUDIO:{audio_path}]"
-                    if 'display' in content:
-                        if isinstance(content['display'], dict):
-                            # Add audio tag to footer if display is an object
-                            footer = content['display'].get('footer', '')
-                            if audio_tag not in footer:
-                                content['display']['footer'] = f"{audio_tag}\n{footer}" if footer else audio_tag
-                        elif isinstance(content['display'], str):
-                            # Append to display if it's a string
-                            if audio_tag not in content['display']:
-                                content['display'] = f"{audio_tag}\n\n{content['display']}"
-                    # Re-save with audio info and display update
+                    # Re-save with audio info
                     with open(file_path, 'w', encoding='utf-8') as f:
                         json.dump(content, f, ensure_ascii=False, indent=2)
             except Exception as e:
@@ -407,19 +395,6 @@ class StateManager:
                     'generated_at': datetime.now().isoformat()
                 }
 
-                # Inject [AUDIO:...] tag for Gateway to send voice message
-                audio_tag = f"[AUDIO:{audio_path}]"
-                if 'display' in keypoint:
-                    if isinstance(keypoint['display'], dict):
-                        # Add audio tag to footer if display is an object
-                        footer = keypoint['display'].get('footer', '')
-                        if audio_tag not in footer:
-                            keypoint['display']['footer'] = f"{audio_tag}\n{footer}" if footer else audio_tag
-                    elif isinstance(keypoint['display'], str):
-                        # Append to display if it's a string
-                        if audio_tag not in keypoint['display']:
-                            keypoint['display'] = f"{audio_tag}\n\n{keypoint['display']}"
-
                 # Save updated keypoint
                 daily_path = self.get_daily_dir(target_date)
                 file_path = daily_path / "keypoint.json"
@@ -440,6 +415,80 @@ class StateManager:
             return {
                 'success': False,
                 'error_message': str(e)
+            }
+
+    def send_keypoint_audio_to_feishu(
+        self,
+        receive_id: str,
+        target_date: Optional[date] = None,
+        receive_id_type: str = "chat_id"
+    ) -> Dict[str, Any]:
+        """
+        Send keypoint audio to Feishu as voice message.
+
+        Args:
+            receive_id: Feishu chat_id or open_id
+            target_date: Date for the keypoint (defaults to today)
+            receive_id_type: "chat_id" for channel, "open_id" for user
+
+        Returns:
+            Dictionary with success status and message_id or error_message
+        """
+        if target_date is None:
+            target_date = date.today()
+
+        # Load keypoint to get audio path
+        keypoint = self.load_daily_content('keypoint', target_date)
+        if not keypoint:
+            return {
+                'success': False,
+                'error_message': f'No keypoint found for {target_date}'
+            }
+
+        audio_info = keypoint.get('audio')
+        if not audio_info:
+            return {
+                'success': False,
+                'error_message': 'No audio generated for this keypoint. Run generate_keypoint_audio first.'
+            }
+
+        audio_path = self.data_dir / audio_info['composed']
+        if not audio_path.exists():
+            return {
+                'success': False,
+                'error_message': f'Audio file not found: {audio_path}'
+            }
+
+        # Import and use FeishuVoiceSender
+        try:
+            from .feishu_voice import FeishuVoiceSenderSync
+        except ImportError:
+            from feishu_voice import FeishuVoiceSenderSync
+
+        try:
+            sender = FeishuVoiceSenderSync()
+            result = sender.send_voice(
+                receive_id=receive_id,
+                audio_path=audio_path,
+                receive_id_type=receive_id_type,
+                auto_convert=True
+            )
+
+            return {
+                'success': result.success,
+                'message_id': result.message_id,
+                'error_message': result.error_message
+            }
+        except ValueError as e:
+            # Missing Feishu credentials
+            return {
+                'success': False,
+                'error_message': str(e)
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error_message': f'Failed to send voice: {e}'
             }
 
     def load_daily_content(self, content_type: str,

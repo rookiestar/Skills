@@ -21,11 +21,16 @@ def main():
     parser.add_argument('command', nargs='?',
                         choices=['show', 'backup', 'save_daily', 'record_view',
                                  'stats', 'config', 'errors', 'schedule',
-                                 'generate_audio'],
+                                 'generate_audio', 'send_voice'],
                         help='Command to execute')
     parser.add_argument('--content-type', help='Content type for save_daily (keypoint, quiz)')
     parser.add_argument('--content', help='JSON content for save_daily')
     parser.add_argument('--date', help='Date for content (YYYY-MM-DD format)')
+    # send_voice command options
+    parser.add_argument('--receive-id', help='Feishu chat_id or open_id for sending voice')
+    parser.add_argument('--receive-id-type', default='chat_id',
+                        choices=['chat_id', 'open_id', 'user_id', 'union_id'],
+                        help='Type of receive_id (default: chat_id)')
     # Errors command options
     parser.add_argument('--page', type=int, default=1, help='Page number for errors list')
     parser.add_argument('--per-page', type=int, default=5, help='Items per page for errors')
@@ -216,6 +221,34 @@ def main():
             print(f"Duration: {result.get('duration_seconds', 0):.1f} seconds")
         else:
             print(f"Failed to generate audio: {result.get('error_message')}")
+            exit(1)
+
+    elif args.command == 'send_voice':
+        """Send keypoint audio to Feishu as voice message."""
+        if not args.receive_id:
+            print("Error: --receive-id is required")
+            print("Usage: cli.py send_voice --receive-id <chat_id> [--date YYYY-MM-DD] [--receive-id-type chat_id|open_id]")
+            exit(1)
+
+        target_date = None
+        if args.date:
+            try:
+                target_date = datetime.strptime(args.date, '%Y-%m-%d').date()
+            except ValueError:
+                print("Error: Invalid date format. Use YYYY-MM-DD")
+                exit(1)
+
+        result = sm.send_keypoint_audio_to_feishu(
+            receive_id=args.receive_id,
+            target_date=target_date,
+            receive_id_type=args.receive_id_type
+        )
+
+        if result.get('success'):
+            print(f"Voice message sent successfully!")
+            print(f"Message ID: {result.get('message_id')}")
+        else:
+            print(f"Failed to send voice: {result.get('error_message')}")
             exit(1)
 
 
