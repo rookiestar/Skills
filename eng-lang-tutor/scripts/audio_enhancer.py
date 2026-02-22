@@ -208,6 +208,145 @@ class AudioEnhancer:
             high_boost=4.0
         )
 
+    def enhance_advanced(
+        self,
+        input_path: Path,
+        output_path: Optional[Path] = None,
+        denoise: bool = True,
+        speech_norm: bool = True,
+        crystalize: float = 0.5,
+        exciter: float = 0.3,
+        warm_amount: float = 0.4,
+        smooth_amount: float = 0.3
+    ) -> EnhancementResult:
+        """
+        高级优化 - 针对机械感问题
+
+        使用更多语音专用滤镜：
+        - arnndn: RNN 语音降噪（减少人工感）
+        - speechnorm: 语音归一化
+        - crystalizer: 声音锐化
+        - aexciter: 高频激励器
+        - adynamicsmooth: 动态平滑
+        - aphaser: 轻微相位效果（增加温暖感）
+
+        Args:
+            input_path: 输入文件
+            output_path: 输出文件
+            denoise: 是否启用 RNN 降噪
+            speech_norm: 是否启用语音归一化
+            crystalize: 锐化强度 (0-1)
+            exciter: 激励器强度 (0-1)
+            warm_amount: 温暖感强度 (0-1)
+            smooth_amount: 平滑强度 (0-1)
+        """
+        try:
+            input_path = Path(input_path)
+            if not input_path.exists():
+                return EnhancementResult(
+                    success=False,
+                    error_message=f"Input file not found: {input_path}"
+                )
+
+            output_path = Path(output_path) if output_path else input_path.with_stem(
+                input_path.stem + "_advanced"
+            ).with_suffix(".mp3")
+
+            filters = []
+
+            # 1. RNN 语音降噪 - 减少机械感/人工感
+            if denoise:
+                # arnndn 使用预训练模型，需要模型文件
+                # 改用 afftdn (FFT降噪) 作为替代
+                filters.append("afftdn=nf=-25:tn=1")
+
+            # 2. 语音归一化 - 让语音更自然
+            if speech_norm:
+                filters.append("speechnorm=e=50:r=0.0005:l=1")
+
+            # 3. 声音锐化 - 增加细节感
+            if crystalize > 0:
+                intensity = crystalize * 10
+                filters.append(f"crystalizer=i={intensity}")
+
+            # 4. 高频激励器 - 增加空气感
+            if exciter > 0:
+                amt = exciter * 2
+                filters.append(f"aexciter=level_in=1:level_out=1:amount={amt}:drive=8:blend=0:freq=4000")
+
+            # 5. 动态平滑 - 减少突兀感
+            if smooth_amount > 0:
+                sensitivity = smooth_amount * 2
+                filters.append(f"adynamicsmooth=sensitivity={sensitivity}:basefreq=80")
+
+            # 6. 轻微相位效果 - 增加温暖感
+            if warm_amount > 0:
+                # aphaser: delay 限制 0-5ms
+                delay = 1 + warm_amount * 3
+                decay = warm_amount * 0.5
+                filters.append(f"aphaser=in_gain=0.7:out_gain=0.8:delay={delay}:decay={decay}:speed=0.5")
+
+            # 7. 最终调整
+            filters.append("loudnorm=I=-14:TP=-1.5:LRA=11")
+            filters.append("volume=1.1")
+
+            filter_str = ",".join(filters)
+
+            cmd = [
+                self.ffmpeg_path,
+                "-i", str(input_path),
+                "-af", filter_str,
+                "-c:a", "libmp3lame",
+                "-q:a", "2",
+                "-y",
+                str(output_path)
+            ]
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
+
+            if result.returncode != 0:
+                return EnhancementResult(
+                    success=False,
+                    error_message=f"ffmpeg error: {result.stderr}"
+                )
+
+            return EnhancementResult(
+                success=True,
+                output_path=output_path
+            )
+
+        except Exception as e:
+            return EnhancementResult(
+                success=False,
+                error_message=str(e)
+            )
+
+    def enhance_anti_robot(
+        self,
+        input_path: Path,
+        output_path: Optional[Path] = None
+    ) -> EnhancementResult:
+        """
+        抗机械感优化 - 专门针对 TTS 生成的机械音
+
+        重点：减少女声的机械感
+        """
+        return self.enhance_advanced(
+            input_path=input_path,
+            output_path=output_path,
+            denoise=True,
+            speech_norm=True,
+            crystalize=0.4,
+            exciter=0.5,
+            warm_amount=0.6,
+            smooth_amount=0.5
+        )
+
     def batch_enhance(
         self,
         input_dir: Path,
