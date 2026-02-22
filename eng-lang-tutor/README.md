@@ -87,39 +87,45 @@ openclaw pairing approve discord YOUR_PAIRING_CODE
 
 ## 推送时间配置
 
-### 默认推送时间（UTC+8）
+### Crontab 设置
 
-| 任务 | 时间 |
-|------|------|
-| 知识点 | 早上 6:45 |
-| 每日测验 | 晚上 10:45 |
+Skill 的定时推送依赖 crontab。**npm 安装后**，在 onboarding 流程的 Step 6 会自动创建 cron 任务。
 
-### 自定义推送时间
+如需手动配置或修改：
 
-在 IM 通道（如 Discord）中向 Bot 发送以下命令来修改推送时间：
+```bash
+# 编辑 crontab
+crontab -e
+
+# 添加定时任务（示例：北京时间 06:45 推送知识点，22:45 推送测验）
+CRON_TZ=Asia/Shanghai
+
+# 知识点推送
+45 6 * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's keypoint." --mode now
+
+# 测验推送
+45 22 * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's quiz invitation." --mode now
+```
+
+### 修改推送时间
+
+如需修改推送时间：
+
+1. **在 IM 中向 Bot 发送命令**更新偏好设置：
 
 ```
 set schedule keypoint 7:00    # 设置知识点推送时间为早上 7:00
 set schedule quiz 21:00       # 设置测验推送时间为晚上 21:00
 ```
 
-**注意：** 测验时间必须晚于知识点时间。时间格式为 24 小时制（HH:MM）。
-
-### Crontab 设置
+2. **同步更新 crontab**（修改对应的时间）：
 
 ```bash
-# 编辑 crontab
 crontab -e
-
-# 添加定时任务
-CRON_TZ=Asia/Shanghai
-
-# 06:45 每日知识点
-45 6 * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's keypoint." --mode now
-
-# 22:45 每日测验
-45 22 * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's quiz invitation." --mode now
+# 将 45 6 改为 0 7，将 45 22 改为 0 21
 ```
+
+**注意：** 测验时间必须晚于知识点时间。时间格式为 24 小时制（HH:MM）。
 
 ## 游戏化系统
 
@@ -151,6 +157,12 @@ CRON_TZ=Asia/Shanghai
 
 ```
 eng-lang-tutor/
+├── package.json                # npm 包配置
+├── .npmignore                  # npm 发布排除文件
+├── bin/
+│   └── eng-lang-tutor.js       # CLI 入口
+├── npm-scripts/
+│   └── install.js              # postinstall 安装脚本
 ├── SKILL.md                    # Skill 文档
 ├── scripts/
 │   ├── state_manager.py        # 状态持久化与事件日志
@@ -158,7 +170,8 @@ eng-lang-tutor/
 │   ├── gamification.py         # 连胜/等级/徽章逻辑
 │   ├── dedup.py                # 14天去重逻辑
 │   ├── command_parser.py       # 用户命令解析
-│   └── cron_push.py            # 定时内容推送
+│   ├── cron_push.py            # 定时内容推送
+│   └── tts/                    # TTS 语音合成模块
 ├── templates/
 │   ├── state_schema.json       # 状态 JSON Schema
 │   ├── keypoint_schema.json    # 知识点 JSON Schema
@@ -169,15 +182,8 @@ eng-lang-tutor/
 ├── examples/
 │   ├── sample_keypoint.json
 │   └── sample_quiz.json
-├── tests/
-│   ├── conftest.py
-│   ├── test_state_manager.py
-│   ├── test_scorer.py
-│   ├── test_gamification.py
-│   ├── test_dedup.py
-│   ├── test_command_parser.py
-│   └── test_cron_push.py
-└── data/                      # (旧版数据目录，已迁移)
+└── docs/
+    └── OPENCLAW_DEPLOYMENT.md  # 部署文档
 ```
 
 **数据存储位置：** `~/.openclaw/state/eng-lang-tutor/`
@@ -191,14 +197,7 @@ eng-lang-tutor/
 
 ## 开发
 
-### 运行测试
-
-```bash
-cd eng-lang-tutor
-pytest tests/ -v
-```
-
-### 运行演示
+### 本地调试
 
 ```bash
 python3 scripts/command_parser.py --demo
