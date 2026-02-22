@@ -30,7 +30,7 @@ npm install -g @rookiestar/eng-lang-tutor
 
 安装会自动执行，skill 将被安装到 `~/.openclaw/skills/eng-lang-tutor/`。
 
-**方式二：手动安装**
+**方式二：从源码安装**
 
 ```bash
 cd ~/.openclaw/skills/
@@ -45,7 +45,7 @@ openclaw skills list
 openclaw skills info eng-lang-tutor
 ```
 
-3. **配置渠道：**
+**配置渠道：**
 
 **Discord 配置：**
 ```bash
@@ -89,7 +89,7 @@ openclaw pairing approve discord YOUR_PAIRING_CODE
 
 ### Crontab 设置
 
-Skill 的定时推送依赖 crontab。**npm 安装后**，在 onboarding 流程的 Step 6 会自动创建 cron 任务。
+Skill 的定时推送依赖 crontab。在 onboarding 流程的 Step 6 会自动创建 cron 任务。
 
 如需手动配置或修改：
 
@@ -157,12 +157,6 @@ crontab -e
 
 ```
 eng-lang-tutor/
-├── package.json                # npm 包配置
-├── .npmignore                  # npm 发布排除文件
-├── bin/
-│   └── eng-lang-tutor.js       # CLI 入口
-├── npm-scripts/
-│   └── install.js              # postinstall 安装脚本
 ├── SKILL.md                    # Skill 文档
 ├── scripts/
 │   ├── state_manager.py        # 状态持久化与事件日志

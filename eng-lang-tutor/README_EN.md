@@ -30,7 +30,7 @@ npm install -g @rookiestar/eng-lang-tutor
 
 Installation runs automatically, skill will be installed to `~/.openclaw/skills/eng-lang-tutor/`.
 
-**Option 2: Manual Installation**
+**Option 2: From Source**
 
 ```bash
 cd ~/.openclaw/skills/
@@ -89,7 +89,7 @@ When you first interact with the bot, it will guide you through a 6-step onboard
 
 ### Crontab Setup
 
-The skill's scheduled push relies on crontab. **After npm installation**, cron jobs are automatically created during onboarding Step 6.
+The skill's scheduled push relies on crontab. Cron jobs are automatically created during onboarding Step 6.
 
 For manual configuration or modification:
 
@@ -157,12 +157,6 @@ This system has two independent level systems:
 
 ```
 eng-lang-tutor/
-├── package.json                # npm package config
-├── .npmignore                  # npm publish exclusions
-├── bin/
-│   └── eng-lang-tutor.js       # CLI entry
-├── npm-scripts/
-│   └── install.js              # postinstall script
 ├── SKILL.md                    # Skill documentation
 ├── scripts/
 │   ├── state_manager.py        # State persistence & events
