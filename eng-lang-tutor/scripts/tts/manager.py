@@ -27,9 +27,14 @@ from pathlib import Path
 from typing import Dict, Any, Optional, Type, ClassVar
 from datetime import date, datetime
 import os
+import sys
+
+# 添加 scripts 目录到路径以导入 state_manager
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from .base import TTSProvider, TTSConfig, TTSResult
 from .providers.xunfei import XunFeiProvider
+from state_manager import get_default_state_dir
 
 
 # Provider 注册表
@@ -57,7 +62,7 @@ class TTSManager:
     def __init__(
         self,
         provider: str = "xunfei",
-        data_dir: str = "data",
+        data_dir: str = None,
         config: Optional[TTSConfig] = None,
         **credentials
     ):
@@ -66,12 +71,12 @@ class TTSManager:
 
         Args:
             provider: Provider 名称（目前仅支持 "xunfei"）
-            data_dir: 数据目录
+            data_dir: 数据目录（默认使用 OPENCLAW_STATE_DIR 或 ~/.openclaw/state/eng-lang-tutor/）
             config: TTS 配置
             **credentials: Provider 认证信息
 
         示例:
-            # 讯飞（从环境变量读取）
+            # 讯飞（使用默认数据目录）
             manager = TTSManager(provider="xunfei")
 
             # 讯飞（直接传入密钥）
@@ -88,7 +93,12 @@ class TTSManager:
                 f"Available: {list(PROVIDERS.keys())}"
             )
 
-        self.data_dir = Path(data_dir)
+        # 使用与 StateManager 相同的默认目录逻辑
+        if data_dir is None:
+            self.data_dir = get_default_state_dir()
+        else:
+            self.data_dir = Path(data_dir)
+
         self.audio_dir = self.data_dir / "audio"
         self.audio_dir.mkdir(parents=True, exist_ok=True)
 
