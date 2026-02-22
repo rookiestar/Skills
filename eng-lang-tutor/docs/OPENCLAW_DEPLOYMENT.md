@@ -42,7 +42,8 @@ git clone https://github.com/rookiestar/eng-lang-tutor.git
 ├── templates/            # JSON Schema
 ├── references/           # 参考资源
 ├── examples/             # 示例文件
-└── data/                 # 运行时数据
+└── (数据存储在外部目录)
+    ~/.openclaw/state/eng-lang-tutor/  # 运行时数据（自动创建）
 ```
 
 ### 2.3 验证 Skill 加载
@@ -142,11 +143,13 @@ openclaw config set model.api_key YOUR_API_KEY
 
 ### 5.3 数据持久化
 
-确保 `data/` 目录有正确的写入权限：
+数据存储在 `~/.openclaw/state/eng-lang-tutor/` 目录，确保有正确的写入权限：
 
 ```bash
-chmod -R 755 ~/.openclaw/skills/eng-lang-tutor/data/
+chmod -R 755 ~/.openclaw/state/eng-lang-tutor/
 ```
+
+可通过环境变量 `OPENCLAW_STATE_DIR` 自定义数据目录。
 
 ## 6. 故障排查
 
@@ -208,7 +211,7 @@ python3 state_manager.py --show
 ┌─────────────────────────────────────────────────────────┐
 │               eng-lang-tutor Skill                      │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │
-│  │ SKILL.md    │  │ scripts/    │  │ data/       │    │
+│  │ SKILL.md    │  │ scripts/    │  │ ~/.openclaw │    │
 │  │ (技能描述)   │  │ (Python代码) │  │ (状态存储)   │    │
 │  └─────────────┘  └─────────────┘  └─────────────┘    │
 └─────────────────────────────────────────────────────────┘

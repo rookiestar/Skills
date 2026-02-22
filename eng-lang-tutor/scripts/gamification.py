@@ -14,17 +14,14 @@ Note: Leagues removed - not applicable for single-user scenario.
 from typing import Dict, Any, List, Tuple, Optional
 from datetime import datetime, date, timedelta
 
+from constants import LEVEL_THRESHOLDS, get_level_name, calculate_level
+
 
 class GamificationManager:
     """Manages gamification elements: levels, streaks, badges, gems."""
 
-    # Level thresholds (XP needed for each level)
-    LEVEL_THRESHOLDS = [
-        0, 50, 100, 200, 350,       # 1-5 Beginner
-        550, 800, 1100, 1500, 2000,  # 6-10 Intermediate
-        2600, 3300, 4100, 5000, 6000,  # 11-15 Advanced
-        7200, 8500, 10000, 12000, 15000  # 16-20 Expert
-    ]
+    # Use shared constants
+    LEVEL_THRESHOLDS = LEVEL_THRESHOLDS
 
     # Badge definitions
     BADGES = {
@@ -120,11 +117,13 @@ class GamificationManager:
                 return (new_streak, True, f"Streak continued! {new_streak} days")
 
             elif days_diff == 2 and user.get('streak_freeze', 0) > 0:
-                # Use streak freeze
+                # Use streak freeze - preserves streak continuity
                 state['user']['streak_freeze'] -= 1
                 new_streak = current_streak + 1
                 state['user']['streak'] = new_streak
-                return (new_streak, True, f"Streak freeze used! {new_streak} days")
+                state['user']['last_freeze_used'] = study_date  # Track for display
+                remaining = state['user']['streak_freeze']
+                return (new_streak, True, f"Streak freeze used! {new_streak} days ({remaining} freeze remaining)")
 
             else:
                 # Streak broken
@@ -146,10 +145,7 @@ class GamificationManager:
         Returns:
             Level (1-20)
         """
-        for i in range(len(self.LEVEL_THRESHOLDS) - 1, -1, -1):
-            if xp >= self.LEVEL_THRESHOLDS[i]:
-                return i + 1
-        return 1
+        return calculate_level(xp)
 
     def get_level_name(self, level: int) -> str:
         """Get the name for a level range (Journey Stage).
@@ -157,14 +153,7 @@ class GamificationManager:
         Note: This is Activity Level (活跃等级), measuring engagement depth,
         NOT language ability. For language ability, see CEFR level.
         """
-        if level <= 5:
-            return "Starter"      # 启程者
-        elif level <= 10:
-            return "Traveler"     # 行路人
-        elif level <= 15:
-            return "Explorer"     # 探索者
-        else:
-            return "Pioneer"      # 开拓者
+        return get_level_name(level)
 
     def check_level_up(self, old_xp: int, new_xp: int) -> Tuple[bool, Optional[int]]:
         """
@@ -203,6 +192,29 @@ class GamificationManager:
         leveled_up = new_level > current_level
         return (new_level, leveled_up)
 
+    def _check_badge_condition(self, badge_id: str, check_data: Dict[str, int]) -> bool:
+        """
+        Check if a badge condition is met using explicit condition functions.
+
+        Args:
+            badge_id: Badge identifier
+            check_data: Dictionary with stats for condition checking
+
+        Returns:
+            True if condition is met, False otherwise
+        """
+        # Explicit condition functions for each badge (no eval() for security)
+        conditions = {
+            'first_steps': lambda d: d.get('total_quizzes', 0) >= 1,
+            'week_warrior': lambda d: d.get('streak', 0) >= 7,
+            'month_master': lambda d: d.get('streak', 0) >= 30,
+            'perfect_10': lambda d: d.get('perfect_quizzes', 0) >= 10,
+            'vocab_hunter': lambda d: d.get('expressions_learned', 0) >= 100,
+            'error_slayer': lambda d: d.get('errors_cleared', 0) >= 30,
+        }
+        checker = conditions.get(badge_id)
+        return checker(check_data) if checker else False
+
     def check_badges(self, state: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
         Check and award new badges.
@@ -231,18 +243,14 @@ class GamificationManager:
             if badge_id in current_badges:
                 continue
 
-            condition = badge_info['condition']
-            try:
-                if eval(condition, {"__builtins__": {}}, check_data):
-                    earned.append({
-                        'id': badge_id,
-                        'name': badge_info['name'],
-                        'description': badge_info['description'],
-                        'gem_reward': badge_info['gem_reward']
-                    })
-                    current_badges.append(badge_id)
-            except:
-                pass
+            if self._check_badge_condition(badge_id, check_data):
+                earned.append({
+                    'id': badge_id,
+                    'name': badge_info['name'],
+                    'description': badge_info['description'],
+                    'gem_reward': badge_info['gem_reward']
+                })
+                current_badges.append(badge_id)
 
         state['user']['badges'] = current_badges
         return earned
@@ -335,7 +343,13 @@ class GamificationManager:
         current_threshold = self.LEVEL_THRESHOLDS[level - 1]
         xp_in_level = xp - current_threshold
         xp_to_next = next_threshold - xp if level < 20 else 0
-        level_progress = (xp_in_level / (next_threshold - current_threshold)) * 100 if level < 20 else 100
+
+        # Safe division for level progress
+        threshold_diff = next_threshold - current_threshold
+        if level < 20 and threshold_diff > 0:
+            level_progress = (xp_in_level / threshold_diff) * 100
+        else:
+            level_progress = 100.0 if level >= 20 else 0.0
 
         return {
             'xp': xp,

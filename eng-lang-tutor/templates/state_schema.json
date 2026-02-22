@@ -155,13 +155,8 @@
     },
     "progress": {
       "type": "object",
-      "required": ["total_points", "total_quizzes", "correct_rate", "last_study_date"],
+      "required": ["total_quizzes", "correct_rate", "last_study_date"],
       "properties": {
-        "total_points": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "Total points earned"
-        },
         "total_quizzes": {
           "type": "integer",
           "minimum": 0,

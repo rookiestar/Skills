@@ -171,12 +171,21 @@ eng-lang-tutor/
 │   ├── dedup.py                # 14天去重逻辑
 │   ├── command_parser.py       # 用户命令解析
 │   ├── cron_push.py            # 定时内容推送
+│   ├── constants.py            # 共享常量（等级阈值）
+│   ├── utils.py                # 工具函数（安全除法、深度合并）
+│   ├── cli.py                  # CLI 入口点
 │   └── tts/                    # TTS 语音合成模块
 ├── templates/
 │   ├── state_schema.json       # 状态 JSON Schema
 │   ├── keypoint_schema.json    # 知识点 JSON Schema
 │   ├── quiz_schema.json        # 测验 JSON Schema
-│   └── prompt_templates.md     # LLM Prompt 模板
+│   ├── prompt_templates.md     # LLM Prompt 模板索引
+│   └── prompts/                # 拆分的 Prompt 模板
+│       ├── keypoint_generation.md
+│       ├── quiz_generation.md
+│       ├── display_guide.md
+│       ├── initialization.md
+│       └── responses.md
 ├── references/
 │   └── resources.md            # 主题化学习资源
 ├── examples/

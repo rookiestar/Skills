@@ -12,6 +12,8 @@ XP Rules (Duolingo-style):
 from typing import Dict, Any, List, Tuple, Optional
 from datetime import datetime
 
+from constants import LEVEL_THRESHOLDS, calculate_level
+
 
 class Scorer:
     """Handles answer evaluation and XP calculation."""
@@ -164,23 +166,20 @@ class Scorer:
 
     def _update_state(self, state: Dict[str, Any], results: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Update state with quiz results.
+        Update state with quiz results (modifies state in place).
 
         Args:
-            state: Current state
+            state: Current state (will be modified)
             results: Quiz evaluation results
 
         Returns:
-            Updated state
+            The same state dict (for convenience)
         """
-        import copy
-        updated_state = copy.deepcopy(state)
-
         # Update XP
-        updated_state['user']['xp'] += results['total_xp_earned']
+        state['user']['xp'] = state.get('user', {}).get('xp', 0) + results['total_xp_earned']
 
         # Update progress
-        progress = updated_state.get('progress', {})
+        progress = state.get('progress', {})
         old_total = progress.get('total_quizzes', 0)
         old_rate = progress.get('correct_rate', 0.0)
 
@@ -196,10 +195,11 @@ class Scorer:
         if results['accuracy'] == 100:
             progress['perfect_quizzes'] = progress.get('perfect_quizzes', 0) + 1
 
-        updated_state['progress'] = progress
+        state['progress'] = progress
 
         # Add errors to notebook
         if results['errors']:
+            error_notebook = state.get('error_notebook', [])
             for error in results['errors']:
                 error_entry = {
                     'date': results['date'],
@@ -209,9 +209,10 @@ class Scorer:
                     'explanation': error.get('explanation', ''),
                     'reviewed': False
                 }
-                updated_state['error_notebook'].append(error_entry)
+                error_notebook.append(error_entry)
+            state['error_notebook'] = error_notebook
 
-        return updated_state
+        return state
 
     def calculate_level(self, xp: int) -> int:
         """
@@ -223,19 +224,7 @@ class Scorer:
         Returns:
             Level (1-20)
         """
-        # Level thresholds (cumulative XP needed)
-        # Note: Level is Activity Level (活跃等级), measuring engagement depth
-        LEVEL_THRESHOLDS = [
-            0, 50, 100, 200, 350,      # 1-5 Starter (启程者)
-            550, 800, 1100, 1500, 2000,  # 6-10 Traveler (行路人)
-            2600, 3300, 4100, 5000, 6000,  # 11-15 Explorer (探索者)
-            7200, 8500, 10000, 12000, 15000  # 16-20 Pioneer (开拓者)
-        ]
-
-        for i in range(len(LEVEL_THRESHOLDS) - 1, -1, -1):
-            if xp >= LEVEL_THRESHOLDS[i]:
-                return i + 1
-        return 1
+        return calculate_level(xp)
 
     def get_xp_for_next_level(self, current_xp: int) -> Tuple[int, int]:
         """
@@ -247,14 +236,7 @@ class Scorer:
         Returns:
             Tuple of (xp_needed, xp_into_current_level)
         """
-        LEVEL_THRESHOLDS = [
-            0, 50, 100, 200, 350,
-            550, 800, 1100, 1500, 2000,
-            2600, 3300, 4100, 5000, 6000,
-            7200, 8500, 10000, 12000, 15000
-        ]
-
-        current_level = self.calculate_level(current_xp)
+        current_level = calculate_level(current_xp)
 
         if current_level >= 20:
             return (0, current_xp - LEVEL_THRESHOLDS[-1])

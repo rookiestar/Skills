@@ -171,12 +171,21 @@ eng-lang-tutor/
 │   ├── dedup.py                # 14-day deduplication
 │   ├── command_parser.py       # User command parsing
 │   ├── cron_push.py            # Scheduled content push
+│   ├── constants.py            # Shared constants (level thresholds)
+│   ├── utils.py                # Utility functions (safe divide, deep merge)
+│   ├── cli.py                  # CLI entry point
 │   └── tts/                    # TTS module
 ├── templates/
 │   ├── state_schema.json       # State JSON Schema
 │   ├── keypoint_schema.json    # Keypoint JSON Schema
 │   ├── quiz_schema.json        # Quiz JSON Schema
-│   └── prompt_templates.md     # LLM prompt templates
+│   ├── prompt_templates.md     # LLM prompt templates index
+│   └── prompts/                # Split prompt templates
+│       ├── keypoint_generation.md
+│       ├── quiz_generation.md
+│       ├── display_guide.md
+│       ├── initialization.md
+│       └── responses.md
 ├── references/
 │   └── resources.md            # Themed learning resources
 ├── examples/

@@ -1,0 +1,210 @@
+# Initialization Flow Templates
+
+> Templates for the 6-step onboarding process when a new user starts.
+
+---
+
+## Step 0: Welcome Message
+
+```json
+{
+  "type": "init_welcome",
+  "step": 0,
+  "display": {
+    "title": "👋 Welcome to American English Tutor!",
+    "message": "Hi! I'm your personal English tutor. I'll help you learn authentic American expressions that native speakers actually use.\n\nLet me ask you a few questions to personalize your learning experience.",
+    "prompt": "Ready to get started? Reply with **start** or **开始** to begin.",
+    "footer": "───────────────────\n🎯 This takes about 2 minutes"
+  }
+}
+```
+
+---
+
+## Step 1: CEFR Level Selection
+
+```json
+{
+  "type": "init_cefr",
+  "step": 1,
+  "display": {
+    "title": "📊 Step 1/5: Your English Level",
+    "message": "What's your current English level?",
+    "options": [
+      "**A1-A2**: Beginner - Basic conversations, everyday words",
+      "**B1-B2**: Intermediate - Work conversations, some idioms",
+      "**C1-C2**: Advanced - Complex topics, nuanced expressions"
+    ],
+    "prompt": "Reply with your level (e.g., **B1**, **B2**, **C1**)",
+    "hint": "💡 Not sure? Most working professionals are B1-B2. You can change this later."
+  }
+}
+```
+
+---
+
+## Step 2: Topic Preferences
+
+```json
+{
+  "type": "init_topics",
+  "step": 2,
+  "display": {
+    "title": "🎯 Step 2/5: Your Interests",
+    "message": "Which topics interest you most?",
+    "topics": [
+      "🎬 movies - TV shows, films",
+      "📰 news - Current events",
+      "🎮 gaming - Video games",
+      "⚽ sports - Sports & fitness",
+      "🏢 workplace - Office & business",
+      "💬 social - Friends & parties",
+      "🏠 daily_life - Shopping, restaurants"
+    ],
+    "prompt": "List your interests (e.g., **movies workplace gaming**)",
+    "example": "Example: **movies workplace gaming**"
+  }
+}
+```
+
+---
+
+## Step 3: Tutor Style
+
+```json
+{
+  "type": "init_style",
+  "step": 3,
+  "display": {
+    "title": "🎭 Step 3/5: Tutor Style",
+    "message": "How should I teach you?",
+    "options": [
+      "😄 **humorous** - Fun examples, jokes, pop culture",
+      "📚 **rigorous** - Detailed explanations, grammar focus",
+      "😎 **casual** - Short & sweet, everyday language",
+      "👔 **professional** - Business-focused, formal contexts"
+    ],
+    "prompt": "Reply with: **humorous**, **rigorous**, **casual**, or **professional**"
+  }
+}
+```
+
+---
+
+## Step 4: Oral/Written Ratio
+
+```json
+{
+  "type": "init_ratio",
+  "step": 4,
+  "display": {
+    "title": "💬 Step 4/5: Speaking vs Writing",
+    "message": "What do you want to focus on?",
+    "options": [
+      "🗣️ **Mostly speaking** - Daily conversations, casual chat",
+      "⚖️ **Balanced** - Mix of speaking and writing",
+      "✍️ **Mostly writing** - Emails, formal documents"
+    ],
+    "prompt": "Reply with a number 0-100 for speaking focus (e.g., **70** = 70% speaking)"
+  }
+}
+```
+
+---
+
+## Step 5: Schedule Configuration
+
+```json
+{
+  "type": "init_schedule",
+  "step": 5,
+  "display": {
+    "title": "⏰ Step 5/5: Schedule Your Learning",
+    "message": "When should I send you daily content?",
+    "defaults": {
+      "keypoint": "☀️ **Keypoint** (morning lesson): Default **06:45**",
+      "quiz": "🌙 **Quiz** (evening practice): Default **22:45**"
+    },
+    "prompt": "Reply with times in 24-hour format (e.g., **07:00 21:30**) or press Enter for defaults.",
+    "hint": "💡 Quiz time must be later than keypoint time. Example: '07:00 21:30' or just press Enter for defaults."
+  }
+}
+```
+
+**Validation Rules:**
+- Both times must be in HH:MM format (24-hour)
+- Quiz time must be later than keypoint time
+- If user only provides one time, ask for the second
+- If invalid format, show error and re-prompt
+
+---
+
+## Step 6: Confirmation
+
+```json
+{
+  "type": "init_confirm",
+  "step": 6,
+  "display": {
+    "title": "✅ All Set! Here's Your Profile:",
+    "summary": {
+      "level": "📊 Level: {cefr_level}",
+      "topics": "🎯 Topics: {top_topics}",
+      "style": "🎭 Style: {tutor_style}",
+      "focus": "💬 Focus: {oral_ratio}% speaking",
+      "schedule": "⏰ Schedule: Keypoint at {keypoint_time}, Quiz at {quiz_time}"
+    },
+    "prompt": "Does this look right? Reply **yes** to confirm or **change** to adjust.",
+    "footer": "───────────────────\n🚀 Your first lesson starts tomorrow!"
+  }
+}
+```
+
+---
+
+## Completion
+
+```json
+{
+  "type": "init_complete",
+  "display": {
+    "title": "🎉 Welcome Aboard!",
+    "message": "You're all set! Here's what happens next:\n\n"
+      "☀️ **{keypoint_time}** - Daily knowledge point\n"
+      "🌙 **{quiz_time}** - Daily quiz",
+    "cron_setup": "I'll create cron jobs for your schedule now. You can change this anytime with the **schedule** command.",
+    "first_lesson": "Want your first lesson now? Reply **keypoint** or **知识点**",
+    "footer": "───────────────────\n💡 Say **help** anytime to see all commands"
+  }
+}
+```
+
+---
+
+## Cron Job Creation (after Step 6 confirmation)
+
+After user confirms with "yes", MUST execute the following bash commands to create cron jobs:
+
+```bash
+# Parse times from schedule
+KEYPOINT_TIME="06:45"  # Default, replace with user's keypoint_time
+QUIZ_TIME="22:45"      # Default, replace with user's quiz_time
+
+# Extract hour and minute
+KEYPOINT_HOUR=$(echo $KEYPOINT_TIME | cut -d: -f1)
+KEYPOINT_MIN=$(echo $KEYPOINT_TIME | cut -d: -f2)
+QUIZ_HOUR=$(echo $QUIZ_TIME | cut -d: -f1)
+QUIZ_MIN=$(echo $QUIZ_TIME | cut -d: -f2)
+
+# Create cron jobs using openclaw
+# Keypoint job
+${KEYPOINT_MIN} ${KEYPOINT_HOUR} * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's keypoint." --mode now
+
+# Quiz job
+${QUIZ_MIN} ${QUIZ_HOUR} * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's quiz invitation." --mode now
+```
+
+**IMPORTANT:** The cron job creation requires:
+1. Parse user's `keypoint_time` and `quiz_time` from state.json schedule
+2. Execute the bash command to register each cron job
+3. Log the event using `state_manager.py append_event`

@@ -102,12 +102,15 @@ This system has two independent level systems:
 
 | Script | Purpose |
 |--------|---------|
-| state_manager.py | State persistence, event logging, CLI for content saving |
+| state_manager.py | State persistence, event logging, error notebook |
 | cron_push.py | Scheduled content push (keypoint/quiz placeholders) |
 | scorer.py | Answer evaluation, XP calculation |
 | gamification.py | Streak/level/badge logic |
 | dedup.py | 14-day content deduplication |
 | command_parser.py | Natural language command parsing |
+| constants.py | Shared constants (level thresholds, level names) |
+| utils.py | Utility functions (safe divide, deep merge) |
+| cli.py | CLI entry point for state management |
 
 ## CLI Commands
 
@@ -174,7 +177,7 @@ python3 scripts/state_manager.py schedule --keypoint-time 07:00 --quiz-time 21:0
 ## File Structure
 
 ```
-data/
+~/.openclaw/state/eng-lang-tutor/  # Default data location
   state.json              # Core state (streak/xp/preferences)
   logs/
     events_2026-02.jsonl  # Monthly event log
@@ -184,6 +187,8 @@ data/
       quiz.json           # Today's quiz
       user_answers.json   # User's answers
 ```
+
+**Note:** Data location can be customized via `OPENCLAW_STATE_DIR` environment variable.
 
 ## JSON Schemas
 
@@ -288,7 +293,7 @@ When user confirms with "yes":
 User: "quiz"
 Bot checks: completion_status.quiz_completed_date == today?
   → YES: "You've already completed today's quiz! 🎉 Score: X/Y"
-  → NO: Check quiz.json exists (data/daily/YYYY-MM-DD/quiz.json) and quiz.generated == true?
+  → NO: Check quiz.json exists (~/.openclaw/state/eng-lang-tutor/daily/YYYY-MM-DD/quiz.json) and quiz.generated == true?
       → YES: Load quiz and present questions
       → NO: Generate quiz via LLM, then:
           1. Set generated=true in the JSON content
@@ -316,7 +321,7 @@ This ensures learning sequence is preserved even for early learners.
 ### Keypoint Query
 ```
 User: "keypoint" or "知识点" or Cron Push
-Bot checks: Does keypoint.json exist for today (data/daily/YYYY-MM-DD/keypoint.json)?
+Bot checks: Does keypoint.json exist for today (~/.openclaw/state/eng-lang-tutor/daily/YYYY-MM-DD/keypoint.json)?
   → NO: Generate new keypoint via LLM, then:
       1. Set generated=true in the JSON content
       2. Save via bash: python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
@@ -362,7 +367,7 @@ Bot checks: Does keypoint.json exist for today (data/daily/YYYY-MM-DD/keypoint.j
 ### Keypoint History
 ```
 User: "keypoint history" or "知识点 历史"
-Bot scans: data/daily/ directory for YYYY-MM-DD/keypoint.json files
+Bot scans: ~/.openclaw/state/eng-lang-tutor/daily/ directory for YYYY-MM-DD/keypoint.json files
   → NO files found: "📚 No history yet. Start learning with 'keypoint' today!"
   → YES: List keypoints (most recent first), max 10 entries:
       - {date}: {title/topic} (e.g., "2026-02-20: Touch Base - 工作沟通")
