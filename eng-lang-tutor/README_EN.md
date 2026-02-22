@@ -174,8 +174,8 @@ eng-lang-tutor/
 ├── references/
 │   └── resources.md            # Themed learning resources
 ├── examples/
-│   ├── sample_keypoint.json
-│   └── sample_quiz.json
+│   ├── sample_keypoint.json    # Sample keypoint
+│   └── sample_quiz.json        # Sample quiz
 └── docs/
     └── OPENCLAW_DEPLOYMENT.md  # Deployment docs
 ```

@@ -174,8 +174,8 @@ eng-lang-tutor/
 ├── references/
 │   └── resources.md            # 主题化学习资源
 ├── examples/
-│   ├── sample_keypoint.json
-│   └── sample_quiz.json
+│   ├── sample_keypoint.json    # 知识点示例
+│   └── sample_quiz.json        # 测验示例
 └── docs/
     └── OPENCLAW_DEPLOYMENT.md  # 部署文档
 ```
