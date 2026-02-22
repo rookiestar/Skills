@@ -36,7 +36,6 @@ node_modules/
 package.json
 .npmignore
 bin/
-npm-scripts/
 
 # Project files (local only)
 CLAUDE.md
