@@ -1,0 +1,16 @@
+#!/bin/bash
+# eng-lang-tutor wrapper script
+# Automatically uses venv Python if available, falls back to system Python
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VENV_PYTHON="$HOME/.venvs/eng-lang-tutor/bin/python"
+
+# Prefer venv Python if it exists
+if [ -x "$VENV_PYTHON" ]; then
+    PYTHON="$VENV_PYTHON"
+else
+    PYTHON="python3"
+fi
+
+# Run the CLI with all arguments
+exec "$PYTHON" "$SCRIPT_DIR/cli.py" "$@"
