@@ -287,30 +287,40 @@ Step 5: Display formatted content to user
 
 ### Audio File Sending (After Keypoint Save)
 
-When keypoint is saved, audio is auto-generated. Send it to user:
+When keypoint is saved, audio is auto-generated and copied to OpenClaw's allowed media directory. Send it to user:
 
 ```
 1. Check keypoint.json for audio field:
    cat ~/.openclaw/state/eng-lang-tutor/daily/YYYY-MM-DD/keypoint.json | grep -o '"audio":{[^}]*}'
 
-2. If audio exists, send via message tool:
+2. If audio.composed exists, send via message tool:
    {
      "action": "send",
-     "media": "~/.openclaw/state/eng-lang-tutor/audio/YYYY-MM-DD/keypoint_full.mp3",
+     "media": "~/.openclaw/media/{audio.composed}",
+     "caption": "🔊 今日知识点语音版"
+   }
+
+   Example:
+   {
+     "action": "send",
+     "media": "~/.openclaw/media/eng-lang-tutor/2026-02-23/keypoint_full.mp3",
      "caption": "🔊 今日知识点语音版"
    }
 
 3. Audio file info is stored in keypoint.json:
    {
      "audio": {
-       "composed": "audio/2026-02-23/keypoint_full.mp3",
+       "composed": "eng-lang-tutor/2026-02-23/keypoint_full.mp3",
        "duration_seconds": 37.7,
        "generated_at": "2026-02-23T02:20:14"
      }
    }
 ```
 
-**IMPORTANT:** Always send audio file BEFORE displaying text content, so user receives audio first.
+**IMPORTANT:**
+- Audio is saved to `~/.openclaw/media/` (OpenClaw's allowed media directory)
+- Always send audio file BEFORE displaying text content
+- The `audio.composed` field contains the path relative to `~/.openclaw/media/`
 
 ### After Quiz Generation (MANDATORY)
 ```
@@ -376,13 +386,17 @@ Bot checks: Does keypoint.json exist for today (~/.openclaw/state/eng-lang-tutor
      2. Set generated=true in the JSON content
      3. ⛔ EXECUTE: python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
      4. ⛔ EXECUTE: python3 scripts/state_manager.py record_view
-     5. Display formatted content to user
+     5. Send audio file via message tool (if audio.composed exists)
+     6. Display formatted content to user (REMOVE any [AUDIO:...] tags from text)
   → YES: Check keypoint.generated
-      → TRUE: ⛔ EXECUTE: python3 scripts/state_manager.py record_view, then display to user
-      → FALSE: Follow steps 1-5 above
+      → TRUE: ⛔ EXECUTE: python3 scripts/state_manager.py record_view, then send audio and display
+      → FALSE: Follow steps 1-6 above
 ```
 
-**⛔ CRITICAL: You MUST execute bash commands to save BEFORE displaying to user.**
+**⛔ CRITICAL:**
+1. **You MUST execute bash commands to save BEFORE displaying to user**
+2. **You MUST remove `[AUDIO:...]` tags from display text** - these are NOT supported and will show as plain text
+3. **You SHOULD send audio via message tool** if `audio.composed` field exists
 
 **Display Fields (from keypoint.json `display` object):**
 
