@@ -33,16 +33,44 @@
       "hint": "Try **keypoint today** for today's content.",
       "history": "Or say **keypoint history** to see recent keypoints."
     }
-  },
-  "quiz_not_ready": {
-    "display": {
-      "title": "⏰ Quiz Not Ready Yet",
-      "message": "Today's quiz will be available at 10:45 PM.",
-      "alternative": "Want to study? Say **keypoint** to review today's content!"
-    }
   }
 }
 ```
+
+---
+
+## 2.5. Quiz Request Flow (CRITICAL)
+
+> **NEVER tell user "will generate later" - ALWAYS generate immediately when user requests quiz.**
+
+```
+When user requests quiz:
+1. Check if quiz already completed today (completion_status.quiz_completed_date == today)
+   → YES: Show "Already completed" message
+   → NO: Continue to step 2
+
+2. Check if keypoint.json exists for today
+   → NO: IMMEDIATELY generate keypoint via LLM (do NOT say "will notify later")
+          Save keypoint with generated=true
+   → YES: Continue to step 3
+
+3. Check if quiz.json exists and quiz.generated == true
+   → NO: IMMEDIATELY generate quiz via LLM based on keypoint
+          Save quiz with generated=true
+   → YES: Load existing quiz
+
+4. Present quiz questions to user in ONE response
+```
+
+**FORBIDDEN responses:**
+- ❌ "今天还没有生成知识点，稍后会为您生成并通知您"
+- ❌ "Quiz will be available later"
+- ❌ "Please wait for the scheduled push"
+
+**REQUIRED behavior:**
+- ✅ Generate keypoint immediately via LLM if missing
+- ✅ Generate quiz immediately via LLM
+- ✅ Present quiz in the same response
 
 ---
 
