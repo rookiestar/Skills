@@ -79,7 +79,7 @@ class AudioComposer:
         section_silence: float = 2.0,   # 内容后留白（段落间隔）
         dialogue_silence: float = 0.5,  # 对话行之间留白
         narrator_voice: str = "henry",  # 旁白音色（男声）
-        voice_a: str = "john",          # 对话 A 音色（男声，活力）
+        voice_a: str = "mary",          # 对话 A 音色（女声）
         voice_b: str = "henry",         # 对话 B 音色（男声，沉稳）
         speed: float = 0.9              # 语速
     ) -> CompositionResult:
