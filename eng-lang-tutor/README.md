@@ -22,14 +22,23 @@
 
 ### 安装步骤
 
-1. **克隆到您的 OpenClaw skills 目录：**
+**方式一：npm 安装（推荐）**
+
+```bash
+npm install -g @rookiestar/eng-lang-tutor
+```
+
+安装会自动执行，skill 将被安装到 `~/.openclaw/skills/eng-lang-tutor/`。
+
+**方式二：手动安装**
 
 ```bash
 cd ~/.openclaw/skills/
 git clone https://github.com/rookiestar/eng-lang-tutor.git
+pip install -r eng-lang-tutor/requirements.txt
 ```
 
-2. **验证安装：**
+**验证安装：**
 
 ```bash
 openclaw skills list
@@ -164,11 +173,12 @@ eng-lang-tutor/
 │   ├── test_dedup.py
 │   ├── test_command_parser.py
 │   └── test_cron_push.py
-└── data/
-    ├── state.json              # 运行时状态
-    ├── logs/                   # 事件日志
-    └── daily/                  # 每日内容
+└── data/                      # (旧版数据目录，已迁移)
 ```
+
+**数据存储位置：** `~/.openclaw/state/eng-lang-tutor/`
+
+可通过环境变量 `OPENCLAW_STATE_DIR` 自定义数据目录。
 
 ## 文档
 
@@ -193,19 +203,24 @@ python3 scripts/cron_push.py --task status
 
 ## 服务器迁移
 
-迁移到新服务器：
+**迁移学习数据：**
 
 ```bash
-# 在源服务器上
-cd ~/.openclaw/skills/
-tar -czvf eng-lang-tutor-backup.tar.gz eng-lang-tutor/
+# 在源服务器上打包数据
+tar -czvf eng-lang-tutor-data.tar.gz -C ~/.openclaw/state eng-lang-tutor
 
 # 传输到新服务器
-scp eng-lang-tutor-backup.tar.gz user@new-server:~/
+scp eng-lang-tutor-data.tar.gz user@new-server:~/
 
-# 在目标服务器上
-cd ~/.openclaw/skills/
-tar -xzvf ~/eng-lang-tutor-backup.tar.gz
+# 在目标服务器上解压
+mkdir -p ~/.openclaw/state
+tar -xzvf ~/eng-lang-tutor-data.tar.gz -C ~/.openclaw/state
+```
+
+**重新安装 skill：**
+
+```bash
+npm install -g @rookiestar/eng-lang-tutor
 ```
 
 详细迁移指南请参见 [docs/OPENCLAW_DEPLOYMENT.md](docs/OPENCLAW_DEPLOYMENT.md)。
