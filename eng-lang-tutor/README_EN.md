@@ -45,6 +45,12 @@ openclaw skills list
 openclaw skills info eng-lang-tutor
 ```
 
+**Restart Gateway:**
+
+```bash
+openclaw gateway restart
+```
+
 ### Configure Channel
 
 **Discord Configuration:**
