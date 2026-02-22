@@ -114,7 +114,7 @@ This system has two independent level systems:
 
 ## CLI Commands
 
-> These bash commands are used by the Agent to execute operations. All commands use `--data-dir data` by default.
+> These bash commands are used by the Agent to execute operations. Data is stored in `~/.openclaw/state/eng-lang-tutor/` by default. Do NOT specify `--data-dir` unless using a custom location.
 
 ### Content Management
 ```bash
@@ -288,6 +288,39 @@ When user confirms with "yes":
 
 > **TIMEZONE AWARENESS:** All "today" date checks should use `state.json schedule.timezone` (default: Asia/Shanghai) to ensure consistent behavior across server locations. File paths like `daily/2026-02-21/` are timezone-specific.
 
+---
+
+## ⛔ MANDATORY BASH COMMANDS - READ THIS FIRST ⛔
+
+**When generating content via LLM, you MUST execute bash commands to persist data to disk.**
+
+### After Keypoint Generation (MANDATORY)
+```
+Step 1: LLM generates keypoint JSON
+Step 2: ⛔ EXECUTE THIS BASH COMMAND (do NOT skip):
+        python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
+Step 3: ⛔ EXECUTE THIS BASH COMMAND (do NOT skip):
+        python3 scripts/state_manager.py record_view
+Step 4: Display formatted content to user
+```
+
+### After Quiz Generation (MANDATORY)
+```
+Step 1: LLM generates quiz JSON
+Step 2: ⛔ EXECUTE THIS BASH COMMAND (do NOT skip):
+        python3 scripts/state_manager.py save_daily --content-type quiz --content '<ESCAPED_JSON>'
+Step 3: Present quiz questions to user
+```
+
+**JSON Escaping Rules:**
+- Wrap content in single quotes: `'{"key": "value"}'`
+- Escape internal single quotes: `'` → `'\''`
+- Example: `'{"title": "It'\''s a test"}'`
+
+**⛔ FAILURE TO EXECUTE BASH COMMANDS = DATA LOSS ⛔**
+
+---
+
 ### Quiz Already Completed
 ```
 User: "quiz"
@@ -295,61 +328,53 @@ Bot checks: completion_status.quiz_completed_date == today?
   → YES: "You've already completed today's quiz! 🎉 Score: X/Y"
   → NO: Check quiz.json exists (~/.openclaw/state/eng-lang-tutor/daily/YYYY-MM-DD/quiz.json) and quiz.generated == true?
       → YES: Load quiz and present questions
-      → NO: Generate quiz via LLM, then:
-          1. Set generated=true in the JSON content
-          2. Save via bash: python3 scripts/state_manager.py save_daily --content-type quiz --content '<ESCAPED_JSON>'
-          3. Present questions
+      → NO:
+         1. Check if keypoint.json exists for today
+            → If NO: Generate keypoint via LLM first
+            → ⛔ EXECUTE: python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
+         2. Generate quiz via LLM
+         3. Set generated=true in the JSON content
+         4. ⛔ EXECUTE: python3 scripts/state_manager.py save_daily --content-type quiz --content '<ESCAPED_JSON>'
+         5. Present questions to user
 ```
+
+**⛔ CRITICAL: You MUST execute bash commands to save BEFORE presenting to user.**
 
 ### Manual Quiz Before Keypoint Push
 ```
 User manually requests quiz before scheduled keypoint push time
 Bot checks: Does keypoint.json exist for today?
-  → NO: IMMEDIATELY generate keypoint via LLM (do NOT say "will notify later")
-         Then generate quiz via LLM
-         Then present quiz questions to user
-         All in ONE response - user should receive quiz immediately
-  → YES: Proceed with quiz generation normally
+  → NO:
+     1. IMMEDIATELY generate keypoint via LLM (do NOT say "will notify later")
+     2. ⛔ EXECUTE: python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
+     3. Generate quiz via LLM
+     4. ⛔ EXECUTE: python3 scripts/state_manager.py save_daily --content-type quiz --content '<ESCAPED_JSON>'
+     5. Present quiz questions to user
+     → All in ONE response - user should receive quiz immediately
+  → YES: Proceed with quiz generation normally (see Quiz Already Completed section)
 
 This ensures learning sequence is preserved even for early learners.
 ```
 
-**CRITICAL: NEVER tell user "will generate later and notify" - always generate immediately.**
-
-**CRITICAL:**
-1. After LLM generation, MUST update quiz JSON with `"generated": true` to prevent re-generation
-2. MUST save via bash command:
-   ```bash
-   python3 scripts/state_manager.py save_daily --content-type quiz --content '<ESCAPED_JSON>'
-   ```
+**⛔ CRITICAL: NEVER tell user "will generate later and notify" - always generate immediately.**
+**⛔ CRITICAL: You MUST execute the bash save commands BEFORE presenting content to user.**
 
 ### Keypoint Query
 ```
 User: "keypoint" or "知识点" or Cron Push
 Bot checks: Does keypoint.json exist for today (~/.openclaw/state/eng-lang-tutor/daily/YYYY-MM-DD/keypoint.json)?
-  → NO: Generate new keypoint via LLM, then:
-      1. Set generated=true in the JSON content
-      2. Save via bash: python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
-      3. Record view via bash: python3 scripts/state_manager.py record_view
-      4. Display formatted content
+  → NO:
+     1. Generate new keypoint via LLM
+     2. Set generated=true in the JSON content
+     3. ⛔ EXECUTE: python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
+     4. ⛔ EXECUTE: python3 scripts/state_manager.py record_view
+     5. Display formatted content to user
   → YES: Check keypoint.generated
-      → TRUE: Record view via bash, then read display object and output as Markdown
-      → FALSE: Generate content via LLM, then follow steps 1-4 above
+      → TRUE: ⛔ EXECUTE: python3 scripts/state_manager.py record_view, then display to user
+      → FALSE: Follow steps 1-5 above
 ```
 
-**CRITICAL:**
-1. After LLM generation, MUST update keypoint JSON with `"generated": true` to prevent re-generation
-2. MUST save via bash command:
-   ```bash
-   python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
-   ```
-3. MUST record view after displaying:
-   ```bash
-   python3 scripts/state_manager.py record_view
-   ```
-4. JSON content must be properly escaped:
-   - Wrap in single quotes
-   - Escape internal single quotes: `'` → `'\''`
+**⛔ CRITICAL: You MUST execute bash commands to save BEFORE displaying to user.**
 
 **Display Fields (from keypoint.json `display` object):**
 
