@@ -305,11 +305,16 @@ Bot checks: completion_status.quiz_completed_date == today?
 ```
 User manually requests quiz before scheduled keypoint push time
 Bot checks: Does keypoint.json exist for today?
-  → NO: Auto-generate keypoint first, then proceed with quiz generation
+  → NO: IMMEDIATELY generate keypoint via LLM (do NOT say "will notify later")
+         Then generate quiz via LLM
+         Then present quiz questions to user
+         All in ONE response - user should receive quiz immediately
   → YES: Proceed with quiz generation normally
 
 This ensures learning sequence is preserved even for early learners.
 ```
+
+**CRITICAL: NEVER tell user "will generate later and notify" - always generate immediately.**
 
 **CRITICAL:**
 1. After LLM generation, MUST update quiz JSON with `"generated": true` to prevent re-generation
