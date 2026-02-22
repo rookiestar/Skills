@@ -2,6 +2,9 @@
 
 > Templates for the 6-step onboarding process when a new user starts.
 
+**Related Files:**
+- [shared_enums.md](shared_enums.md) - CEFR levels, topics, tutor styles
+
 ---
 
 ## Step 0: Welcome Message

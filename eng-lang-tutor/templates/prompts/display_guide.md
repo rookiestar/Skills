@@ -3,42 +3,24 @@
 > Guidelines for emoji decorations and markdown formatting in IM displays.
 > Makes content more engaging, scannable, and visually consistent.
 
----
-
-## 1. Topic Emojis
-
-| Topic | Emoji | Chinese Label |
-|-------|-------|---------------|
-| movies | 🎬 | 影视 |
-| news | 📰 | 新闻 |
-| gaming | 🎮 | 游戏 |
-| sports | ⚽ | 体育 |
-| workplace | 🏢 | 职场 |
-| social | 💬 | 社交 |
-| daily_life | 🏠 | 生活 |
+**Related Files:**
+- [shared_enums.md](shared_enums.md) - Topic, category, formality, quiz type enums with emojis
+- [output_rules.md](output_rules.md) - JSON output rules, markdown formatting, platform compatibility
 
 ---
 
-## 2. Category Emojis
+## 1. Topic & Category Emojis
 
-| Category | Emoji |
-|----------|-------|
-| oral | 💬 口语 |
-| written | ✍️ 书面 |
+> See [shared_enums.md](shared_enums.md) for complete topic/category/formality definitions.
 
----
-
-## 3. Formality Emojis
-
-| Formality | Emoji |
-|-----------|-------|
-| casual | 😎 随意 |
-| neutral | 😐 中性 |
-| formal | 🤵 正式 |
+Quick reference for display:
+- **Topics**: 🎬 movies, 📰 news, 🎮 gaming, ⚽ sports, 🏢 workplace, 💬 social, 🏠 daily_life
+- **Categories**: 💬 oral, ✍️ written
+- **Formality**: 😎 casual, 😐 neutral, 🤵 formal
 
 ---
 
-## 4. Section Emojis
+## 2. Section Emojis
 
 | Section | Emoji | Example |
 |---------|-------|---------|
@@ -58,6 +40,8 @@
 ---
 
 ## 5. Quiz Type Emojis
+
+> See [shared_enums.md](shared_enums.md#quiz-question-types-题型) for quiz type definitions.
 
 | Question Type | Emoji | Label |
 |---------------|-------|-------|
@@ -117,39 +101,29 @@ When generating content, include a `display` object with formatted strings:
 
 ## 9. Emoji Usage Rules
 
+> See [output_rules.md](output_rules.md) for complete formatting rules.
+
 1. **Keep it readable**: Don't overuse emojis; 1-2 per line maximum
 2. **Be consistent**: Use the same emoji for the same concept
 3. **Bilingual labels**: Include both Chinese and English when appropriate
 4. **Visual hierarchy**: Use emojis to create visual sections
 5. **Positive tone**: Use encouraging emojis for feedback
-6. **Cultural sensitivity**: Avoid emojis that might be confusing across cultures
 
 ---
 
-## 10. Bold for Key Phrases
+## 10. Bold & Wrong Answer Format
 
-Use `**phrase**` for the main expressions being taught:
+> See [output_rules.md](output_rules.md#markdown-格式规则) for complete formatting rules.
 
-| Use Case | Format | Example |
-|----------|--------|---------|
-| Key phrase | `**touch base**` | ✨ **Let's touch base** |
-| Correct answer | `**Correct: "touch base"**` | ✅ Correct: **Let's touch base!** |
-| Important term | `**first mention**` | The phrase **'touch base'** comes from baseball |
+**Bold key phrases**: Use `**phrase**` for main expressions
 
----
-
-## 11. Wrong Answers Format (Feishu-Compatible)
-
-> IMPORTANT: Do NOT use `~~strikethrough~~` - it doesn't work in Feishu cards. Use ❌ emoji + quotes instead.
-
-| Use Case | Format | Example |
-|----------|--------|---------|
-| Wrong expression | `❌ "discuss together"` | ❌ "Let's discuss together" |
-| Chinglish | `❌ "communicate with you"` | ❌ "I want to communicate with you" |
+**Wrong answers (Feishu-compatible):**
+- ⛔ Do NOT use `~~strikethrough~~` - doesn't work in Feishu
+- ✅ Use ❌ emoji + quotes: `❌ "discuss together"`
 
 ---
 
-## 12. Formatting Combinations
+## 11. Formatting Combinations
 
 Combine formatting with emojis for maximum impact:
 
@@ -162,7 +136,7 @@ Combine formatting with emojis for maximum impact:
 
 ---
 
-## 13. Key Phrase Highlighting in Dialogues
+## 12. Key Phrase Highlighting in Dialogues
 
 In examples, always highlight the key phrase:
 
@@ -175,7 +149,7 @@ In examples, always highlight the key phrase:
 
 ---
 
-## 14. Display Object Fields for Formatting
+## 13. Display Object Fields for Formatting
 
 | Field | Purpose | Example |
 |-------|---------|---------|
@@ -184,15 +158,13 @@ In examples, always highlight the key phrase:
 | `key_phrase` | Question key phrase | `**touch base**` |
 | `key_phrase_highlight` | Highlighted in context | `**touch base**` |
 | `correct_pattern` | Pattern explanation | `**Agree + suggest time**` |
-| `key_phrase_summary` | Quiz summary | `🔑 Key Phrase: **touch base** = 快速沟通` |
 
 ---
 
-## 15. Formatting Rules
+## 14. Quick Reference
 
 1. **Bold all key phrases** in display sections
-2. **Use ❌ emoji for wrong answers** in Chinglish traps and quizzes (NOT strikethrough)
-3. **Keep original text** in data fields (phrase, alternatives, etc.)
+2. **Use ❌ emoji for wrong answers** (NOT strikethrough)
+3. **Keep original text** in data fields
 4. **Add formatting only** in display fields
-5. **Be consistent** - always format the same phrase the same way
-6. **Don't over-format** - only highlight the key learning points
+5. **Be consistent** - same phrase, same format

@@ -2,6 +2,10 @@
 
 > Template for generating daily quizzes based on knowledge points.
 
+**Related Files:**
+- [shared_enums.md](shared_enums.md) - Quiz types, XP values, CEFR levels
+- [output_rules.md](output_rules.md) - JSON output rules, markdown formatting
+
 ---
 
 ## Quiz Generation Prompt
@@ -178,12 +182,14 @@ Based on today's knowledge point, generate a 3-question quiz calibrated to user'
 
 ## XP Values Summary
 
-| Question Type | XP Value | Description |
-|---------------|----------|-------------|
-| multiple_choice | 10 | Four-option recognition |
-| chinglish_fix | 15 | Identify and correct |
-| fill_blank | 12 | Complete with word bank |
-| dialogue_completion | 12 | Choose conversation response |
+> See [shared_enums.md](shared_enums.md#quiz-question-types-题型) for full quiz type definitions.
+
+| Question Type | XP | Daily Count |
+|---------------|-----|-------------|
+| multiple_choice | 10 | 1 (required) |
+| chinglish_fix | 15 | 1 (required) |
+| fill_blank | 12 | 0-1 (random) |
+| dialogue_completion | 15 | 0-1 (random) |
 
 **Total XP**: ~37 (10 + 15 + 12)
 **Passing Score**: 70% (2/3 correct)
