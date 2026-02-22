@@ -317,13 +317,26 @@ class StateManager:
             try:
                 audio_result = self.generate_keypoint_audio(target_date)
                 if audio_result.get('success'):
+                    audio_path = audio_result.get('audio_path')
                     # Update keypoint with audio metadata
                     content['audio'] = {
-                        'composed': audio_result.get('audio_path'),
+                        'composed': audio_path,
                         'duration_seconds': audio_result.get('duration_seconds'),
                         'generated_at': datetime.now().isoformat()
                     }
-                    # Re-save with audio info
+                    # Inject [AUDIO:...] tag for Gateway to send voice message
+                    audio_tag = f"[AUDIO:{audio_path}]"
+                    if 'display' in content:
+                        if isinstance(content['display'], dict):
+                            # Add audio tag to footer if display is an object
+                            footer = content['display'].get('footer', '')
+                            if audio_tag not in footer:
+                                content['display']['footer'] = f"{audio_tag}\n{footer}" if footer else audio_tag
+                        elif isinstance(content['display'], str):
+                            # Append to display if it's a string
+                            if audio_tag not in content['display']:
+                                content['display'] = f"{audio_tag}\n\n{content['display']}"
+                    # Re-save with audio info and display update
                     with open(file_path, 'w', encoding='utf-8') as f:
                         json.dump(content, f, ensure_ascii=False, indent=2)
             except Exception as e:
