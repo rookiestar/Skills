@@ -1,6 +1,6 @@
 # eng-lang-tutor
 
-**地道美式英语导师** - An OpenClaw Skill for learning authentic American English expressions.
+**Authentic American English Tutor** - An OpenClaw Skill for learning authentic American English expressions.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -22,21 +22,30 @@
 
 ### Installation
 
-1. **Clone to your OpenClaw skills directory:**
+**Option 1: npm (Recommended)**
+
+```bash
+npm install -g @rookiestar/eng-lang-tutor
+```
+
+Installation runs automatically, skill will be installed to `~/.openclaw/skills/eng-lang-tutor/`.
+
+**Option 2: Manual Installation**
 
 ```bash
 cd ~/.openclaw/skills/
 git clone https://github.com/rookiestar/eng-lang-tutor.git
+pip install -r eng-lang-tutor/requirements.txt
 ```
 
-2. **Verify installation:**
+**Verify Installation:**
 
 ```bash
 openclaw skills list
 openclaw skills info eng-lang-tutor
 ```
 
-3. **Configure Channel:**
+### Configure Channel
 
 **Discord Configuration:**
 ```bash
@@ -44,7 +53,7 @@ openclaw config set discord.token YOUR_BOT_TOKEN
 openclaw config set discord.guildId YOUR_SERVER_ID
 ```
 
-4. **Complete pairing:**
+### Complete Pairing
 
 When you first message the bot, you'll receive a pairing code. Approve it:
 
@@ -78,35 +87,45 @@ When you first interact with the bot, it will guide you through a 6-step onboard
 
 ## Schedule Configuration
 
-### Default Schedule (UTC+8)
-
-| Task | Time |
-|------|------|
-| Knowledge Point | 6:45 AM |
-| Daily Quiz | 10:45 PM |
-
-### Customize Schedule
-
-```
-set schedule keypoint 7:00
-set schedule quiz 21:00
-```
-
 ### Crontab Setup
+
+The skill's scheduled push relies on crontab. **After npm installation**, cron jobs are automatically created during onboarding Step 6.
+
+For manual configuration or modification:
 
 ```bash
 # Edit crontab
 crontab -e
 
-# Add scheduled tasks
+# Add scheduled tasks (example: 06:45 keypoint, 22:45 quiz in Beijing time)
 CRON_TZ=Asia/Shanghai
 
-# 06:45 Daily keypoint
+# Keypoint push
 45 6 * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's keypoint." --mode now
 
-# 22:45 Daily quiz
+# Quiz push
 45 22 * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's quiz invitation." --mode now
 ```
+
+### Modify Schedule
+
+To change push times:
+
+1. **Send command to Bot via IM** to update preferences:
+
+```
+set schedule keypoint 7:00    # Set keypoint push time to 7:00 AM
+set schedule quiz 21:00       # Set quiz push time to 9:00 PM
+```
+
+2. **Update crontab accordingly** (modify the corresponding times):
+
+```bash
+crontab -e
+# Change 45 6 to 0 7, and 45 22 to 0 21
+```
+
+**Note:** Quiz time must be later than keypoint time. Time format is 24-hour (HH:MM).
 
 ## Gamification
 
@@ -118,10 +137,10 @@ This system has two independent level systems:
 
 | Level Range | XP Required | Stage |
 |-------------|-------------|-------|
-| 1-5 | 0-350 | Starter (启程者) |
-| 6-10 | 550-2000 | Traveler (行路人) |
-| 11-15 | 2600-6000 | Explorer (探索者) |
-| 16-20 | 7200-15000 | Pioneer (开拓者) |
+| 1-5 | 0-350 | Starter |
+| 6-10 | 550-2000 | Traveler |
+| 11-15 | 2600-6000 | Explorer |
+| 16-20 | 7200-15000 | Pioneer |
 
 ### Badges
 
@@ -138,6 +157,12 @@ This system has two independent level systems:
 
 ```
 eng-lang-tutor/
+├── package.json                # npm package config
+├── .npmignore                  # npm publish exclusions
+├── bin/
+│   └── eng-lang-tutor.js       # CLI entry
+├── npm-scripts/
+│   └── install.js              # postinstall script
 ├── SKILL.md                    # Skill documentation
 ├── scripts/
 │   ├── state_manager.py        # State persistence & events
@@ -145,7 +170,8 @@ eng-lang-tutor/
 │   ├── gamification.py         # Streak/level/badge logic
 │   ├── dedup.py                # 14-day deduplication
 │   ├── command_parser.py       # User command parsing
-│   └── cron_push.py            # Scheduled content push
+│   ├── cron_push.py            # Scheduled content push
+│   └── tts/                    # TTS module
 ├── templates/
 │   ├── state_schema.json       # State JSON Schema
 │   ├── keypoint_schema.json    # Keypoint JSON Schema
@@ -156,19 +182,13 @@ eng-lang-tutor/
 ├── examples/
 │   ├── sample_keypoint.json
 │   └── sample_quiz.json
-├── tests/
-│   ├── conftest.py
-│   ├── test_state_manager.py
-│   ├── test_scorer.py
-│   ├── test_gamification.py
-│   ├── test_dedup.py
-│   ├── test_command_parser.py
-│   └── test_cron_push.py
-└── data/
-    ├── state.json              # Runtime state
-    ├── logs/                   # Event logs
-    └── daily/                  # Daily content
+└── docs/
+    └── OPENCLAW_DEPLOYMENT.md  # Deployment docs
 ```
+
+**Data Location:** `~/.openclaw/state/eng-lang-tutor/`
+
+Customize via `OPENCLAW_STATE_DIR` environment variable.
 
 ## Documentation
 
@@ -177,14 +197,7 @@ eng-lang-tutor/
 
 ## Development
 
-### Run Tests
-
-```bash
-cd eng-lang-tutor
-pytest tests/ -v
-```
-
-### Run Demo
+### Local Debugging
 
 ```bash
 python3 scripts/command_parser.py --demo
@@ -193,22 +206,25 @@ python3 scripts/cron_push.py --task status
 
 ## Migration
 
-To migrate to a new server:
+**Migrate Learning Data:**
 
 ```bash
-# On source server
-cd ~/.openclaw/skills/
-tar -czvf eng-lang-tutor-backup.tar.gz eng-lang-tutor/
+# On source server, backup data
+tar -czvf eng-lang-tutor-data.tar.gz -C ~/.openclaw/state eng-lang-tutor
 
 # Transfer to new server
-scp eng-lang-tutor-backup.tar.gz user@new-server:~/
+scp eng-lang-tutor-data.tar.gz user@new-server:~/
 
-# On target server
-cd ~/.openclaw/skills/
-tar -xzvf ~/eng-lang-tutor-backup.tar.gz
+# On target server, extract
+mkdir -p ~/.openclaw/state
+tar -xzvf ~/eng-lang-tutor-data.tar.gz -C ~/.openclaw/state
 ```
 
-See [docs/OPENCLAW_DEPLOYMENT.md](docs/OPENCLAW_DEPLOYMENT.md) for detailed migration guide.
+**Reinstall Skill:**
+
+```bash
+npm install -g @rookiestar/eng-lang-tutor
+```
 
 ## License
 
