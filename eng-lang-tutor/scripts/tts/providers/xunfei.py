@@ -16,6 +16,8 @@ import base64
 import hmac
 import json
 import os
+import ssl
+import certifi
 from pathlib import Path
 from typing import Optional, ClassVar, Dict
 from urllib.parse import urlencode
@@ -132,8 +134,12 @@ class XunFeiProvider(TTSProvider):
                 data = json.loads(message)
                 if data.get("code") == 0:
                     audio = data.get("data", {}).get("audio", "")
+                    status = data.get("data", {}).get("status", 0)
                     if audio:
                         audio_data.extend(base64.b64decode(audio))
+                    # status=2 表示合成完成，关闭连接
+                    if status == 2:
+                        ws.close()
                 else:
                     error_msg = f"XunFei API error: code={data.get('code')}, message={data.get('message')}"
             except json.JSONDecodeError as e:
@@ -170,7 +176,10 @@ class XunFeiProvider(TTSProvider):
                 on_error=on_error,
             )
             ws.on_open = on_open
-            ws.run_forever()
+            # 使用 certifi 提供的 SSL 证书
+            ws.run_forever(
+                sslopt={"cert_reqs": ssl.CERT_REQUIRED, "ca_certs": certifi.where()}
+            )
 
             if error_msg:
                 return TTSResult(success=False, error_message=error_msg)
