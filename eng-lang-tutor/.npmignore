@@ -1,0 +1,36 @@
+# Development files
+.git/
+.gitignore
+.claude/
+.pytest_cache/
+node_modules/
+
+# Python cache
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+*.py[cod]
+*$py.class
+.Python
+
+# Test files
+tests/
+
+# Runtime data (should not be in npm package)
+data/
+data.backup/
+backups/
+
+# Editor files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Development configs
+.eslintrc*
+.prettierrc*

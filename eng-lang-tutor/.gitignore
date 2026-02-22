@@ -22,11 +22,14 @@ Thumbs.db
 backups/
 *.bak
 
-# Logs (keep structure, ignore content)
-data/logs/*.jsonl
+# User data
+data/state.json
+data/logs/
+data/daily/
 
 # Daily content (runtime data)
 data/daily/*/
 
-# Project design file (local only)
-CLAUDE.md
+# npm
+node_modules/
+*.tgz
