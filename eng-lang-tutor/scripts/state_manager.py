@@ -398,9 +398,37 @@ class StateManager:
             result = composer.compose_keypoint_audio(keypoint, output_path)
 
             if result.success:
+                audio_path = f"audio/{date_str}/keypoint_full.mp3"
+
+                # Update keypoint with audio metadata
+                keypoint['audio'] = {
+                    'composed': audio_path,
+                    'duration_seconds': result.duration_seconds,
+                    'generated_at': datetime.now().isoformat()
+                }
+
+                # Inject [AUDIO:...] tag for Gateway to send voice message
+                audio_tag = f"[AUDIO:{audio_path}]"
+                if 'display' in keypoint:
+                    if isinstance(keypoint['display'], dict):
+                        # Add audio tag to footer if display is an object
+                        footer = keypoint['display'].get('footer', '')
+                        if audio_tag not in footer:
+                            keypoint['display']['footer'] = f"{audio_tag}\n{footer}" if footer else audio_tag
+                    elif isinstance(keypoint['display'], str):
+                        # Append to display if it's a string
+                        if audio_tag not in keypoint['display']:
+                            keypoint['display'] = f"{audio_tag}\n\n{keypoint['display']}"
+
+                # Save updated keypoint
+                daily_path = self.get_daily_dir(target_date)
+                file_path = daily_path / "keypoint.json"
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(keypoint, f, ensure_ascii=False, indent=2)
+
                 return {
                     'success': True,
-                    'audio_path': f"audio/{date_str}/keypoint_full.mp3",
+                    'audio_path': audio_path,
                     'duration_seconds': result.duration_seconds
                 }
             else:
