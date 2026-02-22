@@ -296,6 +296,16 @@ Bot checks: completion_status.quiz_completed_date == today?
           3. Present questions
 ```
 
+### Manual Quiz Before Keypoint Push
+```
+User manually requests quiz before scheduled keypoint push time
+Bot checks: Does keypoint.json exist for today?
+  → NO: Auto-generate keypoint first, then proceed with quiz generation
+  → YES: Proceed with quiz generation normally
+
+This ensures learning sequence is preserved even for early learners.
+```
+
 **CRITICAL:**
 1. After LLM generation, MUST update quiz JSON with `"generated": true` to prevent re-generation
 2. MUST save via bash command:
