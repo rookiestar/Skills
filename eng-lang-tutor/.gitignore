@@ -33,3 +33,7 @@ data/daily/*/
 # npm
 node_modules/
 *.tgz
+
+# Project files (local only)
+CLAUDE.md
+tests/
