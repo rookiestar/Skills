@@ -275,10 +275,42 @@ The bot recognizes these natural language commands:
 Step 1: LLM generates keypoint JSON
 Step 2: ⛔ EXECUTE THIS BASH COMMAND (do NOT skip):
         python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
+        (This auto-generates audio and saves to audio/YYYY-MM-DD/keypoint_full.mp3)
 Step 3: ⛔ EXECUTE THIS BASH COMMAND (do NOT skip):
         python3 scripts/state_manager.py record_view
-Step 4: Display formatted content to user
+Step 4: Send audio file via message tool (if audio exists):
+        - Read keypoint.json and check if audio.composed field exists
+        - If exists, send audio file using message tool with media parameter
+        - Audio path: ~/.openclaw/state/eng-lang-tutor/{audio.composed}
+Step 5: Display formatted content to user
 ```
+
+### Audio File Sending (After Keypoint Save)
+
+When keypoint is saved, audio is auto-generated. Send it to user:
+
+```
+1. Check keypoint.json for audio field:
+   cat ~/.openclaw/state/eng-lang-tutor/daily/YYYY-MM-DD/keypoint.json | grep -o '"audio":{[^}]*}'
+
+2. If audio exists, send via message tool:
+   {
+     "action": "send",
+     "media": "~/.openclaw/state/eng-lang-tutor/audio/YYYY-MM-DD/keypoint_full.mp3",
+     "caption": "🔊 今日知识点语音版"
+   }
+
+3. Audio file info is stored in keypoint.json:
+   {
+     "audio": {
+       "composed": "audio/2026-02-23/keypoint_full.mp3",
+       "duration_seconds": 37.7,
+       "generated_at": "2026-02-23T02:20:14"
+     }
+   }
+```
+
+**IMPORTANT:** Always send audio file BEFORE displaying text content, so user receives audio first.
 
 ### After Quiz Generation (MANDATORY)
 ```
