@@ -24,7 +24,10 @@ from pathlib import Path
 from typing import Optional, List
 from dataclasses import dataclass
 
-from .tts import TTSManager
+try:
+    from .tts import TTSManager
+except ImportError:
+    from tts import TTSManager
 
 
 @dataclass
