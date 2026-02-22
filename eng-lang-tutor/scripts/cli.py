@@ -20,7 +20,8 @@ def main():
                         help='Data directory path (default: ~/.openclaw/state/eng-lang-tutor or OPENCLAW_STATE_DIR env)')
     parser.add_argument('command', nargs='?',
                         choices=['show', 'backup', 'save_daily', 'record_view',
-                                 'stats', 'config', 'errors', 'schedule'],
+                                 'stats', 'config', 'errors', 'schedule',
+                                 'generate_audio'],
                         help='Command to execute')
     parser.add_argument('--content-type', help='Content type for save_daily (keypoint, quiz)')
     parser.add_argument('--content', help='JSON content for save_daily')
@@ -197,6 +198,25 @@ def main():
             )
             sm.save_state(state)
             print(f"Schedule updated: keypoint at {new_keypoint}, quiz at {new_quiz}")
+
+    elif args.command == 'generate_audio':
+        """Generate audio for a keypoint."""
+        target_date = None
+        if args.date:
+            try:
+                target_date = datetime.strptime(args.date, '%Y-%m-%d').date()
+            except ValueError:
+                print("Error: Invalid date format. Use YYYY-MM-DD")
+                exit(1)
+
+        result = sm.generate_keypoint_audio(target_date)
+
+        if result.get('success'):
+            print(f"Audio generated: {result.get('audio_path')}")
+            print(f"Duration: {result.get('duration_seconds', 0):.1f} seconds")
+        else:
+            print(f"Failed to generate audio: {result.get('error_message')}")
+            exit(1)
 
 
 if __name__ == "__main__":

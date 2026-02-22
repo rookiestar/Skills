@@ -287,7 +287,8 @@ class StateManager:
         return daily_path
 
     def save_daily_content(self, content_type: str, content: Dict[str, Any],
-                           target_date: Optional[date] = None) -> Path:
+                           target_date: Optional[date] = None,
+                           generate_audio: bool = True) -> Path:
         """
         Save content to the daily directory.
 
@@ -295,6 +296,7 @@ class StateManager:
             content_type: Type of content ('keypoint', 'quiz', 'user_answers')
             content: Content dictionary to save
             target_date: Date for the content (defaults to today)
+            generate_audio: Whether to auto-generate audio for keypoints (default True)
 
         Returns:
             Path to the saved file
@@ -310,7 +312,94 @@ class StateManager:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(content, f, ensure_ascii=False, indent=2)
 
+        # Auto-generate audio for keypoints
+        if content_type == 'keypoint' and generate_audio:
+            try:
+                audio_result = self.generate_keypoint_audio(target_date)
+                if audio_result.get('success'):
+                    # Update keypoint with audio metadata
+                    content['audio'] = {
+                        'composed': audio_result.get('audio_path'),
+                        'duration_seconds': audio_result.get('duration_seconds'),
+                        'generated_at': datetime.now().isoformat()
+                    }
+                    # Re-save with audio info
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        json.dump(content, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                print(f"Warning: Audio generation failed: {e}")
+
         return file_path
+
+    def generate_keypoint_audio(self, target_date: Optional[date] = None) -> Dict[str, Any]:
+        """
+        Generate composed audio for a keypoint.
+
+        Args:
+            target_date: Date for the keypoint (defaults to today)
+
+        Returns:
+            Dictionary with:
+                - success: bool
+                - audio_path: str (relative path from data_dir)
+                - duration_seconds: float
+                - error_message: str (if failed)
+        """
+        try:
+            from .audio_composer import AudioComposer
+            from .tts import TTSManager
+        except ImportError:
+            from audio_composer import AudioComposer
+            from tts import TTSManager
+
+        if target_date is None:
+            target_date = date.today()
+
+        # Load the keypoint
+        keypoint = self.load_daily_content('keypoint', target_date)
+        if not keypoint:
+            return {
+                'success': False,
+                'error_message': f'No keypoint found for {target_date}'
+            }
+
+        # Prepare output path
+        date_str = target_date.strftime('%Y-%m-%d')
+        self.audio_dir.mkdir(parents=True, exist_ok=True)
+        output_path = self.audio_dir / date_str / "keypoint_full.mp3"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            # Initialize TTS and composer (handle both package and direct imports)
+            try:
+                from .audio_composer import AudioComposer
+                from .tts import TTSManager
+            except ImportError:
+                from audio_composer import AudioComposer
+                from tts import TTSManager
+
+            tts = TTSManager.from_env()
+            composer = AudioComposer(tts)
+
+            # Compose audio
+            result = composer.compose_keypoint_audio(keypoint, output_path)
+
+            if result.success:
+                return {
+                    'success': True,
+                    'audio_path': f"audio/{date_str}/keypoint_full.mp3",
+                    'duration_seconds': result.duration_seconds
+                }
+            else:
+                return {
+                    'success': False,
+                    'error_message': result.error_message
+                }
+        except Exception as e:
+            return {
+                'success': False,
+                'error_message': str(e)
+            }
 
     def load_daily_content(self, content_type: str,
                            target_date: Optional[date] = None) -> Optional[Dict[str, Any]]:
