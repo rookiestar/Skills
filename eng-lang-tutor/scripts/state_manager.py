@@ -386,7 +386,15 @@ class StateManager:
             result = composer.compose_keypoint_audio(keypoint, output_path)
 
             if result.success:
-                audio_path = f"audio/{date_str}/keypoint_full.mp3"
+                # Copy to OpenClaw media directory (required for message tool access)
+                # OpenClaw only allows media from ~/.openclaw/media/
+                media_dir = Path.home() / '.openclaw' / 'media' / 'eng-lang-tutor' / date_str
+                media_dir.mkdir(parents=True, exist_ok=True)
+                media_path = media_dir / "keypoint_full.mp3"
+                shutil.copy2(output_path, media_path)
+
+                # Return path relative to ~/.openclaw/media/ for message tool
+                audio_path = f"eng-lang-tutor/{date_str}/keypoint_full.mp3"
 
                 # Update keypoint with audio metadata
                 keypoint['audio'] = {
