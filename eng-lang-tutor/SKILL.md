@@ -400,7 +400,10 @@ Bot checks: Does keypoint.json exist for today (~/.openclaw/state/eng-lang-tutor
 | `references_formatted` | Reference links |
 | `footer` | Date and footer info |
 
-> **IMPORTANT:** Output assembled Markdown text directly, NOT JSON. See `templates/prompt_templates.md` Section 10.3 for full assembly template.
+> **IMPORTANT:**
+> - Output assembled Markdown text directly, NOT JSON
+> - **DO NOT display the `audio` field in text** - it's for message tool media sending only
+> - See `templates/prompt_templates.md` Section 10.3 for full assembly template
 
 ### Keypoint History
 ```
