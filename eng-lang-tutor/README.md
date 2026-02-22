@@ -96,10 +96,14 @@ openclaw pairing approve discord YOUR_PAIRING_CODE
 
 ### 自定义推送时间
 
+在 IM 通道（如 Discord）中向 Bot 发送以下命令来修改推送时间：
+
 ```
-set schedule keypoint 7:00
-set schedule quiz 21:00
+set schedule keypoint 7:00    # 设置知识点推送时间为早上 7:00
+set schedule quiz 21:00       # 设置测验推送时间为晚上 21:00
 ```
+
+**注意：** 测验时间必须晚于知识点时间。时间格式为 24 小时制（HH:MM）。
 
 ### Crontab 设置
 
