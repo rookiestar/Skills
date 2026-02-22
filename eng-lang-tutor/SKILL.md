@@ -61,42 +61,30 @@ Output: results.json, updated state.json
 
 ## Quiz Types
 
-| Type | Description | XP Value | Daily Quiz |
-|------|-------------|----------|------------|
-| multiple_choice | Select correct expression from 4 options | 10 | 1 (required) |
-| chinglish_fix | Identify and correct Chinglish expression | 15 | 1 (required) |
-| fill_blank | Complete dialogue with missing expression | 12 | 0-1 (random) |
-| dialogue_completion | Choose appropriate response in context | 15 | 0-1 (random) |
+> See [templates/prompts/shared_enums.md](templates/prompts/shared_enums.md#quiz-question-types-题型) for full definitions.
 
-**Daily Quiz Pattern**: 3 questions, ~37 XP, pass with 2/3 correct
+| Type | XP | Daily |
+|------|-----|-------|
+| multiple_choice | 10 | 1 (required) |
+| chinglish_fix | 15 | 1 (required) |
+| fill_blank / dialogue_completion | 12 | 0-1 (random) |
+
+**Daily Quiz:** 3 questions, ~37 XP, pass with 2/3 correct
 
 ## Gamification System
 
 ### XP & Levels
 
 This system has two independent level systems:
-- **Ability Level (CEFR)**: A1-C2, determines content difficulty (language proficiency)
-- **Activity Level (Level)**: 1-20, measures engagement depth (usage progression)
+- **Ability Level (CEFR)**: A1-C2, determines content difficulty
+- **Activity Level (Level)**: 1-20, measures engagement depth
 
-**Activity Level Stages (Journey):**
-- Level 1-5 (Starter/启程者): 0-350 XP
-- Level 6-10 (Traveler/行路人): 550-2000 XP
-- Level 11-15 (Explorer/探索者): 2600-6000 XP
-- Level 16-20 (Pioneer/开拓者): 7200-15000 XP
+> See [templates/prompts/shared_enums.md](templates/prompts/shared_enums.md) for level stages and badge definitions.
 
 ### Streak System
 - Consecutive days of study builds streak
-- Streak broken if miss a day (unless using streak freeze)
-- Streak multiplier: 1.0 + (streak * 0.05), max 2.0x
+- Streak multiplier: `1.0 + (streak * 0.05)`, max 2.0x
 - Streak freeze costs 50 gems
-
-### Badges
-- First Steps: Complete first quiz (+10 gems)
-- Week Warrior: 7-day streak (+25 gems)
-- Month Master: 30-day streak (+100 gems)
-- Perfect 10: 10 perfect quizzes (+50 gems)
-- Vocab Hunter: Learn 100 expressions (+75 gems)
-- Error Slayer: Clear 30 errors (+30 gems)
 
 ## Key Scripts
 
@@ -165,14 +153,12 @@ python3 scripts/state_manager.py schedule --keypoint-time 07:00 --quiz-time 21:0
 
 ## Core Principles
 
+> See [templates/prompts/keypoint_generation.md](templates/prompts/keypoint_generation.md) for detailed generation rules.
+
 1. **Always output valid JSON** - No markdown, no extra text
 2. **Focus on "How Americans say it"** - NOT translation
-3. **Every knowledge point must include**:
-   - Scene context
-   - Alternative expressions
-   - Chinglish trap + correction
+3. **Every knowledge point must include**: Scene context, alternatives, Chinglish trap
 4. **14-day deduplication** - No repeated topics or expressions
-5. **Topic fingerprints** - Use unique identifiers for deduplication
 
 ## File Structure
 
@@ -199,11 +185,18 @@ See templates/ directory:
 
 ## Resource References
 
-See references/ directory:
-- resources.md - Themed English learning resources (TV shows, news, gaming, sports, workplace, daily life)
+**Prompt Templates** (templates/prompts/):
+- [shared_enums.md](templates/prompts/shared_enums.md) - Topics, CEFR levels, styles, badges
+- [output_rules.md](templates/prompts/output_rules.md) - JSON/markdown formatting rules
+- [keypoint_generation.md](templates/prompts/keypoint_generation.md) - Knowledge point generation
+- [quiz_generation.md](templates/prompts/quiz_generation.md) - Quiz generation
+- [display_guide.md](templates/prompts/display_guide.md) - Emoji and formatting guide
+- [initialization.md](templates/prompts/initialization.md) - Onboarding flow
+- [responses.md](templates/prompts/responses.md) - Response templates
 
-See templates/ directory:
-- prompt_templates.md - LLM prompt templates for content generation
+**Other Resources:**
+- [references/resources.md](references/resources.md) - Themed English learning resources
+- [templates/prompt_templates.md](templates/prompt_templates.md) - Prompt template index
 
 ## Examples
 
@@ -255,32 +248,15 @@ The bot recognizes these natural language commands:
 
 ## Initialization Flow
 
-New users go through a 6-step onboarding process:
+> See [templates/prompts/initialization.md](templates/prompts/initialization.md) for detailed onboarding templates.
 
-```
-Step 0: Welcome → User replies "start"
-Step 1: Select CEFR Level (A1-C2)
-Step 2: Select Topic Interests (movies/news/gaming/sports/workplace/social/daily_life)
-Step 3: Select Tutor Style (humorous/rigorous/casual/professional)
-Step 4: Select Oral/Written Ratio (0-100% oral)
-Step 5: Configure Schedule (keypoint time, quiz time) - Quiz must be later than keypoint
-Step 6: Confirm Configuration → Set initialized=true + Create cron jobs
-```
+6-step onboarding: Welcome → CEFR Level → Topic Interests → Tutor Style → Oral/Written Ratio → Schedule → Confirm
 
-**Step 6 Completion Actions:**
-When user confirms with "yes":
-1. Set `initialized=true` via `state_manager.py`
-2. Create cron jobs for keypoint and quiz push times:
-   ```bash
-   # Parse schedule from state.json
-   # Keypoint job: {minute} {hour} * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's keypoint." --mode now
-   # Quiz job: {minute} {hour} * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's quiz invitation." --mode now
-   ```
-3. Log the completion event
+**Step 6 Completion:** Set `initialized=true` + Create cron jobs for keypoint/quiz push times.
 
 **State Fields:**
 - `initialized`: Boolean - Whether user completed onboarding
-- `onboarding_step`: Integer (0-6) - Current step in onboarding
+- `onboarding_step`: Integer (0-6) - Current step
 
 ---
 

@@ -2,6 +2,10 @@
 
 > Main template for generating daily English learning content.
 
+**Related Files:**
+- [shared_enums.md](shared_enums.md) - Topics, CEFR levels, tutor styles, quiz types
+- [output_rules.md](output_rules.md) - JSON output rules, markdown formatting
+
 ---
 
 ## 1. Generation Prompt
@@ -253,6 +257,8 @@ TOPIC_RESOURCES = {
 
 ## 6. CEFR Level Guidelines
 
+> See [shared_enums.md](shared_enums.md#cefr-levels-能力等级) for level definitions.
+
 Adjust content complexity based on CEFR level:
 
 | Level | Vocabulary | Sentence Length | Topics |
@@ -283,28 +289,13 @@ Adjust content complexity based on CEFR level:
 
 ## 7. Tutor Style Variations
 
+> See [shared_enums.md](shared_enums.md#tutor-styles-导师风格) for style definitions.
+
 Adjust tone based on tutor_style:
 
-### Humorous
-- Include funny examples
-- Light-hearted explanations
-- Pop culture references
-- Jokes in cultural notes
-
-### Rigorous
-- Detailed explanations
-- Multiple examples
-- Grammar focus
-- Formal language
-
-### Casual
-- Conversational tone
-- Short, punchy explanations
-- Everyday examples
-- Slang-friendly
-
-### Professional
-- Business-appropriate examples
-- Formal language focus
-- Workplace scenarios
-- Email/communication tips
+| Style | 语气特点 |
+|-------|----------|
+| humorous | 轻松愉快，带梗和调侃 |
+| rigorous | 专业分析，深入讲解 |
+| casual | 自然口语，朋友间聊天 |
+| professional | 正式商务，职场场景 |

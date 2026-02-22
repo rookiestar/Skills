@@ -2,6 +2,11 @@
 
 > Templates for various response scenarios in the eng-lang-tutor skill.
 
+**Related Files:**
+- [shared_enums.md](shared_enums.md) - Level names, badges, quiz types
+- [output_rules.md](output_rules.md) - JSON output rules, markdown formatting
+- [display_guide.md](display_guide.md) - Emoji and formatting guidelines
+
 ---
 
 ## 1. Already Completed Responses
@@ -184,11 +189,7 @@ When user requests quiz:
 Keep it up! 💪
 ```
 
-**Level Names:**
-- Level 1-5: Starter (启程者)
-- Level 6-10: Traveler (行路人)
-- Level 11-15: Explorer (探索者)
-- Level 16-20: Pioneer (开拓者)
+> See [shared_enums.md](shared_enums.md#activity-levels-活跃等级) for level names.
 
 **Multiplier Calculation:** `1.0 + (streak * 0.05)`, max 2.0x
 
@@ -281,23 +282,10 @@ Your answer: {user_answer_2}
 
 ## 9. Output Format Rules
 
-> CRITICAL: All responses must use platform-agnostic Markdown.
+> See [output_rules.md](output_rules.md) for complete formatting rules.
 
-**Rules:**
-
-1. **Use standard Markdown** - Compatible with all platforms
-2. **Bold syntax**: Use `**text**` for bold
-3. **Never use** `~~strikethrough~~` - use ❌ emoji instead
-4. **Line breaks**: Use blank lines between sections
-5. **Bullets**: Use `•` for bullet points
-6. **Emojis**: Include at the start of each section
-7. **Punctuation**: End sentences properly (`.` or `?` or `!`)
-8. **Links**: Use `[text](url)` format
-
-**Platform Compatibility:**
-
-| Syntax | Feishu | Discord | Telegram | Slack |
-|--------|--------|---------|----------|-------|
-| `**bold**` | ✅ | ✅ | ✅ | ✅ |
-| `[link](url)` | ✅ | ✅ | ✅ | ✅ |
-| Emoji | ✅ | ✅ | ✅ | ✅ |
+**Quick Reference:**
+- **Bold syntax**: Use `**text**` for bold
+- **Never use** `~~strikethrough~~` - use ❌ emoji instead
+- **Emojis**: Include at the start of each section
+- **Punctuation**: End sentences properly (`.` or `?` or `!`)

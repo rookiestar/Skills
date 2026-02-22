@@ -9,12 +9,23 @@
 
 This documentation has been split into focused modules for easier navigation:
 
+### Shared Files (Reference First)
 | File | Purpose |
 |------|---------|
-| [prompts/keypoint_generation.md](prompts/keypoint_generation.md) | Knowledge point generation template, topic resources, CEFR guidelines, tutor styles |
-| [prompts/quiz_generation.md](prompts/quiz_generation.md) | Quiz generation template with question types and XP values |
-| [prompts/display_guide.md](prompts/display_guide.md) | Emoji usage and text formatting guidelines |
+| [prompts/shared_enums.md](prompts/shared_enums.md) | **Shared enums** - Topics, CEFR levels, tutor styles, quiz types, badges |
+| [prompts/output_rules.md](prompts/output_rules.md) | **Output rules** - JSON format, markdown syntax, platform compatibility |
+
+### Generation Templates
+| File | Purpose |
+|------|---------|
+| [prompts/keypoint_generation.md](prompts/keypoint_generation.md) | Knowledge point generation template, topic resources |
+| [prompts/quiz_generation.md](prompts/quiz_generation.md) | Quiz generation template with question types |
 | [prompts/initialization.md](prompts/initialization.md) | 6-step onboarding flow templates |
+
+### Display Templates
+| File | Purpose |
+|------|---------|
+| [prompts/display_guide.md](prompts/display_guide.md) | Emoji usage and text formatting guidelines |
 | [prompts/responses.md](prompts/responses.md) | Response templates for stats, config, errors, quiz results |
 
 ---
@@ -39,11 +50,12 @@ This documentation has been split into focused modules for easier navigation:
 
 ### Key Rules
 
+> See [prompts/output_rules.md](prompts/output_rules.md) for complete formatting rules.
+
 1. **Output ONLY valid JSON** - no markdown blocks, no extra text
 2. **Focus on "How Americans say it"** - NOT Chinese translations
 3. **Include display object** - formatted strings for IM display
 4. **Use `**text**` for bold** - never use `~~strikethrough~~`
-5. **End sentences properly** - periods for statements, question marks for questions
 
 ### Reference Sources
 
@@ -51,8 +63,6 @@ This documentation has been split into focused modules for easier navigation:
 |------|--------|-------------|
 | Dictionary | Merriam-Webster | `https://www.merriam-webster.com/dictionary/{phrase}` |
 | Usage | YouGlish | `https://youglish.com/pronounce/{phrase}/english/us` |
-| Etymology | Etymonline | `https://www.etymonline.com/word/{word}` |
-| Frequency | Google Ngram | `https://books.google.com/ngrams/graph?content={phrase}` |
 
 ---
 
