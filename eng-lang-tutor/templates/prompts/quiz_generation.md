@@ -184,12 +184,4 @@ Based on today's knowledge point, generate a 3-question quiz calibrated to user'
 
 > See [shared_enums.md](shared_enums.md#quiz-question-types-题型) for full quiz type definitions.
 
-| Question Type | XP | Daily Count |
-|---------------|-----|-------------|
-| multiple_choice | 10 | 1 (required) |
-| chinglish_fix | 15 | 1 (required) |
-| fill_blank | 12 | 0-1 (random) |
-| dialogue_completion | 15 | 0-1 (random) |
-
-**Total XP**: ~37 (10 + 15 + 12)
-**Passing Score**: 70% (2/3 correct)
+**Daily Quiz:** 3 questions, ~37 XP, pass with 2/3 correct

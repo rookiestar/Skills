@@ -1,0 +1,53 @@
+{
+  "version": 2,
+  "initialized": false,
+  "onboarding_step": 0,
+  "completion_status": {
+    "quiz_completed_date": null,
+    "keypoint_view_history": [
+      {
+        "date": "2026-02-22",
+        "viewed_at": "2026-02-22T00:18:18.701870"
+      }
+    ]
+  },
+  "schedule": {
+    "keypoint_time": "06:45",
+    "quiz_time": "22:45",
+    "timezone": "Asia/Shanghai"
+  },
+  "user": {
+    "xp": 0,
+    "level": 1,
+    "streak": 0,
+    "streak_freeze": 0,
+    "gems": 0,
+    "badges": []
+  },
+  "preferences": {
+    "cefr_level": "B1",
+    "oral_written_ratio": 0.7,
+    "topics": {
+      "movies": 0.2,
+      "news": 0.15,
+      "gaming": 0.15,
+      "sports": 0.1,
+      "workplace": 0.2,
+      "social": 0.1,
+      "daily_life": 0.1
+    },
+    "tutor_style": "humorous",
+    "dedup_days": 14
+  },
+  "progress": {
+    "total_points": 0,
+    "total_quizzes": 0,
+    "correct_rate": 0.0,
+    "last_study_date": null,
+    "perfect_quizzes": 0,
+    "expressions_learned": 0
+  },
+  "recent_topics": [],
+  "error_notebook": [],
+  "error_archive": []
+}

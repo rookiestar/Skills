@@ -259,43 +259,10 @@ TOPIC_RESOURCES = {
 
 > See [shared_enums.md](shared_enums.md#cefr-levels-能力等级) for level definitions.
 
-Adjust content complexity based on CEFR level:
-
-| Level | Vocabulary | Sentence Length | Topics |
-|-------|------------|-----------------|--------|
-| A1-A2 | Basic, high-frequency | Short, simple | Daily routines, shopping |
-| B1-B2 | Intermediate, some idioms | Medium, some complex | Work, travel, social |
-| C1-C2 | Advanced, nuanced | Varied, sophisticated | Abstract, professional |
-
-### A1-A2 Guidelines
-- Use very common expressions
-- Short dialogues (2-3 exchanges)
-- Simple Chinglish traps
-- Everyday situations
-
-### B1-B2 Guidelines
-- Include common idioms
-- Medium dialogues (3-4 exchanges)
-- Nuanced Chinglish traps
-- Work and social situations
-
-### C1-C2 Guidelines
-- Complex expressions and idioms
-- Longer dialogues (4+ exchanges)
-- Subtle Chinglish traps (tone, formality)
-- Professional and abstract topics
+Adjust content complexity based on CEFR level.
 
 ---
 
 ## 7. Tutor Style Variations
 
 > See [shared_enums.md](shared_enums.md#tutor-styles-导师风格) for style definitions.
-
-Adjust tone based on tutor_style:
-
-| Style | 语气特点 |
-|-------|----------|
-| humorous | 轻松愉快，带梗和调侃 |
-| rigorous | 专业分析，深入讲解 |
-| casual | 自然口语，朋友间聊天 |
-| professional | 正式商务，职场场景 |
