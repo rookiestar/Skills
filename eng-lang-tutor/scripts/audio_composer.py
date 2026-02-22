@@ -78,10 +78,10 @@ class AudioComposer:
         lead_in_silence: float = 1.0,   # 引导语后留白
         section_silence: float = 2.0,   # 内容后留白（段落间隔）
         dialogue_silence: float = 0.5,  # 对话行之间留白
-        narrator_voice: str = "mary",
-        voice_a: str = "henry",
-        voice_b: str = "catherine",
-        speed: float = 1.0
+        narrator_voice: str = "henry",  # 旁白音色（男声）
+        voice_a: str = "catherine",     # 对话 A 音色（女声）
+        voice_b: str = "henry",         # 对话 B 音色（男声）
+        speed: float = 0.9              # 语速
     ) -> CompositionResult:
         """
         合成知识点音频
