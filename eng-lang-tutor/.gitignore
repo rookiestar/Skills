@@ -33,6 +33,10 @@ data/daily/*/
 # npm
 node_modules/
 *.tgz
+package.json
+.npmignore
+bin/
+npm-scripts/
 
 # Project files (local only)
 CLAUDE.md
