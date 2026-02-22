@@ -25,6 +25,11 @@ cp "$SCRIPT_DIR/README.md" .
 cp "$SCRIPT_DIR/README_EN.md" .
 cp "$SCRIPT_DIR/requirements.txt" .
 
+# 清理 Python 缓存文件
+echo "🧹 Cleaning Python cache files..."
+find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+find . -type f -name "*.pyc" -delete 2>/dev/null || true
+
 echo "📦 Publishing to npm..."
 npm publish "$@"
 
