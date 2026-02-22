@@ -9,3 +9,8 @@ aiohttp>=3.8.0           # Async HTTP client for Feishu API
 # Development dependencies
 pytest>=7.0.0
 pytest-asyncio>=0.21.0
+
+# System dependencies (must be installed separately):
+# - ffmpeg: Required for audio composition
+#   macOS: brew install ffmpeg
+#   Ubuntu/Debian: sudo apt-get install ffmpeg
