@@ -71,7 +71,7 @@ class AudioComposer:
 
     def __del__(self):
         """清理临时目录"""
-        if self.temp_dir.exists():
+        if hasattr(self, 'temp_dir') and self.temp_dir.exists():
             shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def compose_keypoint_audio(
