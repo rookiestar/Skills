@@ -9,18 +9,7 @@
 
 ---
 
-## 1. Topic & Category Emojis
-
-> See [shared_enums.md](shared_enums.md) for complete topic/category/formality definitions.
-
-Quick reference for display:
-- **Topics**: 🎬 movies, 📰 news, 🎮 gaming, ⚽ sports, 🏢 workplace, 💬 social, 🏠 daily_life
-- **Categories**: 💬 oral, ✍️ written
-- **Formality**: 😎 casual, 😐 neutral, 🤵 formal
-
----
-
-## 2. Section Emojis
+## 1. Section Emojis
 
 | Section | Emoji | Example |
 |---------|-------|---------|
@@ -39,20 +28,7 @@ Quick reference for display:
 
 ---
 
-## 5. Quiz Type Emojis
-
-> See [shared_enums.md](shared_enums.md#quiz-question-types-题型) for quiz type definitions.
-
-| Question Type | Emoji | Label |
-|---------------|-------|-------|
-| multiple_choice | 🔤 | 选择题 \| Multiple Choice |
-| fill_blank | ✏️ | 填空题 \| Fill in the Blank |
-| dialogue_completion | 💬 | 对话补全 \| Dialogue Completion |
-| chinglish_fix | 🔧 | Chinglish 修正 \| Fix the Chinglish |
-
----
-
-## 6. Feedback Emojis
+## 5. Feedback Emojis
 
 | Feedback | Emoji | Example |
 |----------|-------|---------|
@@ -111,60 +87,20 @@ When generating content, include a `display` object with formatted strings:
 
 ---
 
-## 10. Bold & Wrong Answer Format
+## 10. Formatting Examples
 
-> See [output_rules.md](output_rules.md#markdown-格式规则) for complete formatting rules.
+> See [output_rules.md](output_rules.md) for complete formatting rules.
 
-**Bold key phrases**: Use `**phrase**` for main expressions
-
-**Wrong answers (Feishu-compatible):**
-- ⛔ Do NOT use `~~strikethrough~~` - doesn't work in Feishu
-- ✅ Use ❌ emoji + quotes: `❌ "discuss together"`
-
----
-
-## 11. Formatting Combinations
-
-Combine formatting with emojis for maximum impact:
-
-```
-❌ Wrong: "Let's discuss together."
-✅ Correct: **Let's touch base!**
-
-💬 A: "Can we **touch base** on those mockups?"
-```
-
----
-
-## 12. Key Phrase Highlighting in Dialogues
-
-In examples, always highlight the key phrase:
-
+**Key phrase highlighting:**
 ```json
 {
-  "dialogue": "💬 A: Hey, can we **touch base** on those mockups?\n💬 B: Sure, I'll swing by after lunch.",
+  "dialogue": "💬 A: Hey, can we **touch base**?\n💬 B: Sure!",
   "key_phrase_highlight": "**touch base**"
 }
 ```
 
----
-
-## 13. Display Object Fields for Formatting
-
+**Display object fields:**
 | Field | Purpose | Example |
 |-------|---------|---------|
 | `phrase` | Bold key phrase | `**Let's touch base**` |
-| `phrase_plain` | Unformatted version | `Let's touch base` |
-| `key_phrase` | Question key phrase | `**touch base**` |
 | `key_phrase_highlight` | Highlighted in context | `**touch base**` |
-| `correct_pattern` | Pattern explanation | `**Agree + suggest time**` |
-
----
-
-## 14. Quick Reference
-
-1. **Bold all key phrases** in display sections
-2. **Use ❌ emoji for wrong answers** (NOT strikethrough)
-3. **Keep original text** in data fields
-4. **Add formatting only** in display fields
-5. **Be consistent** - same phrase, same format
