@@ -17,29 +17,112 @@ from typing import Dict, Any, Optional, List
 import shutil
 
 
+def get_default_state_dir() -> Path:
+    """
+    Get the default state directory path.
+
+    Priority:
+    1. OPENCLAW_STATE_DIR environment variable (if set)
+    2. ~/.openclaw/state/eng-lang-tutor/ (default)
+
+    Returns:
+        Path to the state directory
+    """
+    env_dir = os.environ.get('OPENCLAW_STATE_DIR')
+    if env_dir:
+        return Path(env_dir)
+    return Path.home() / '.openclaw' / 'state' / 'eng-lang-tutor'
+
+
 class StateManager:
     """Manages state persistence and event logging."""
 
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self, data_dir: str = None):
         """
         Initialize the state manager.
 
         Args:
-            data_dir: Path to the data directory (relative or absolute)
+            data_dir: Path to the data directory (relative or absolute).
+                     If None, uses OPENCLAW_STATE_DIR env var or
+                     ~/.openclaw/state/eng-lang-tutor/ as default.
         """
-        self.data_dir = Path(data_dir)
+        if data_dir is None:
+            self.data_dir = get_default_state_dir()
+        else:
+            self.data_dir = Path(data_dir)
+
         self.state_file = self.data_dir / "state.json"
         self.logs_dir = self.data_dir / "logs"
         self.daily_dir = self.data_dir / "daily"
+        self.audio_dir = self.data_dir / "audio"
+
+        # Migrate from old data/ directory if needed
+        self._migrate_from_old_location()
 
         # Ensure directories exist
         self._ensure_directories()
+
+    def _migrate_from_old_location(self) -> None:
+        """
+        Migrate data from old data/ directory to new state directory.
+
+        This is a one-time migration that runs if:
+        1. The new state directory doesn't have state.json
+        2. The old data/ directory exists with state.json
+        """
+        # Only migrate if using default state directory
+        if self.data_dir != get_default_state_dir():
+            return
+
+        # Check if new location already has data
+        if self.state_file.exists():
+            return
+
+        # Find old data directory (relative to this script's location)
+        script_dir = Path(__file__).parent.parent
+        old_data_dir = script_dir / "data"
+
+        if not old_data_dir.exists():
+            return
+
+        old_state_file = old_data_dir / "state.json"
+        if not old_state_file.exists():
+            return
+
+        # Perform migration
+        print(f"Migrating data from {old_data_dir} to {self.data_dir}...")
+
+        try:
+            # Create new directory
+            self.data_dir.mkdir(parents=True, exist_ok=True)
+
+            # Copy all contents
+            for item in old_data_dir.iterdir():
+                dest = self.data_dir / item.name
+                if item.is_dir():
+                    if dest.exists():
+                        shutil.rmtree(dest)
+                    shutil.copytree(item, dest)
+                else:
+                    shutil.copy2(item, dest)
+
+            # Rename old directory to backup
+            backup_dir = script_dir / "data.backup"
+            if backup_dir.exists():
+                shutil.rmtree(backup_dir)
+            old_data_dir.rename(backup_dir)
+
+            print(f"Migration complete. Old data backed up to {backup_dir}")
+        except Exception as e:
+            print(f"Warning: Migration failed: {e}")
+            print("Will use new empty state directory.")
 
     def _ensure_directories(self) -> None:
         """Create necessary directories if they don't exist."""
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.logs_dir.mkdir(parents=True, exist_ok=True)
         self.daily_dir.mkdir(parents=True, exist_ok=True)
+        self.audio_dir.mkdir(parents=True, exist_ok=True)
 
     def _default_state(self) -> Dict[str, Any]:
         """Return the default state structure."""
@@ -759,7 +842,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="State Manager for eng-lang-tutor")
-    parser.add_argument('--data-dir', default='data', help='Data directory path')
+    parser.add_argument('--data-dir', default=None,
+                        help='Data directory path (default: ~/.openclaw/state/eng-lang-tutor or OPENCLAW_STATE_DIR env)')
     parser.add_argument('command', nargs='?',
                         choices=['show', 'backup', 'save_daily', 'record_view',
                                  'stats', 'config', 'errors', 'schedule'],

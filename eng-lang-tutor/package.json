@@ -1,0 +1,46 @@
+{
+  "name": "@rookiestar/eng-lang-tutor",
+  "version": "1.0.0",
+  "description": "English language tutor skill for OpenClaw - Learn authentic American English expressions with gamification",
+  "keywords": [
+    "english",
+    "language-learning",
+    "tutor",
+    "openclaw",
+    "skill",
+    "gamification"
+  ],
+  "author": "rookiestar",
+  "license": "MIT",
+  "bin": {
+    "eng-lang-tutor": "./bin/eng-lang-tutor.js"
+  },
+  "scripts": {
+    "postinstall": "node npm-scripts/install.js"
+  },
+  "files": [
+    "bin/",
+    "npm-scripts/",
+    "scripts/",
+    "templates/",
+    "references/",
+    "examples/",
+    "docs/",
+    "SKILL.md",
+    "CLAUDE.md",
+    "README.md",
+    "README_EN.md",
+    "requirements.txt"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rookiestar/eng-lang-tutor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rookiestar/eng-lang-tutor/issues"
+  },
+  "homepage": "https://github.com/rookiestar/eng-lang-tutor#readme"
+}
