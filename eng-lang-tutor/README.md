@@ -45,6 +45,12 @@ openclaw skills list
 openclaw skills info eng-lang-tutor
 ```
 
+**重启 Gateway：**
+
+```bash
+openclaw gateway restart
+```
+
 **配置渠道：**
 
 **Discord 配置：**
