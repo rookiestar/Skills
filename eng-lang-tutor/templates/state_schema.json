@@ -64,6 +64,11 @@
           "type": "string",
           "default": "Asia/Shanghai",
           "description": "Timezone for schedule"
+        },
+        "channel_id": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "Channel ID for scheduled pushes (captured during onboarding)"
         }
       },
       "description": "User's preferred schedule for content delivery"
