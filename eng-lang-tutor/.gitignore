@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backups
+backups/
+data.backup/
+*.bak
+
+# User data
+data/state.json
+data/logs/
+data/daily/
+
+# Daily content (runtime data)
+data/daily/*/
+
+# npm
+node_modules/
+*.tgz
+
+# npm publish directory (local only)
+publish/
+
+# Project files (local only)
+tests/
