@@ -4,18 +4,38 @@ TTS Provider 抽象基类 - 所有 TTS 服务必须实现此接口
 """
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, ClassVar
 from pathlib import Path
+
+
+# 支持的语速选项
+SPEED_OPTIONS = {
+    0.5: "非常慢 (Very Slow) - 初学者跟读",
+    0.7: "慢速 (Slow) - 学习发音",
+    0.9: "正常 (Normal) - 日常学习（推荐）",
+    1.3: "快速 (Fast) - 听力挑战",
+    1.7: "非常快 (Very Fast) - 进阶训练",
+}
 
 
 @dataclass
 class TTSConfig:
     """通用 TTS 配置"""
-    female_voice: str = ""  # 由各 provider 提供默认值
-    male_voice: str = ""    # 由各 provider 提供默认值
-    speed: float = 0.9      # 语速（0.5-2.0，1.0 = 正常）
+    # 语速（0.5, 0.7, 0.9, 1.3, 1.7）
+    speed: float = 0.9
+    # 输出格式
     output_format: str = "mp3"
+    # 角色音色映射（可选，为空则使用 provider 默认值）
+    # 旁白 - 女声
+    narrator_voice: str = ""
+    # 对话 A - 男声
+    dialogue_a_voice: str = ""
+    # 对话 B - 女声
+    dialogue_b_voice: str = ""
+    # 兼容旧配置
+    female_voice: str = ""
+    male_voice: str = ""
 
 
 @dataclass
@@ -38,6 +58,10 @@ class TTSProvider(ABC):
     PROVIDER_NAME: ClassVar[str] = "base"
     DEFAULT_FEMALE_VOICE: ClassVar[str] = ""
     DEFAULT_MALE_VOICE: ClassVar[str] = ""
+    # 默认角色音色映射
+    DEFAULT_NARRATOR_VOICE: ClassVar[str] = ""    # 旁白 - 女声
+    DEFAULT_DIALOGUE_A_VOICE: ClassVar[str] = ""  # 对话 A - 男声
+    DEFAULT_DIALOGUE_B_VOICE: ClassVar[str] = ""  # 对话 B - 女声
     SUPPORTED_VOICES: ClassVar[Dict[str, str]] = {}  # voice_id -> description
 
     def __init__(self, config: Optional[TTSConfig] = None, **credentials):
@@ -86,7 +110,7 @@ class TTSProvider(ABC):
 
     def get_voice(self, gender: str = "female") -> str:
         """
-        获取指定性别的语音 ID
+        获取指定性别的语音 ID（兼容旧接口）
 
         Args:
             gender: 性别 ("female" 或 "male")
@@ -98,6 +122,25 @@ class TTSProvider(ABC):
             return self.config.female_voice or self.DEFAULT_FEMALE_VOICE
         return self.config.male_voice or self.DEFAULT_MALE_VOICE
 
+    def get_voice_by_role(self, role: str) -> str:
+        """
+        获取指定角色的语音 ID
+
+        Args:
+            role: 角色 ("narrator", "dialogue_a", "dialogue_b")
+
+        Returns:
+            语音 ID
+        """
+        if role == "narrator":
+            return self.config.narrator_voice or self.DEFAULT_NARRATOR_VOICE or self.DEFAULT_FEMALE_VOICE
+        elif role == "dialogue_a":
+            return self.config.dialogue_a_voice or self.DEFAULT_DIALOGUE_A_VOICE or self.DEFAULT_MALE_VOICE
+        elif role == "dialogue_b":
+            return self.config.dialogue_b_voice or self.DEFAULT_DIALOGUE_B_VOICE or self.DEFAULT_FEMALE_VOICE
+        else:
+            return self.get_voice("female")
+
     @classmethod
     def list_voices(cls) -> Dict[str, str]:
         """
@@ -107,3 +150,17 @@ class TTSProvider(ABC):
             语音 ID -> 描述 的字典
         """
         return cls.SUPPORTED_VOICES.copy()
+
+    @classmethod
+    def get_default_voices(cls) -> Dict[str, str]:
+        """
+        获取默认的角色音色映射
+
+        Returns:
+            角色 -> 默认语音 ID 的字典
+        """
+        return {
+            "narrator": cls.DEFAULT_NARRATOR_VOICE or cls.DEFAULT_FEMALE_VOICE,
+            "dialogue_a": cls.DEFAULT_DIALOGUE_A_VOICE or cls.DEFAULT_MALE_VOICE,
+            "dialogue_b": cls.DEFAULT_DIALOGUE_B_VOICE or cls.DEFAULT_FEMALE_VOICE,
+        }

@@ -1,6 +1,6 @@
 # Initialization Flow Templates
 
-> Templates for the 6-step onboarding process when a new user starts.
+> Templates for the 7-step onboarding process when a new user starts.
 
 **Related Files:**
 - [shared_enums.md](shared_enums.md) - CEFR levels, topics, tutor styles
@@ -31,7 +31,7 @@
   "type": "init_cefr",
   "step": 1,
   "display": {
-    "title": "📊 Step 1/5: Your English Level",
+    "title": "📊 Step 1/6: Your English Level",
     "message": "What's your current English level?",
     "options": [
       "**A1-A2**: Beginner - Basic conversations, everyday words",
@@ -53,7 +53,7 @@
   "type": "init_topics",
   "step": 2,
   "display": {
-    "title": "🎯 Step 2/5: Your Interests",
+    "title": "🎯 Step 2/6: Your Interests",
     "message": "Which topics interest you most?",
     "topics": [
       "🎬 movies - TV shows, films",
@@ -79,7 +79,7 @@
   "type": "init_style",
   "step": 3,
   "display": {
-    "title": "🎭 Step 3/5: Tutor Style",
+    "title": "🎭 Step 3/6: Tutor Style",
     "message": "How should I teach you?",
     "options": [
       "😄 **humorous** - Fun examples, jokes, pop culture",
@@ -101,7 +101,7 @@
   "type": "init_ratio",
   "step": 4,
   "display": {
-    "title": "💬 Step 4/5: Speaking vs Writing",
+    "title": "💬 Step 4/6: Speaking vs Writing",
     "message": "What do you want to focus on?",
     "options": [
       "🗣️ **Mostly speaking** - Daily conversations, casual chat",
@@ -122,7 +122,7 @@
   "type": "init_schedule",
   "step": 5,
   "display": {
-    "title": "⏰ Step 5/5: Schedule Your Learning",
+    "title": "⏰ Step 5/6: Schedule Your Learning",
     "message": "When should I send you daily content?",
     "defaults": {
       "keypoint": "☀️ **Keypoint** (morning lesson): Default **06:45**",
@@ -142,12 +142,69 @@
 
 ---
 
-## Step 6: Confirmation
+## Step 6: Voice Teaching Configuration
+
+```json
+{
+  "type": "init_voice",
+  "step": 6,
+  "display": {
+    "title": "🔊 Step 6/6: Voice Teaching",
+    "message": "Would you like audio versions of knowledge points for listening practice?",
+    "options": [
+      "🔊 **Yes** - Enable voice teaching (recommended)",
+      "🔇 **No** - Text only, no audio"
+    ],
+    "speed_options": {
+      "description": "If yes, choose your preferred speech speed:",
+      "options": [
+        "**1** - Very slow (0.5x) - Beginner shadowing",
+        "**2** - Slow (0.7x) - Learning pronunciation",
+        "**3** - Normal (0.9x) - Daily learning (recommended)",
+        "**4** - Fast (1.3x) - Listening challenge",
+        "**5** - Very fast (1.7x) - Advanced training"
+      ]
+    },
+    "prompt": "Reply **yes** or **no**. If yes, also specify speed (e.g., **yes 3** or **yes normal**)",
+    "hint": "💡 You can change this anytime with the **config** command."
+  }
+}
+```
+
+**Speed Mapping:**
+| User Input | Speed Value | Description |
+|------------|-------------|-------------|
+| 1, very slow | 0.5 | Beginner shadowing |
+| 2, slow | 0.7 | Learning pronunciation |
+| 3, normal (default) | 0.9 | Daily learning |
+| 4, fast | 1.3 | Listening challenge |
+| 5, very fast | 1.7 | Advanced training |
+
+**State Update:**
+```json
+{
+  "tts_settings": {
+    "enabled": true,
+    "provider": "edge-tts",
+    "speed": 0.9,
+    "voices": {
+      "narrator": null,
+      "dialogue_a": null,
+      "dialogue_b": null
+    }
+  }
+}
+```
+- If `voices` values are null, use provider defaults
+
+---
+
+## Step 7: Confirmation
 
 ```json
 {
   "type": "init_confirm",
-  "step": 6,
+  "step": 7,
   "display": {
     "title": "✅ All Set! Here's Your Profile:",
     "summary": {
@@ -155,13 +212,18 @@
       "topics": "🎯 Topics: {top_topics}",
       "style": "🎭 Style: {tutor_style}",
       "focus": "💬 Focus: {oral_ratio}% speaking",
-      "schedule": "⏰ Schedule: Keypoint at {keypoint_time}, Quiz at {quiz_time}"
+      "schedule": "⏰ Schedule: Keypoint at {keypoint_time}, Quiz at {quiz_time}",
+      "voice": "🔊 Voice: {voice_status}"
     },
     "prompt": "Does this look right? Reply **yes** to confirm or **change** to adjust.",
     "footer": "───────────────────\n🚀 Your first lesson starts tomorrow!"
   }
 }
 ```
+
+**Voice Status Display:**
+- If enabled: "Enabled, {speed_desc} speed"
+- If disabled: "Disabled (text only)"
 
 ---
 
@@ -184,7 +246,7 @@
 
 ---
 
-## Cron Job Creation (after Step 6 confirmation)
+## Cron Job Creation (after Step 7 confirmation)
 
 After user confirms with "yes", MUST execute the following bash commands to create cron jobs:
 
