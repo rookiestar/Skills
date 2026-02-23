@@ -12,7 +12,7 @@ XP Rules (Duolingo-style):
 from typing import Dict, Any, List, Tuple, Optional
 from datetime import datetime
 
-from constants import LEVEL_THRESHOLDS, calculate_level
+from constants import LEVEL_THRESHOLDS, calculate_level, get_streak_multiplier
 
 
 class Scorer:
@@ -25,10 +25,6 @@ class Scorer:
         'dialogue_completion': 15,
         'chinglish_fix': 15
     }
-
-    # Streak bonus configuration
-    STREAK_BONUS_CAP = 2.0
-    STREAK_BONUS_PER_DAY = 0.05
 
     # Bonus XP
     PERFECT_QUIZ_BONUS = 20
@@ -118,10 +114,7 @@ class Scorer:
 
         # Calculate streak multiplier
         streak = state.get('user', {}).get('streak', 0)
-        streak_multiplier = min(
-            1.0 + (streak * self.STREAK_BONUS_PER_DAY),
-            self.STREAK_BONUS_CAP
-        )
+        streak_multiplier = get_streak_multiplier(streak)
 
         # Calculate total XP with streak bonus
         total_xp = int(total_base_xp * streak_multiplier)
@@ -213,18 +206,6 @@ class Scorer:
             state['error_notebook'] = error_notebook
 
         return state
-
-    def calculate_level(self, xp: int) -> int:
-        """
-        Calculate level from total XP.
-
-        Args:
-            xp: Total experience points
-
-        Returns:
-            Level (1-20)
-        """
-        return calculate_level(xp)
 
     def get_xp_for_next_level(self, current_xp: int) -> Tuple[int, int]:
         """

@@ -12,6 +12,9 @@ def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> f
     """
     Safe division that returns default if denominator is zero.
 
+    TODO: This function is defined but not currently used in the codebase.
+    Consider using it for XP/ratio calculations to avoid division by zero errors.
+
     Args:
         numerator: The number to divide
         denominator: The number to divide by
@@ -66,6 +69,9 @@ def deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]
 def clamp(value: float, min_val: float, max_val: float) -> float:
     """
     Clamp a value to a range.
+
+    TODO: This function is defined but not currently used in the codebase.
+    Consider using it for streak multiplier capping or level calculations.
 
     Args:
         value: Value to clamp
