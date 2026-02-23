@@ -250,9 +250,20 @@ The bot recognizes these natural language commands:
 
 ## Initialization Flow
 
-> **CRITICAL:** You MUST follow [templates/prompts/initialization.md](templates/prompts/initialization.md) exactly. Display ALL options with numbers (1, 2, 3...). NEVER skip or abbreviate options.
-
-7-step onboarding: Welcome → CEFR Level → Topic Interests → Tutor Style → Oral/Written Ratio → Schedule → Voice Teaching → Confirm
+> **⛔ CRITICAL - TOTAL ONBOARDING STEPS = 7 (NOT 6!)**
+>
+> You MUST display step titles as **"Step 1/7"**, **"Step 2/7"**, etc. (NOT "Step 1/6"!)
+>
+> The 7 steps are:
+> 1. CEFR Level
+> 2. Topic Interests
+> 3. Tutor Style
+> 4. Oral/Written Ratio
+> 5. Schedule
+> 6. **Voice Teaching** ← THIS IS THE NEW STEP!
+> 7. Confirm
+>
+> Follow [templates/prompts/initialization.md](templates/prompts/initialization.md) exactly. Display ALL options with numbers (1, 2, 3...). NEVER skip or abbreviate options.
 
 **Step 7 Completion:** Set `initialized=true` + Create cron jobs for keypoint/quiz push times.
 
