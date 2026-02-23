@@ -5,10 +5,13 @@ TTS 管理器 - 通用入口，支持多 Provider
 提供统一的 TTS 接口，支持切换不同的 TTS 服务提供商。
 
 使用示例：
-    # 方式 1：从环境变量读取配置
+    # 方式 1：从环境变量读取配置（默认使用 Edge-TTS）
     manager = TTSManager.from_env()
 
-    # 方式 2：直接传入讯飞密钥
+    # 方式 2：使用 Edge-TTS（默认，免费无需认证）
+    manager = TTSManager(provider="edge-tts")
+
+    # 方式 3：使用讯飞（需要认证）
     manager = TTSManager(
         provider="xunfei",
         appid="xxx",
@@ -34,6 +37,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from .base import TTSProvider, TTSConfig, TTSResult
 from .providers.xunfei import XunFeiProvider
+from .providers.edge import EdgeTTSProvider
 
 try:
     from ...core.state_manager import get_default_state_dir
@@ -43,10 +47,8 @@ except ImportError:
 
 # Provider 注册表
 PROVIDERS: Dict[str, Type[TTSProvider]] = {
-    "xunfei": XunFeiProvider,
-    # 可扩展更多 provider
-    # "edge-tts": EdgeTTSProvider,
-    # "minimax": MiniMaxProvider,
+    "edge-tts": EdgeTTSProvider,  # 默认推荐
+    "xunfei": XunFeiProvider,     # 备选方案
 }
 
 
@@ -65,7 +67,7 @@ class TTSManager:
 
     def __init__(
         self,
-        provider: str = "xunfei",
+        provider: str = "edge-tts",
         data_dir: str = None,
         config: Optional[TTSConfig] = None,
         **credentials
@@ -133,7 +135,7 @@ class TTSManager:
         Returns:
             TTSManager 实例
         """
-        provider = provider or os.getenv("TTS_PROVIDER", "xunfei")
+        provider = provider or os.getenv("TTS_PROVIDER", "edge-tts")
         return cls(provider=provider, **kwargs)
 
     def switch_provider(self, provider: str, **credentials) -> None:

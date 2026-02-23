@@ -44,6 +44,10 @@ class XunFeiProvider(TTSProvider):
     PROVIDER_NAME: ClassVar[str] = "xunfei"
     DEFAULT_FEMALE_VOICE: ClassVar[str] = "catherine"  # 美式英语女声
     DEFAULT_MALE_VOICE: ClassVar[str] = "henry"        # 美式英语男声
+    # 角色音色映射：旁白-女声，对话A-男声，对话B-女声
+    DEFAULT_NARRATOR_VOICE: ClassVar[str] = "catherine"  # 旁白 - 女声
+    DEFAULT_DIALOGUE_A_VOICE: ClassVar[str] = "henry"    # 对话 A - 男声
+    DEFAULT_DIALOGUE_B_VOICE: ClassVar[str] = "catherine"  # 对话 B - 女声
 
     SUPPORTED_VOICES: ClassVar[Dict[str, str]] = {
         "catherine": "美式英语女声，自然流畅（推荐）",

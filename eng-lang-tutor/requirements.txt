@@ -3,8 +3,8 @@ websocket-client>=1.6.0  # For XunFei TTS WebSocket API
 certifi>=2024.0.0        # SSL certificate bundle for HTTPS/WebSocket connections
 aiohttp>=3.8.0           # Async HTTP client for Feishu API
 
-# Optional: Edge-TTS support (uncomment if needed)
-# edge-tts>=6.1.0
+# Edge-TTS support (default TTS provider)
+edge-tts>=6.1.0
 
 # Development dependencies
 pytest>=7.0.0
