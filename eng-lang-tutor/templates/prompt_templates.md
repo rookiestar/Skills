@@ -20,7 +20,7 @@ This documentation has been split into focused modules for easier navigation:
 |------|---------|
 | [prompts/keypoint_generation.md](prompts/keypoint_generation.md) | Knowledge point generation template, topic resources |
 | [prompts/quiz_generation.md](prompts/quiz_generation.md) | Quiz generation template with question types |
-| [prompts/initialization.md](prompts/initialization.md) | 6-step onboarding flow templates |
+| [prompts/initialization.md](prompts/initialization.md) | 7-step onboarding flow templates |
 
 ### Display Templates
 | File | Purpose |
