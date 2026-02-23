@@ -314,10 +314,13 @@
 
 After user confirms with "yes" or "1", MUST execute the following bash commands to create cron jobs:
 
+**CRITICAL: Capture the current channel ID from the message context and include it in the cron job command.**
+
 ```bash
 # Parse times from schedule
 KEYPOINT_TIME="06:45"  # Default, replace with user's keypoint_time
 QUIZ_TIME="22:45"      # Default, replace with user's quiz_time
+CHANNEL_ID="<current_channel_id>"  # Get from message context (e.g., Discord channel ID)
 
 # Extract hour and minute
 KEYPOINT_HOUR=$(echo $KEYPOINT_TIME | cut -d: -f1)
@@ -325,15 +328,29 @@ KEYPOINT_MIN=$(echo $KEYPOINT_TIME | cut -d: -f2)
 QUIZ_HOUR=$(echo $QUIZ_TIME | cut -d: -f1)
 QUIZ_MIN=$(echo $QUIZ_TIME | cut -d: -f2)
 
-# Create cron jobs using openclaw
+# Create cron jobs using openclaw with channel parameter
 # Keypoint job
-${KEYPOINT_MIN} ${KEYPOINT_HOUR} * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's keypoint." --mode now
+${KEYPOINT_MIN} ${KEYPOINT_HOUR} * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's keypoint." --mode now --channel ${CHANNEL_ID}
 
 # Quiz job
-${QUIZ_MIN} ${QUIZ_HOUR} * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's quiz invitation." --mode now
+${QUIZ_MIN} ${QUIZ_HOUR} * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's quiz invitation." --mode now --channel ${CHANNEL_ID}
 ```
 
 **IMPORTANT:** The cron job creation requires:
-1. Parse user's `keypoint_time` and `quiz_time` from state.json schedule
-2. Execute the bash command to register each cron job
-3. Log the event using `state_manager.py append_event`
+1. Capture `channel_id` from the current message context (where user is doing onboarding)
+2. Save `channel_id` to `state.json schedule.channel_id`
+3. Parse user's `keypoint_time` and `quiz_time` from state.json schedule
+4. Execute the bash command to register each cron job with `--channel` parameter
+5. Log the event using `state_manager.py append_event`
+
+**State Update:**
+```json
+{
+  "schedule": {
+    "keypoint_time": "06:45",
+    "quiz_time": "22:45",
+    "timezone": "Asia/Shanghai",
+    "channel_id": "123456789012345678"
+  }
+}
+```

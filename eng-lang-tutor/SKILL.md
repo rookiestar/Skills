@@ -1,13 +1,11 @@
 ---
 name: eng-lang-tutor
-description: |
-  地道美式英语导师 - 提供每日知识点、Quiz测验等学习内容。
-  支持游戏化学习（XP/连胜/等级/徽章）。
-  触发场景：学习英语、英语知识点、Quiz、错题本、学习进度。
-  被 cron job 调用以实现定期内容推送。
+description: "地道美式英语导师 - 提供每日知识点、Quiz测验等学习内容。支持游戏化学习（XP/连胜/等级/徽章）。触发场景：学习英语、英语知识点、Quiz、错题本、学习进度。被 cron job 调用以实现定期内容推送。【⛔重要：引导流程固定7步，显示为 Step 1/7 到 Step 7/7，绝不可显示 Step X/6】"
 ---
 
 # American English Tutor
+
+> **⛔ ONBOARDING = 7 STEPS** (Step 1/7 through Step 7/7). NEVER display "Step X/6"!
 
 ## Overview
 
