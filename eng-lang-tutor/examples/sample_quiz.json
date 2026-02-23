@@ -1,5 +1,6 @@
 {
   "quiz_date": "2026-02-20",
+  "cefr_level": "B1",
   "keypoint_fingerprint": "workplace_touch_base",
   "questions": [
     {
@@ -84,7 +85,6 @@
     "topic": "🏷️ Topic: **workplace_touch_base**",
     "instructions": "🎯 3道小题，答对2道就过关！3 questions, get 2 right to pass!",
     "progress_bar": "⬜⬜⬜ 0/3 questions",
-    "key_phrase_summary": "🔑 Key Phrase: **touch base** = 快速沟通/碰头",
     "xp_summary": "💎 Total XP: 37 | 🏆 Pass: 2/3 correct",
     "footer": "───────────────────\n💪 Good luck! 加油! 🚀"
   },

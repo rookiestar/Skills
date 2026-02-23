@@ -115,8 +115,12 @@ openclaw pairing approve discord YOUR_PAIRING_CODE
 # 编辑 crontab
 crontab -e
 
-# 添加每日定时推送（例如每天早上 9 点）
-0 9 * * * openclaw agent --channel discord --message "每日英语学习时间到！今天的知识点是：" --agent eng-lang-tutor
+# 添加每日定时推送
+# 早上 6:45 推送知识点
+45 6 * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's keypoint." --mode now
+
+# 晚上 22:45 推送 Quiz
+45 22 * * * openclaw system event --text "Use eng-lang-tutor skill. Push today's quiz invitation." --mode now
 ```
 
 ## 5. 进阶配置
