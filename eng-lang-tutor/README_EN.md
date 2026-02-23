@@ -7,6 +7,7 @@
 ## Features
 
 - 📚 **Daily Knowledge Points** - Authentic American expressions with scene context, alternatives, and Chinglish traps
+- 🔊 **Audio Keypoints** - TTS-powered audio synthesis for pronunciation learning
 - 📝 **Quiz System** - 4 question types: multiple choice, fill blank, dialogue completion, Chinglish fix
 - 🎮 **Duolingo-style Gamification** - XP, levels, streaks, badges, gems
 - ⏰ **Customizable Schedule** - Set your preferred push times via cron
@@ -18,6 +19,7 @@
 
 - OpenClaw Gateway installed on your server
 - Python 3.8+
+- ffmpeg (for audio synthesis, optional)
 - Discord Bot (or other IM channel)
 
 ### Installation
