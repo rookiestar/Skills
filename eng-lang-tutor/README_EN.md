@@ -7,7 +7,7 @@
 ## Features
 
 - 📚 **Daily Knowledge Points** - Authentic American expressions with scene context, alternatives, and Chinglish traps
-- 🔊 **Audio Keypoints** - TTS-powered audio synthesis for pronunciation learning
+- 🔊 **Audio Keypoints** - Edge-TTS voice synthesis, free high-quality, adjustable speed
 - 📝 **Quiz System** - 4 question types: multiple choice, fill blank, dialogue completion, Chinglish fix
 - 🎮 **Duolingo-style Gamification** - XP, levels, streaks, badges, gems
 - ⏰ **Customizable Schedule** - Set your preferred push times via cron
@@ -19,7 +19,7 @@
 
 - OpenClaw Gateway installed on your server
 - Python 3.8+
-- ffmpeg (for audio synthesis, optional)
+- ffmpeg (for audio synthesis)
 - Discord Bot (or other IM channel)
 
 ### Installation
@@ -71,14 +71,75 @@ openclaw pairing approve discord YOUR_PAIRING_CODE
 
 ### First Use
 
-When you first interact with the bot, it will guide you through a 6-step onboarding:
+When you first interact with the bot, it will guide you through a 7-step onboarding:
 
 1. Select your CEFR level (A1-C2)
 2. Choose your topic interests
 3. Select tutor style (humorous/rigorous/casual/professional)
 4. Set oral vs written focus
 5. Configure schedule (keypoint and quiz times)
-6. Confirm your settings and create cron jobs
+6. **Voice Teaching Configuration** - Choose whether to enable audio keypoints
+   - If enabled, select speech speed (0.5-1.7, default 0.9)
+   - Edge-TTS is used by default (free, no configuration needed)
+   - To use XunFei, set environment variables on your server first:
+     ```bash
+     export TTS_PROVIDER=xunfei
+     export XUNFEI_APPID=your_appid
+     export XUNFEI_API_KEY=your_api_key
+     export XUNFEI_API_SECRET=your_api_secret
+     ```
+7. Confirm your settings and create cron jobs
+
+## TTS Voice Configuration
+
+This Skill uses **Edge-TTS** (Microsoft Edge TTS service) by default - completely free with no API key required.
+
+### Supported TTS Providers
+
+| Provider | Description | Configuration |
+|----------|-------------|---------------|
+| **edge-tts** (default) | Microsoft Edge TTS, free high-quality | No config needed |
+| xunfei | XunFei TTS, stable in China | Requires env vars |
+
+Switch Provider:
+```bash
+# Use Edge-TTS (default)
+export TTS_PROVIDER=edge-tts
+
+# Use XunFei (configure keys first)
+export TTS_PROVIDER=xunfei
+export XUNFEI_APPID=xxx
+export XUNFEI_API_KEY=xxx
+export XUNFEI_API_SECRET=xxx
+```
+
+### Available Voices
+
+**Edge-TTS (en-US):**
+
+| Role | Default Voice | Description |
+|------|---------------|-------------|
+| Narrator | JennyNeural | Female, friendly and conversational |
+| Dialogue A | EricNeural | Male, professional and rational |
+| Dialogue B | JennyNeural | Female, friendly and conversational |
+
+**XunFei (American English):**
+
+| Role | Default Voice | Description |
+|------|---------------|-------------|
+| Narrator | catherine | Female, natural and fluid |
+| Dialogue A | henry | Male, calm and professional |
+| Dialogue B | catherine | Female, natural and fluid |
+
+### Speed Options
+
+| Speed | Value | Use Case |
+|-------|-------|----------|
+| Very Slow | 0.5 | Beginner shadowing |
+| Slow | 0.7 | Learning pronunciation |
+| **Normal (Recommended)** | **0.9** | Daily learning |
+| Fast | 1.3 | Listening challenge |
+| Very Fast | 1.7 | Advanced training |
 
 ## Commands
 
@@ -176,7 +237,16 @@ eng-lang-tutor/
 │   ├── constants.py            # Shared constants (level thresholds)
 │   ├── utils.py                # Utility functions (safe divide, deep merge)
 │   ├── cli.py                  # CLI entry point
-│   └── tts/                    # TTS module
+│   └── audio/                  # Audio module
+│       ├── tts/                # TTS voice synthesis
+│       │   ├── base.py         # TTS abstract base class
+│       │   ├── manager.py      # TTS manager
+│       │   └── providers/      # TTS providers
+│       │       ├── edge.py     # Edge-TTS (default)
+│       │       └── xunfei.py   # XunFei TTS
+│       ├── composer.py         # Audio composition
+│       ├── converter.py        # Format conversion
+│       └── feishu_voice.py     # Feishu voice sender
 ├── templates/
 │   ├── state_schema.json       # State JSON Schema
 │   ├── keypoint_schema.json    # Keypoint JSON Schema

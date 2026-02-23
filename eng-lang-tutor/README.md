@@ -7,7 +7,7 @@
 ## 功能特性
 
 - 📚 **每日知识点** - 地道美式表达，包含场景语境、可替换说法和中式英语陷阱
-- 🔊 **语音版知识点** - 支持 TTS 语音合成，可收听发音学习
+- 🔊 **语音版知识点** - 支持 Edge-TTS 语音合成，免费高质量，可调节语速
 - 📝 **测验系统** - 4种题型：选择题、填空题、对话补全、中式英语修正
 - 🎮 **多邻国风格游戏化** - XP经验值、等级、连胜、徽章、宝石
 - ⏰ **可自定义推送时间** - 通过 cron 设置您偏好的推送时间
@@ -19,7 +19,7 @@
 
 - 服务器上已安装 OpenClaw Gateway
 - Python 3.8+
-- ffmpeg（用于音频合成，可选）
+- ffmpeg（用于音频合成）
 - Discord Bot（或其他 IM 通道）
 
 ### 安装步骤
@@ -71,14 +71,75 @@ openclaw pairing approve discord YOUR_PAIRING_CODE
 
 ### 首次使用
 
-首次与 Bot 交互时，它会引导您完成 6 步引导流程：
+首次与 Bot 交互时，它会引导您完成 7 步引导流程：
 
 1. 选择您的 CEFR 等级（A1-C2）
 2. 选择您的兴趣主题
 3. 选择导师风格（幽默/严谨/随意/专业）
 4. 设置口语/书面语比例
 5. 配置推送时间（知识点和测验时间）
-6. 确认您的设置并创建定时任务
+6. **语音教学配置** - 选择是否启用语音版知识点
+   - 如启用，选择语速（0.5-1.7，默认 0.9）
+   - 默认使用 Edge-TTS（免费，无需配置）
+   - 如需使用讯飞，请先在服务器上设置环境变量：
+     ```bash
+     export TTS_PROVIDER=xunfei
+     export XUNFEI_APPID=your_appid
+     export XUNFEI_API_KEY=your_api_key
+     export XUNFEI_API_SECRET=your_api_secret
+     ```
+7. 确认您的设置并创建定时任务
+
+## TTS 语音配置
+
+本 Skill 默认使用 **Edge-TTS**（Microsoft Edge 语音合成服务），完全免费且无需 API 密钥。
+
+### 支持的 TTS Provider
+
+| Provider | 说明 | 配置方式 |
+|----------|------|----------|
+| **edge-tts** (默认) | Microsoft Edge TTS，免费高质量 | 无需配置 |
+| xunfei | 讯飞 TTS，国内稳定 | 需设置环境变量 |
+
+切换 Provider：
+```bash
+# 使用 Edge-TTS（默认）
+export TTS_PROVIDER=edge-tts
+
+# 使用讯飞（需先配置密钥）
+export TTS_PROVIDER=xunfei
+export XUNFEI_APPID=xxx
+export XUNFEI_API_KEY=xxx
+export XUNFEI_API_SECRET=xxx
+```
+
+### 可用音色
+
+**Edge-TTS (en-US)：**
+
+| 角色 | 默认音色 | 说明 |
+|------|----------|------|
+| 旁白 (Narrator) | JennyNeural | 女声，友好亲切 |
+| 对话 A | EricNeural | 男声，专业理性 |
+| 对话 B | JennyNeural | 女声，友好亲切 |
+
+**XunFei (美式英语)：**
+
+| 角色 | 默认音色 | 说明 |
+|------|----------|------|
+| 旁白 (Narrator) | catherine | 女声，自然流畅 |
+| 对话 A | henry | 男声，沉稳专业 |
+| 对话 B | catherine | 女声，自然流畅 |
+
+### 语速选项
+
+| 语速 | 值 | 适用场景 |
+|------|-----|----------|
+| 非常慢 | 0.5 | 初学者跟读 |
+| 慢速 | 0.7 | 学习发音 |
+| **正常（推荐）** | **0.9** | 日常学习 |
+| 快速 | 1.3 | 听力挑战 |
+| 非常快 | 1.7 | 进阶训练 |
 
 ## 命令列表
 
@@ -176,7 +237,16 @@ eng-lang-tutor/
 │   ├── constants.py            # 共享常量（等级阈值）
 │   ├── utils.py                # 工具函数（安全除法、深度合并）
 │   ├── cli.py                  # CLI 入口点
-│   └── tts/                    # TTS 语音合成模块
+│   └── audio/                  # 音频模块
+│       ├── tts/                # TTS 语音合成
+│       │   ├── base.py         # TTS 抽象基类
+│       │   ├── manager.py      # TTS 管理器
+│       │   └── providers/      # TTS 提供者
+│       │       ├── edge.py     # Edge-TTS (默认)
+│       │       └── xunfei.py   # 讯飞 TTS
+│       ├── composer.py         # 音频合成
+│       ├── converter.py        # 格式转换
+│       └── feishu_voice.py     # 飞书语音发送
 ├── templates/
 │   ├── state_schema.json       # 状态 JSON Schema
 │   ├── keypoint_schema.json    # 知识点 JSON Schema
