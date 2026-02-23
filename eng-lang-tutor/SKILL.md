@@ -287,40 +287,60 @@ Step 5: Display formatted content to user
 
 ### Audio File Sending (After Keypoint Save)
 
-When keypoint is saved, audio is auto-generated and copied to OpenClaw's allowed media directory. Send it to user:
+When keypoint is saved, audio is auto-generated. Send it to user with backward compatibility:
 
+**Step 1: Check voice bubble capability**
+```bash
+echo $FEISHU_VOICE_BUBBLE_ENABLED
 ```
-1. Check keypoint.json for audio field:
-   cat ~/.openclaw/state/eng-lang-tutor/daily/YYYY-MM-DD/keypoint.json | grep -o '"audio":{[^}]*}'
 
-2. If audio.composed exists, send via message tool:
-   {
-     "action": "send",
-     "media": "~/.openclaw/media/{audio.composed}",
-     "caption": "🔊 今日知识点语音版"
-   }
+**Step 2a: If FEISHU_VOICE_BUBBLE_ENABLED=true (enhanced mode)**
 
-   Example:
-   {
-     "action": "send",
-     "media": "~/.openclaw/media/eng-lang-tutor/2026-02-23/keypoint_full.mp3",
-     "caption": "🔊 今日知识点语音版"
-   }
+Send BOTH voice bubble AND file attachment for best compatibility:
 
-3. Audio file info is stored in keypoint.json:
-   {
-     "audio": {
-       "composed": "eng-lang-tutor/2026-02-23/keypoint_full.mp3",
-       "duration_seconds": 37.7,
-       "generated_at": "2026-02-23T02:20:14"
-     }
-   }
+```json
+// Voice bubble (handled by enhanced OpenClaw gateway)
+{
+  "action": "send",
+  "media": "~/.openclaw/media/{audio.composed}",
+  "asVoice": true
+}
+
+// File attachment (fallback for progress bar control)
+{
+  "action": "send",
+  "media": "~/.openclaw/media/{audio.composed}",
+  "caption": "🔊 今日知识点语音版"
+}
+```
+
+**Step 2b: If FEISHU_VOICE_BUBBLE_ENABLED not set or false (standard mode)**
+
+Only send file attachment:
+```json
+{
+  "action": "send",
+  "media": "~/.openclaw/media/{audio.composed}",
+  "caption": "🔊 今日知识点语音版"
+}
+```
+
+**Audio file info is stored in keypoint.json:**
+```json
+{
+  "audio": {
+    "composed": "eng-lang-tutor/2026-02-23/keypoint_full.mp3",
+    "duration_seconds": 37.7,
+    "generated_at": "2026-02-23T02:20:14"
+  }
+}
 ```
 
 **IMPORTANT:**
 - Audio is saved to `~/.openclaw/media/` (OpenClaw's allowed media directory)
 - Always send audio file BEFORE displaying text content
 - The `audio.composed` field contains the path relative to `~/.openclaw/media/`
+- Enhanced mode (voice bubble) requires OpenClaw gateway patch for Feishu
 
 ### After Quiz Generation (MANDATORY)
 ```
