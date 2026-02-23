@@ -197,6 +197,95 @@ class AudioConverter:
         return results
 
 
+    def convert_to_feishu_voice(
+        self,
+        input_path: Path,
+        output_path: Optional[Path] = None,
+        sample_rate: int = 16000,
+        bitrate: str = "24k"
+    ) -> ConversionResult:
+        """
+        将音频转换为飞书语音气泡格式 (.m4a + libopus 编码)
+
+        这个格式组合的特点：
+        - 文件扩展名: .m4a (MP4 容器)
+        - 音频编码: libopus
+        - 飞书插件会探测文件头，识别 libopus 编码触发语音气泡
+        - 其他平台作为普通音频附件播放
+
+        Args:
+            input_path: 输入文件路径
+            output_path: 输出文件路径（可选，默认同目录更换扩展名为 .m4a）
+            sample_rate: 采样率（默认 16000）
+            bitrate: 比特率（默认 24k）
+
+        Returns:
+            ConversionResult: 转换结果
+        """
+        input_path = Path(input_path)
+        if not input_path.exists():
+            return ConversionResult(
+                success=False,
+                error_message=f"Input file not found: {input_path}"
+            )
+
+        # 确定输出路径
+        if output_path is None:
+            output_path = input_path.with_suffix(".m4a")
+        else:
+            output_path = Path(output_path)
+
+        # 确保输出目录存在
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # 构建 ffmpeg 命令
+        # 使用 -c:a libopus 编码，输出到 .m4a 容器
+        cmd = [
+            self.ffmpeg_path,
+            "-i", str(input_path),
+            "-c:a", "libopus",          # Opus 编码器
+            "-ar", str(sample_rate),    # 采样率
+            "-ac", "1",                 # 单声道
+            "-b:a", bitrate,            # 比特率
+            "-y",                       # 覆盖输出文件
+            str(output_path)
+        ]
+
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+
+            if result.returncode != 0:
+                return ConversionResult(
+                    success=False,
+                    error_message=f"ffmpeg error: {result.stderr}"
+                )
+
+            # 获取音频时长
+            duration = get_audio_duration(output_path, self.ffmpeg_path)
+
+            return ConversionResult(
+                success=True,
+                output_path=output_path,
+                duration_seconds=duration
+            )
+
+        except subprocess.TimeoutExpired:
+            return ConversionResult(
+                success=False,
+                error_message="Conversion timeout (>60s)"
+            )
+        except Exception as e:
+            return ConversionResult(
+                success=False,
+                error_message=str(e)
+            )
+
+
 # 便捷函数
 def convert_mp3_to_opus(
     input_path: Path,
@@ -218,4 +307,25 @@ def convert_mp3_to_opus(
         output_path=output_path,
         format="opus",
         sample_rate=16000
+    )
+
+
+def convert_to_feishu_voice(
+    input_path: Path,
+    output_path: Optional[Path] = None
+) -> ConversionResult:
+    """
+    将音频转换为飞书语音气泡格式 (.m4a + libopus)
+
+    Args:
+        input_path: 输入文件路径
+        output_path: 输出路径（可选，默认 .m4a）
+
+    Returns:
+        ConversionResult
+    """
+    converter = AudioConverter()
+    return converter.convert_to_feishu_voice(
+        input_path=input_path,
+        output_path=output_path
     )

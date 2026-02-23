@@ -355,11 +355,11 @@ class StateManager:
                 - error_message: str (if failed)
         """
         try:
-            from .audio_composer import AudioComposer
-            from .tts import TTSManager
+            from ..audio.composer import AudioComposer
+            from ..audio.tts import TTSManager
         except ImportError:
-            from audio_composer import AudioComposer
-            from tts import TTSManager
+            from audio.composer import AudioComposer
+            from audio.tts import TTSManager
 
         if target_date is None:
             target_date = date.today()
@@ -377,50 +377,74 @@ class StateManager:
         date_str = target_date.strftime('%Y-%m-%d')
         media_dir = Path.home() / '.openclaw' / 'media' / 'eng-lang-tutor' / date_str
         media_dir.mkdir(parents=True, exist_ok=True)
-        output_path = media_dir / "keypoint_full.mp3"
+
+        # Intermediate MP3 and final Opus paths
+        mp3_path = media_dir / "keypoint_full.mp3"
+        opus_path = media_dir / "keypoint_full.opus"
 
         try:
             # Initialize TTS and composer (handle both package and direct imports)
             try:
-                from .audio_composer import AudioComposer
-                from .tts import TTSManager
+                from ..audio.composer import AudioComposer
+                from ..audio.tts import TTSManager
+                from ..audio.converter import convert_mp3_to_opus
             except ImportError:
-                from audio_composer import AudioComposer
-                from tts import TTSManager
+                from audio.composer import AudioComposer
+                from audio.tts import TTSManager
+                from audio.converter import convert_mp3_to_opus
 
             tts = TTSManager.from_env()
             composer = AudioComposer(tts)
 
-            # Compose audio directly to media directory
-            result = composer.compose_keypoint_audio(keypoint, output_path)
+            # Step 1: Compose audio to MP3 (intermediate format)
+            result = composer.compose_keypoint_audio(keypoint, mp3_path)
 
-            if result.success:
-                # Path relative to ~/.openclaw/media/ for message tool
-                audio_path = f"eng-lang-tutor/{date_str}/keypoint_full.mp3"
-
-                # Update keypoint with audio metadata
-                keypoint['audio'] = {
-                    'composed': audio_path,
-                    'duration_seconds': result.duration_seconds,
-                    'generated_at': datetime.now().isoformat()
-                }
-
-                # Save updated keypoint
-                daily_path = self.get_daily_dir(target_date)
-                file_path = daily_path / "keypoint.json"
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    json.dump(keypoint, f, ensure_ascii=False, indent=2)
-
-                return {
-                    'success': True,
-                    'audio_path': audio_path,
-                    'duration_seconds': result.duration_seconds
-                }
-            else:
+            if not result.success:
                 return {
                     'success': False,
                     'error_message': result.error_message
                 }
+
+            # Step 2: Convert to Opus format for Feishu voice bubble compatibility
+            # .opus = Ogg container + libopus codec
+            # - Feishu plugin: detects libopus → triggers voice bubble
+            # - Discord: native Opus support
+            # - Other platforms: may need fallback
+            convert_result = convert_mp3_to_opus(
+                input_path=mp3_path,
+                output_path=opus_path
+            )
+
+            if convert_result.success:
+                # Use Opus format
+                audio_path = f"eng-lang-tutor/{date_str}/keypoint_full.opus"
+                duration_seconds = convert_result.duration_seconds or result.duration_seconds
+                audio_format = 'opus'
+            else:
+                # Fallback to MP3 if conversion fails
+                audio_path = f"eng-lang-tutor/{date_str}/keypoint_full.mp3"
+                duration_seconds = result.duration_seconds
+                audio_format = 'mp3'
+
+            # Update keypoint with audio metadata
+            keypoint['audio'] = {
+                'composed': audio_path,
+                'duration_seconds': duration_seconds,
+                'generated_at': datetime.now().isoformat(),
+                'format': audio_format
+            }
+
+            # Save updated keypoint
+            daily_path = self.get_daily_dir(target_date)
+            file_path = daily_path / "keypoint.json"
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(keypoint, f, ensure_ascii=False, indent=2)
+
+            return {
+                'success': True,
+                'audio_path': audio_path,
+                'duration_seconds': duration_seconds
+            }
         except Exception as e:
             return {
                 'success': False,
