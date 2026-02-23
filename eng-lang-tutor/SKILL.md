@@ -250,15 +250,15 @@ The bot recognizes these natural language commands:
 
 ## Initialization Flow
 
-> See [templates/prompts/initialization.md](templates/prompts/initialization.md) for detailed onboarding templates.
+> **CRITICAL:** You MUST follow [templates/prompts/initialization.md](templates/prompts/initialization.md) exactly. Display ALL options with numbers (1, 2, 3...). NEVER skip or abbreviate options.
 
-6-step onboarding: Welcome → CEFR Level → Topic Interests → Tutor Style → Oral/Written Ratio → Schedule → Confirm
+7-step onboarding: Welcome → CEFR Level → Topic Interests → Tutor Style → Oral/Written Ratio → Schedule → Voice Teaching → Confirm
 
-**Step 6 Completion:** Set `initialized=true` + Create cron jobs for keypoint/quiz push times.
+**Step 7 Completion:** Set `initialized=true` + Create cron jobs for keypoint/quiz push times.
 
 **State Fields:**
 - `initialized`: Boolean - Whether user completed onboarding
-- `onboarding_step`: Integer (0-6) - Current step
+- `onboarding_step`: Integer (0-7) - Current step
 
 ---
 
