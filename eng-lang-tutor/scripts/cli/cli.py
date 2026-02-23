@@ -10,7 +10,10 @@ import json
 from datetime import datetime
 from typing import Optional
 
-from state_manager import StateManager
+try:
+    from ..core.state_manager import StateManager
+except ImportError:
+    from scripts.core.state_manager import StateManager
 
 
 def main():
@@ -91,7 +94,10 @@ def main():
 
     elif args.command == 'stats':
         """Display learning progress summary."""
-        from gamification import GamificationManager
+        try:
+            from ..core.gamification import GamificationManager
+        except ImportError:
+            from scripts.core.gamification import GamificationManager
         state = sm.load_state()
         gm = GamificationManager()
         summary = gm.get_progress_summary(state)

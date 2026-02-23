@@ -20,9 +20,12 @@ from typing import Dict, Any, Optional
 
 # Import local modules
 import sys
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from state_manager import StateManager
+try:
+    from scripts.core.state_manager import StateManager
+except ImportError:
+    from core.state_manager import StateManager
 
 
 class CronPusher:

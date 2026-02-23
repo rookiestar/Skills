@@ -14,7 +14,7 @@ Note: Leagues removed - not applicable for single-user scenario.
 from typing import Dict, Any, List, Tuple, Optional
 from datetime import datetime, date, timedelta
 
-from constants import LEVEL_THRESHOLDS, get_level_name, calculate_level, get_streak_multiplier
+from .constants import LEVEL_THRESHOLDS, get_level_name, calculate_level, get_streak_multiplier
 
 
 class GamificationManager:

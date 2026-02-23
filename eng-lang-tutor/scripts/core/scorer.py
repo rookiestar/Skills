@@ -12,7 +12,7 @@ XP Rules (Duolingo-style):
 from typing import Dict, Any, List, Tuple, Optional
 from datetime import datetime
 
-from constants import LEVEL_THRESHOLDS, calculate_level, get_streak_multiplier
+from .constants import LEVEL_THRESHOLDS, calculate_level, get_streak_multiplier
 
 
 class Scorer:
