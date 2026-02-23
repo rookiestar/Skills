@@ -22,6 +22,16 @@
 - ffmpeg (for audio synthesis)
 - Discord Bot (or other IM channel)
 
+**System Dependencies:**
+
+```bash
+# macOS
+brew install ffmpeg python3
+
+# Ubuntu/Debian
+sudo apt-get install ffmpeg python3 python3-venv
+```
+
 ### Installation
 
 **Option 1: npm (Recommended)**
@@ -36,8 +46,23 @@ Installation runs automatically, skill will be installed to `~/.openclaw/skills/
 
 ```bash
 cd ~/.openclaw/skills/
-git clone https://github.com/rookiestar/eng-lang-tutor.git
+git clone --depth 1 --filter=blob:none --sparse https://github.com/rookiestar/Skills.git temp-skills
+cd temp-skills
+git sparse-checkout set eng-lang-tutor
+mv eng-lang-tutor ../eng-lang-tutor
+cd .. && rm -rf temp-skills
 pip install -r eng-lang-tutor/requirements.txt
+```
+
+**Manual Dependency Installation (if needed):**
+
+```bash
+# Create Python virtual environment
+python3 -m venv ~/.venvs/eng-lang-tutor
+source ~/.venvs/eng-lang-tutor/bin/activate  # Linux/macOS
+
+# Install dependencies
+pip install -r ~/.openclaw/skills/eng-lang-tutor/requirements.txt
 ```
 
 **Verify Installation:**
@@ -133,6 +158,8 @@ export XUNFEI_API_SECRET=xxx
 
 ### Speed Options
 
+During onboarding, you can choose speech speed:
+
 | Speed | Value | Use Case |
 |-------|-------|----------|
 | Very Slow | 0.5 | Beginner shadowing |
@@ -158,7 +185,7 @@ export XUNFEI_API_SECRET=xxx
 
 ### Crontab Setup
 
-The skill's scheduled push relies on crontab. Cron jobs are automatically created during onboarding Step 6.
+The skill's scheduled push relies on crontab. Cron jobs are automatically created during onboarding Step 7.
 
 For manual configuration or modification:
 
@@ -228,15 +255,21 @@ This system has two independent level systems:
 eng-lang-tutor/
 ├── SKILL.md                    # Skill documentation
 ├── scripts/
-│   ├── state_manager.py        # State persistence & events
-│   ├── scorer.py               # Answer evaluation & XP
-│   ├── gamification.py         # Streak/level/badge logic
-│   ├── dedup.py                # 14-day deduplication
-│   ├── command_parser.py       # User command parsing
-│   ├── cron_push.py            # Scheduled content push
-│   ├── constants.py            # Shared constants (level thresholds)
-│   ├── utils.py                # Utility functions (safe divide, deep merge)
-│   ├── cli.py                  # CLI entry point
+│   ├── __init__.py             # Package entry
+│   ├── core/                   # Core modules
+│   │   ├── state_manager.py    # State persistence & events
+│   │   ├── scorer.py           # Answer evaluation & XP
+│   │   ├── gamification.py     # Streak/level/badge logic
+│   │   ├── constants.py        # Shared constants (level thresholds)
+│   │   └── error_notebook.py   # Error notebook management
+│   ├── cli/                    # CLI modules
+│   │   ├── cli.py              # CLI entry point
+│   │   └── command_parser.py   # User command parsing
+│   ├── scheduling/             # Scheduling modules
+│   │   └── cron_push.py        # Scheduled content push
+│   ├── utils/                  # Utility modules
+│   │   ├── dedup.py            # 14-day deduplication
+│   │   └── helpers.py          # Utility functions
 │   └── audio/                  # Audio module
 │       ├── tts/                # TTS voice synthesis
 │       │   ├── base.py         # TTS abstract base class
@@ -246,7 +279,8 @@ eng-lang-tutor/
 │       │       └── xunfei.py   # XunFei TTS
 │       ├── composer.py         # Audio composition
 │       ├── converter.py        # Format conversion
-│       └── feishu_voice.py     # Feishu voice sender
+│       ├── feishu_voice.py     # Feishu voice sender
+│       └── utils.py            # Audio utility functions
 ├── templates/
 │   ├── state_schema.json       # State JSON Schema
 │   ├── keypoint_schema.json    # Keypoint JSON Schema
@@ -257,7 +291,9 @@ eng-lang-tutor/
 │       ├── quiz_generation.md
 │       ├── display_guide.md
 │       ├── initialization.md
-│       └── responses.md
+│       ├── responses.md
+│       ├── shared_enums.md
+│       └── output_rules.md
 ├── references/
 │   └── resources.md            # Themed learning resources
 ├── examples/

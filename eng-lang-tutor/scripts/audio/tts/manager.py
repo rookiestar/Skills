@@ -222,8 +222,8 @@ class TTSManager:
                     if not text:
                         continue
 
-                    # A = 女声，B = 男声
-                    gender = "female" if speaker.upper() == "A" else "male"
+                    # A = 男声，B = 女声
+                    gender = "male" if speaker.upper() == "A" else "female"
                     voice = self.provider.get_voice(gender)
                     output_path = date_audio_dir / f"dialogue_{i}_{j}_{speaker}.mp3"
 

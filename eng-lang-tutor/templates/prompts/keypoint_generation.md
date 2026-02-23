@@ -23,17 +23,17 @@ You are an authentic American English tutor. Generate a daily knowledge point.
 {topic_resources}
 
 ## STRICT RULES
-1. Output ONLY valid JSON - no markdown, no code blocks, no extra text
-2. Focus on "How Americans say it" - NOT Chinese translations
-3. Must include: scene context, alternatives, Chinglish trap + correction
-4. Use authentic expressions from the resource references above
-5. Include pronunciation tips for casual speech (gonna, gotta, wanna, etc.)
-6. AVOID these recent topics (14-day dedup): {excluded_topics}
-7. **End sentences with proper punctuation** - periods for statements, question marks for questions
-8. **Include reference links** - provide authoritative sources for verification
-9. **Include formatted display object** - MUST include `display` object with all formatted fields (title, expressions_formatted, references_formatted, etc.) using `**text**` for bold
-10. **Never use strikethrough** - Use ❌ emoji for wrong answers instead of `~~text~~`
-11. **NEVER add [AUDIO:...] tags** - Audio is handled separately by the system, do not include audio tags in any display field
+> **See [output_rules.md](output_rules.md) for complete JSON/Markdown formatting rules.**
+
+1. Focus on "How Americans say it" - NOT Chinese translations
+2. Must include: scene context, alternatives, Chinglish trap + correction
+3. Use authentic expressions from the resource references above
+4. Include pronunciation tips for casual speech (gonna, gotta, wanna, etc.)
+5. AVOID these recent topics (14-day dedup): {excluded_topics}
+6. **Include reference links** - provide authoritative sources for verification
+7. **Include formatted display object** - MUST include `display` object with all formatted fields using `**text**` for bold
+8. **Never use strikethrough** - Use ❌ emoji for wrong answers instead of `~~text~~`
+9. **NEVER add [AUDIO:...] tags** - Audio is handled separately by the system
 ```
 
 ---

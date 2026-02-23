@@ -126,5 +126,10 @@
     "references_formatted": "📚 [Merriam-Webster](https://www.merriam-webster.com/dictionary/touch%20base) - Definition & examples\n🎬 [YouGlish](https://youglish.com/pronounce/touch%20base/english/us) - 1000+ YouTube videos\n📜 [Etymonline](https://www.etymonline.com/word/touch) - Word origin",
     "footer": "───────────────────\n📅 2026-02-20 | 📝 Take the quiz to earn XP!"
   },
+  "audio": {
+    "enabled": true,
+    "narrator": "audio/2026-02-20/narrator.mp3",
+    "dialogue": []
+  },
   "generated": true
 }

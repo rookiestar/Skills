@@ -22,6 +22,16 @@
 - ffmpeg（用于音频合成）
 - Discord Bot（或其他 IM 通道）
 
+**系统依赖：**
+
+```bash
+# macOS
+brew install ffmpeg python3
+
+# Ubuntu/Debian
+sudo apt-get install ffmpeg python3 python3-venv
+```
+
 ### 安装步骤
 
 **方式一：npm 安装（推荐）**
@@ -36,8 +46,23 @@ npm install -g @rookiestar/eng-lang-tutor
 
 ```bash
 cd ~/.openclaw/skills/
-git clone https://github.com/rookiestar/eng-lang-tutor.git
+git clone --depth 1 --filter=blob:none --sparse https://github.com/rookiestar/Skills.git temp-skills
+cd temp-skills
+git sparse-checkout set eng-lang-tutor
+mv eng-lang-tutor ../eng-lang-tutor
+cd .. && rm -rf temp-skills
 pip install -r eng-lang-tutor/requirements.txt
+```
+
+**手动安装依赖（如需要）：**
+
+```bash
+# 创建 Python 虚拟环境
+python3 -m venv ~/.venvs/eng-lang-tutor
+source ~/.venvs/eng-lang-tutor/bin/activate  # Linux/macOS
+
+# 安装依赖
+pip install -r ~/.openclaw/skills/eng-lang-tutor/requirements.txt
 ```
 
 **验证安装：**
@@ -133,6 +158,8 @@ export XUNFEI_API_SECRET=xxx
 
 ### 语速选项
 
+在引导流程中可选择语速：
+
 | 语速 | 值 | 适用场景 |
 |------|-----|----------|
 | 非常慢 | 0.5 | 初学者跟读 |
@@ -158,7 +185,7 @@ export XUNFEI_API_SECRET=xxx
 
 ### Crontab 设置
 
-Skill 的定时推送依赖 crontab。在 onboarding 流程的 Step 6 会自动创建 cron 任务。
+Skill 的定时推送依赖 crontab。在 onboarding 流程的 Step 7 会自动创建 cron 任务。
 
 如需手动配置或修改：
 
@@ -228,15 +255,21 @@ crontab -e
 eng-lang-tutor/
 ├── SKILL.md                    # Skill 文档
 ├── scripts/
-│   ├── state_manager.py        # 状态持久化与事件日志
-│   ├── scorer.py               # 答案评估与 XP 计算
-│   ├── gamification.py         # 连胜/等级/徽章逻辑
-│   ├── dedup.py                # 14天去重逻辑
-│   ├── command_parser.py       # 用户命令解析
-│   ├── cron_push.py            # 定时内容推送
-│   ├── constants.py            # 共享常量（等级阈值）
-│   ├── utils.py                # 工具函数（安全除法、深度合并）
-│   ├── cli.py                  # CLI 入口点
+│   ├── __init__.py             # 包入口
+│   ├── core/                   # 核心模块
+│   │   ├── state_manager.py    # 状态持久化与事件日志
+│   │   ├── scorer.py           # 答案评估与 XP 计算
+│   │   ├── gamification.py     # 连胜/等级/徽章逻辑
+│   │   ├── constants.py        # 共享常量（等级阈值）
+│   │   └── error_notebook.py   # 错题本管理
+│   ├── cli/                    # 命令行模块
+│   │   ├── cli.py              # CLI 入口点
+│   │   └── command_parser.py   # 用户命令解析
+│   ├── scheduling/             # 调度模块
+│   │   └── cron_push.py        # 定时内容推送
+│   ├── utils/                  # 工具模块
+│   │   ├── dedup.py            # 14天去重逻辑
+│   │   └── helpers.py          # 工具函数
 │   └── audio/                  # 音频模块
 │       ├── tts/                # TTS 语音合成
 │       │   ├── base.py         # TTS 抽象基类
@@ -246,7 +279,8 @@ eng-lang-tutor/
 │       │       └── xunfei.py   # 讯飞 TTS
 │       ├── composer.py         # 音频合成
 │       ├── converter.py        # 格式转换
-│       └── feishu_voice.py     # 飞书语音发送
+│       ├── feishu_voice.py     # 飞书语音发送
+│       └── utils.py            # 音频工具函数
 ├── templates/
 │   ├── state_schema.json       # 状态 JSON Schema
 │   ├── keypoint_schema.json    # 知识点 JSON Schema
@@ -257,7 +291,9 @@ eng-lang-tutor/
 │       ├── quiz_generation.md
 │       ├── display_guide.md
 │       ├── initialization.md
-│       └── responses.md
+│       ├── responses.md
+│       ├── shared_enums.md
+│       └── output_rules.md
 ├── references/
 │   └── resources.md            # 主题化学习资源
 ├── examples/

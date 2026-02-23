@@ -28,7 +28,7 @@
 
 ---
 
-## 5. Feedback Emojis
+## 2. Feedback Emojis
 
 | Feedback | Emoji | Example |
 |----------|-------|---------|
@@ -40,7 +40,7 @@
 
 ---
 
-## 7. Situation Emojis for Examples
+## 3. Situation Emojis for Examples
 
 | Situation | Emoji |
 |-----------|-------|
@@ -54,7 +54,7 @@
 
 ---
 
-## 8. Display Object Structure
+## 4. Display Object Structure
 
 When generating content, include a `display` object with formatted strings:
 
@@ -75,7 +75,7 @@ When generating content, include a `display` object with formatted strings:
 
 ---
 
-## 9. Emoji Usage Rules
+## 5. Emoji Usage Rules
 
 > See [output_rules.md](output_rules.md) for complete formatting rules.
 
@@ -87,7 +87,7 @@ When generating content, include a `display` object with formatted strings:
 
 ---
 
-## 10. Formatting Examples
+## 6. Formatting Examples
 
 > See [output_rules.md](output_rules.md) for complete formatting rules.
 

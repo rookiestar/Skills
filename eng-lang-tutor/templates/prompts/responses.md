@@ -251,6 +251,54 @@ Your answer: {user_answer_2}
 - `errors stats` → Show statistics only
 - `errors review` → Start interactive review
 
+### Error Review Session Flow
+
+When user starts `errors review`:
+
+**1. Load Errors**
+- Fetch unreviewed errors from `error_notebook` (max 5 at a time)
+- Skip already reviewed errors (`reviewed: true`)
+
+**2. Present Question**
+```markdown
+🔄 **Error Review** ({current}/{total})
+
+❌ 原题: {question}
+📝 你的答案: {user_answer}
+✅ 正确答案: **{correct_answer}**
+
+💡 {explanation}
+
+───────────────────
+回答回忆: 你选择了 **{user_answer}**
+现在你还记得为什么吗？输入 **记得** 或 **忘了**
+```
+
+**3. User Response**
+- If "记得" / "remember": Mark as reviewed, +5 XP
+- If "忘了" / "forgot": Keep in notebook, show explanation again
+
+**4. State Update**
+- Update `error_notebook[].reviewed` to `true` for remembered items
+- Increment `reviewed_count` for badge tracking
+- Log event: `error_reviewed`
+
+**5. Completion**
+```markdown
+🎉 **Review Complete!**
+
+📊 本次复习: **{reviewed}** 题
+💎 获得: **+{xp} XP**
+
+{if all reviewed:}
+✨ 恭喜！错题本已清空！获得徽章: **Error Slayer** (清除30个错题)
+{else:}
+📓 还剩 **{remaining}** 条错题待复习
+
+───────────────────
+💪 继续加油！输入 **errors review** 再来一轮
+```
+
 ---
 
 ## 8. Quiz Result Display Template

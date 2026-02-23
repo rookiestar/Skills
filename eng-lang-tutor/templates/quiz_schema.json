@@ -11,6 +11,11 @@
       "format": "date",
       "description": "Date of this quiz (YYYY-MM-DD)"
     },
+    "cefr_level": {
+      "type": "string",
+      "enum": ["A1", "A2", "B1", "B2", "C1", "C2"],
+      "description": "Target CEFR level for this quiz"
+    },
     "keypoint_fingerprint": {
       "type": "string",
       "description": "Reference to the knowledge point this quiz is based on"
@@ -36,6 +41,10 @@
           "question": {
             "type": "string",
             "description": "The question text or prompt"
+          },
+          "chinglish_sentence": {
+            "type": "string",
+            "description": "Original Chinglish sentence for chinglish_fix type"
           },
           "context": {
             "type": "string",
@@ -90,6 +99,10 @@
               "context_formatted": {
                 "type": "string",
                 "description": "Context with appropriate emoji"
+              },
+              "sentence_formatted": {
+                "type": "string",
+                "description": "Formatted sentence for display (e.g., with bold corrections)"
               },
               "dialogue_formatted": {
                 "type": "string",

@@ -78,13 +78,13 @@ Based on today's knowledge point, generate a 3-question quiz calibrated to user'
    - For B2+: At least one distractor should be a common learner error
 
 ## STRICT RULES
-1. Output ONLY valid JSON - no markdown, no extra text
-2. All questions must relate to today's knowledge point
-3. **Difficulty MUST match CEFR level** - harder for B2+ users
-4. Include encouraging feedback in display fields
-5. Total XP should be around 35-40
-6. **End sentences with proper punctuation** - periods for statements, question marks for questions
-7. **Use NEW contexts** - never copy-paste from keypoint examples
+> **See [output_rules.md](output_rules.md) for complete JSON/Markdown formatting rules.**
+
+1. All questions must relate to today's knowledge point
+2. **Difficulty MUST match CEFR level** - harder for B2+ users
+3. Include encouraging feedback in display fields
+4. Total XP should be around 35-40
+5. **Use NEW contexts** - never copy-paste from keypoint examples
 ```
 
 ---

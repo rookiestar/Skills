@@ -4,7 +4,7 @@
   "title": "State",
   "description": "Core state for eng-lang-tutor skill",
   "type": "object",
-  "required": ["version", "initialized", "user", "preferences", "progress", "recent_topics", "error_notebook"],
+  "required": ["version", "initialized", "user", "preferences", "progress", "recent_topics", "error_notebook", "completion_status"],
   "properties": {
     "version": {
       "type": "integer",
@@ -64,11 +64,6 @@
           "type": "string",
           "default": "Asia/Shanghai",
           "description": "Timezone for schedule"
-        },
-        "channel_id": {
-          "type": ["string", "null"],
-          "default": null,
-          "description": "Channel ID for scheduled pushes (captured during onboarding)"
         }
       },
       "description": "User's preferred schedule for content delivery"

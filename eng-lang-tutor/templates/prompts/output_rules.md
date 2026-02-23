@@ -15,10 +15,10 @@
 ### JSON 转义规则 (用于 bash 命令)
 ```bash
 # 单引号包裹
-python3 scripts/state_manager.py save_daily --content-type keypoint --content '{"key": "value"}'
+python3 -m scripts.cli.cli save_daily --content-type keypoint --content '{"key": "value"}'
 
 # 转义内部单引号: ' → '\''
-python3 scripts/state_manager.py save_daily --content-type keypoint --content '{"title": "It'\''s a test"}'
+python3 -m scripts.cli.cli save_daily --content-type keypoint --content '{"title": "It'\''s a test"}'
 ```
 
 ---
