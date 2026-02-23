@@ -13,10 +13,7 @@ from pathlib import Path
 from typing import Optional
 from dataclasses import dataclass
 
-try:
-    from .audio_utils import get_ffmpeg_path, get_audio_duration
-except ImportError:
-    from audio_utils import get_ffmpeg_path, get_audio_duration
+from .utils import get_ffmpeg_path, get_audio_duration
 
 
 @dataclass

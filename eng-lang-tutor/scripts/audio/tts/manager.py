@@ -30,11 +30,15 @@ import os
 import sys
 
 # 添加 scripts 目录到路径以导入 state_manager
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from .base import TTSProvider, TTSConfig, TTSResult
 from .providers.xunfei import XunFeiProvider
-from state_manager import get_default_state_dir
+
+try:
+    from ...core.state_manager import get_default_state_dir
+except ImportError:
+    from scripts.core.state_manager import get_default_state_dir
 
 
 # Provider 注册表

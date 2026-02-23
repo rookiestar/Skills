@@ -16,12 +16,12 @@ from datetime import datetime, date
 from typing import Dict, Any, Optional, List
 import shutil
 
-from utils import deep_merge
-
 try:
+    from ..utils.helpers import deep_merge
     from .error_notebook import ErrorNotebookManager
 except ImportError:
-    from error_notebook import ErrorNotebookManager
+    from scripts.utils.helpers import deep_merge
+    from scripts.core.error_notebook import ErrorNotebookManager
 
 
 def get_default_state_dir() -> Path:

@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
 
-from .audio_converter import AudioConverter, ConversionResult
+from .converter import AudioConverter, ConversionResult
 
 
 @dataclass

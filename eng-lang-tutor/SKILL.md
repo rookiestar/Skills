@@ -90,15 +90,17 @@ This system has two independent level systems:
 
 | Script | Purpose |
 |--------|---------|
-| state_manager.py | State persistence, event logging, error notebook |
-| cron_push.py | Scheduled content push (keypoint/quiz placeholders) |
-| scorer.py | Answer evaluation, XP calculation |
-| gamification.py | Streak/level/badge logic |
-| dedup.py | 14-day content deduplication |
-| command_parser.py | Natural language command parsing |
-| constants.py | Shared constants (level thresholds, level names) |
-| utils.py | Utility functions (safe divide, deep merge) |
-| cli.py | CLI entry point for state management |
+| core/state_manager.py | State persistence, event logging, error notebook |
+| core/error_notebook.py | Error notebook management |
+| core/scorer.py | Answer evaluation, XP calculation |
+| core/gamification.py | Streak/level/badge logic |
+| core/constants.py | Shared constants (level thresholds, level names) |
+| cli/cli.py | CLI entry point for state management |
+| cli/command_parser.py | Natural language command parsing |
+| scheduling/cron_push.py | Scheduled content push (keypoint/quiz placeholders) |
+| utils/dedup.py | 14-day content deduplication |
+| utils/helpers.py | Utility functions (safe divide, deep merge) |
+| audio/ | Audio generation (TTS, composition, conversion, Feishu) |
 
 ## CLI Commands
 
@@ -107,48 +109,48 @@ This system has two independent level systems:
 ### Content Management
 ```bash
 # Save daily content (keypoint/quiz)
-python3 scripts/state_manager.py save_daily --content-type keypoint --content '<JSON>'
+python3 -m scripts.cli.cli save_daily --content-type keypoint --content '<JSON>'
 
 # Record keypoint view
-python3 scripts/state_manager.py record_view [--date YYYY-MM-DD]
+python3 -m scripts.cli.cli record_view [--date YYYY-MM-DD]
 ```
 
 ### Stats & Config
 ```bash
 # Display learning progress
-python3 scripts/state_manager.py stats
+python3 -m scripts.cli.cli stats
 
 # Display current configuration
-python3 scripts/state_manager.py config
+python3 -m scripts.cli.cli config
 
 # Update configuration
-python3 scripts/state_manager.py config --cefr B2
-python3 scripts/state_manager.py config --style professional
-python3 scripts/state_manager.py config --oral-ratio 80
+python3 -m scripts.cli.cli config --cefr B2
+python3 -m scripts.cli.cli config --style professional
+python3 -m scripts.cli.cli config --oral-ratio 80
 ```
 
 ### Error Notebook
 ```bash
 # List errors (paginated)
-python3 scripts/state_manager.py errors [--page 1] [--per-page 5] [--month YYYY-MM]
+python3 -m scripts.cli.cli errors [--page 1] [--per-page 5] [--month YYYY-MM]
 
 # Get random errors for review
-python3 scripts/state_manager.py errors --random 5
+python3 -m scripts.cli.cli errors --random 5
 
 # Get error statistics
-python3 scripts/state_manager.py errors --stats
+python3 -m scripts.cli.cli errors --stats
 
 # Get errors for review session
-python3 scripts/state_manager.py errors --review 5
+python3 -m scripts.cli.cli errors --review 5
 ```
 
 ### Schedule
 ```bash
 # Display current schedule
-python3 scripts/state_manager.py schedule
+python3 -m scripts.cli.cli schedule
 
 # Update schedule (quiz_time must be later than keypoint_time)
-python3 scripts/state_manager.py schedule --keypoint-time 07:00 --quiz-time 21:00
+python3 -m scripts.cli.cli schedule --keypoint-time 07:00 --quiz-time 21:00
 ```
 
 ## Core Principles
@@ -274,10 +276,10 @@ The bot recognizes these natural language commands:
 ```
 Step 1: LLM generates keypoint JSON
 Step 2: ⛔ EXECUTE THIS BASH COMMAND (do NOT skip):
-        python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
+        python3 -m scripts.cli.cli save_daily --content-type keypoint --content '<ESCAPED_JSON>'
         (This auto-generates audio and saves to audio/YYYY-MM-DD/keypoint_full.mp3)
 Step 3: ⛔ EXECUTE THIS BASH COMMAND (do NOT skip):
-        python3 scripts/state_manager.py record_view
+        python3 -m scripts.cli.cli record_view
 Step 4: Send audio file via message tool (if audio exists):
         - Read keypoint.json and check if audio.composed field exists
         - If exists, send audio file using message tool with media parameter
@@ -346,7 +348,7 @@ Only send file attachment:
 ```
 Step 1: LLM generates quiz JSON
 Step 2: ⛔ EXECUTE THIS BASH COMMAND (do NOT skip):
-        python3 scripts/state_manager.py save_daily --content-type quiz --content '<ESCAPED_JSON>'
+        python3 -m scripts.cli.cli save_daily --content-type quiz --content '<ESCAPED_JSON>'
 Step 3: Present quiz questions to user
 ```
 
@@ -369,10 +371,10 @@ Bot checks: completion_status.quiz_completed_date == today?
       → NO:
          1. Check if keypoint.json exists for today
             → If NO: Generate keypoint via LLM first
-            → ⛔ EXECUTE: python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
+            → ⛔ EXECUTE: python3 -m scripts.cli.cli save_daily --content-type keypoint --content '<ESCAPED_JSON>'
          2. Generate quiz via LLM
          3. Set generated=true in the JSON content
-         4. ⛔ EXECUTE: python3 scripts/state_manager.py save_daily --content-type quiz --content '<ESCAPED_JSON>'
+         4. ⛔ EXECUTE: python3 -m scripts.cli.cli save_daily --content-type quiz --content '<ESCAPED_JSON>'
          5. Present questions to user
 ```
 
@@ -384,9 +386,9 @@ User manually requests quiz before scheduled keypoint push time
 Bot checks: Does keypoint.json exist for today?
   → NO:
      1. IMMEDIATELY generate keypoint via LLM (do NOT say "will notify later")
-     2. ⛔ EXECUTE: python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
+     2. ⛔ EXECUTE: python3 -m scripts.cli.cli save_daily --content-type keypoint --content '<ESCAPED_JSON>'
      3. Generate quiz via LLM
-     4. ⛔ EXECUTE: python3 scripts/state_manager.py save_daily --content-type quiz --content '<ESCAPED_JSON>'
+     4. ⛔ EXECUTE: python3 -m scripts.cli.cli save_daily --content-type quiz --content '<ESCAPED_JSON>'
      5. Present quiz questions to user
      → All in ONE response - user should receive quiz immediately
   → YES: Proceed with quiz generation normally (see Quiz Already Completed section)
@@ -404,12 +406,12 @@ Bot checks: Does keypoint.json exist for today (~/.openclaw/state/eng-lang-tutor
   → NO:
      1. Generate new keypoint via LLM
      2. Set generated=true in the JSON content
-     3. ⛔ EXECUTE: python3 scripts/state_manager.py save_daily --content-type keypoint --content '<ESCAPED_JSON>'
-     4. ⛔ EXECUTE: python3 scripts/state_manager.py record_view
+     3. ⛔ EXECUTE: python3 -m scripts.cli.cli save_daily --content-type keypoint --content '<ESCAPED_JSON>'
+     4. ⛔ EXECUTE: python3 -m scripts.cli.cli record_view
      5. Send audio file via message tool (if audio.composed exists)
      6. Display formatted content to user (REMOVE any [AUDIO:...] tags from text)
   → YES: Check keypoint.generated
-      → TRUE: ⛔ EXECUTE: python3 scripts/state_manager.py record_view, then send audio and display
+      → TRUE: ⛔ EXECUTE: python3 -m scripts.cli.cli record_view, then send audio and display
       → FALSE: Follow steps 1-6 above
 ```
 
@@ -580,6 +582,6 @@ Stored in `state.json`:
 
 | Script | Purpose |
 |--------|---------|
-| command_parser.py | Parse user messages to determine intent |
-| cron_push.py | Handle scheduled content generation |
+| cli/command_parser.py | Parse user messages to determine intent |
+| scheduling/cron_push.py | Handle scheduled content generation |
 

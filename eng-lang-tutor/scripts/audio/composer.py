@@ -24,12 +24,8 @@ from pathlib import Path
 from typing import Optional, List
 from dataclasses import dataclass
 
-try:
-    from .tts import TTSManager
-    from .audio_utils import get_ffmpeg_path, get_audio_duration
-except ImportError:
-    from tts import TTSManager
-    from audio_utils import get_ffmpeg_path, get_audio_duration
+from .tts import TTSManager
+from .utils import get_ffmpeg_path, get_audio_duration
 
 
 @dataclass
