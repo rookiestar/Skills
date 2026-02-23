@@ -14,14 +14,11 @@ Note: Leagues removed - not applicable for single-user scenario.
 from typing import Dict, Any, List, Tuple, Optional
 from datetime import datetime, date, timedelta
 
-from constants import LEVEL_THRESHOLDS, get_level_name, calculate_level
+from constants import LEVEL_THRESHOLDS, get_level_name, calculate_level, get_streak_multiplier
 
 
 class GamificationManager:
     """Manages gamification elements: levels, streaks, badges, gems."""
-
-    # Use shared constants
-    LEVEL_THRESHOLDS = LEVEL_THRESHOLDS
 
     # Badge definitions
     BADGES = {
@@ -135,26 +132,6 @@ class GamificationManager:
             state['user']['streak'] = 1
             return (1, True, "Started your streak!")
 
-    def calculate_level(self, xp: int) -> int:
-        """
-        Calculate level from total XP.
-
-        Args:
-            xp: Total experience points
-
-        Returns:
-            Level (1-20)
-        """
-        return calculate_level(xp)
-
-    def get_level_name(self, level: int) -> str:
-        """Get the name for a level range (Journey Stage).
-
-        Note: This is Activity Level (活跃等级), measuring engagement depth,
-        NOT language ability. For language ability, see CEFR level.
-        """
-        return get_level_name(level)
-
     def check_level_up(self, old_xp: int, new_xp: int) -> Tuple[bool, Optional[int]]:
         """
         Check if user leveled up.
@@ -166,8 +143,8 @@ class GamificationManager:
         Returns:
             Tuple of (leveled_up, new_level)
         """
-        old_level = self.calculate_level(old_xp)
-        new_level = self.calculate_level(new_xp)
+        old_level = calculate_level(old_xp)
+        new_level = calculate_level(new_xp)
 
         if new_level > old_level:
             return (True, new_level)
@@ -185,7 +162,7 @@ class GamificationManager:
         """
         xp = state.get('user', {}).get('xp', 0)
         current_level = state.get('user', {}).get('level', 1)
-        new_level = self.calculate_level(xp)
+        new_level = calculate_level(xp)
 
         state['user']['level'] = new_level
 
@@ -285,6 +262,9 @@ class GamificationManager:
         """
         Spend gems on items.
 
+        TODO: This function is defined but not currently called in production.
+        Implement gem spending flow for streak freeze purchase and quiz hints.
+
         Args:
             state: Current state
             action: What to spend gems on
@@ -310,18 +290,6 @@ class GamificationManager:
 
         return (False, 0)
 
-    def get_streak_multiplier(self, streak: int) -> float:
-        """
-        Calculate XP multiplier based on streak.
-
-        Args:
-            streak: Current streak days
-
-        Returns:
-            Multiplier (1.0 to 2.0)
-        """
-        return min(1.0 + (streak * 0.05), 2.0)
-
     def get_progress_summary(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Get a summary of user's progress.
@@ -339,8 +307,8 @@ class GamificationManager:
         level = user.get('level', 1)
 
         # Calculate XP to next level
-        next_threshold = self.LEVEL_THRESHOLDS[min(level, 19)]
-        current_threshold = self.LEVEL_THRESHOLDS[level - 1]
+        next_threshold = LEVEL_THRESHOLDS[min(level, 19)]
+        current_threshold = LEVEL_THRESHOLDS[level - 1]
         xp_in_level = xp - current_threshold
         xp_to_next = next_threshold - xp if level < 20 else 0
 
@@ -354,12 +322,12 @@ class GamificationManager:
         return {
             'xp': xp,
             'level': level,
-            'level_name': self.get_level_name(level),
+            'level_name': get_level_name(level),
             'xp_in_level': xp_in_level,
             'xp_to_next_level': xp_to_next,
             'level_progress': round(level_progress, 1),
             'streak': user.get('streak', 0),
-            'streak_multiplier': self.get_streak_multiplier(user.get('streak', 0)),
+            'streak_multiplier': get_streak_multiplier(user.get('streak', 0)),
             'gems': user.get('gems', 0),
             'badges': len(user.get('badges', [])),
             'total_badges': len(self.BADGES)

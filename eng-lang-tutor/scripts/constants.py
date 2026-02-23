@@ -54,3 +54,21 @@ def calculate_level(xp: int) -> int:
         if xp >= LEVEL_THRESHOLDS[i]:
             return i + 1
     return 1
+
+
+# Streak bonus configuration
+STREAK_BONUS_PER_DAY = 0.05  # 5% bonus per day
+STREAK_BONUS_CAP = 2.0       # Maximum 2x multiplier
+
+
+def get_streak_multiplier(streak: int) -> float:
+    """
+    Calculate XP multiplier based on streak.
+
+    Args:
+        streak: Number of consecutive days
+
+    Returns:
+        Multiplier (1.0 - 2.0)
+    """
+    return min(1.0 + (streak * STREAK_BONUS_PER_DAY), STREAK_BONUS_CAP)

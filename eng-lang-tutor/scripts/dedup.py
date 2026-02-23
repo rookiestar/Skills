@@ -207,6 +207,9 @@ class DeduplicationManager:
         """
         Suggest an alternative topic that hasn't been used recently.
 
+        TODO: This function is defined but not currently used in production code.
+        Could be integrated with LLM generation to suggest topics when duplicates detected.
+
         Args:
             excluded_topics: Topics to avoid
             available_topics: All available topics
@@ -228,6 +231,9 @@ class DeduplicationManager:
     ) -> Dict[str, Any]:
         """
         Calculate content diversity metrics.
+
+        TODO: This function is defined but not currently used in production code.
+        Could be used for analytics dashboard or adaptive content generation.
 
         Args:
             recent_content: List of recent content

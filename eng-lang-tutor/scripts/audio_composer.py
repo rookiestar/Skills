@@ -26,8 +26,10 @@ from dataclasses import dataclass
 
 try:
     from .tts import TTSManager
+    from .audio_utils import get_ffmpeg_path, get_audio_duration
 except ImportError:
     from tts import TTSManager
+    from audio_utils import get_ffmpeg_path, get_audio_duration
 
 
 @dataclass
@@ -59,12 +61,7 @@ class AudioComposer:
             ffmpeg_path: ffmpeg 可执行文件路径（默认自动检测）
         """
         self.tts = tts_manager
-        self.ffmpeg_path = ffmpeg_path or shutil.which("ffmpeg")
-        if not self.ffmpeg_path:
-            raise RuntimeError(
-                "ffmpeg not found. Install it with: brew install ffmpeg (macOS) "
-                "or apt-get install ffmpeg (Ubuntu)"
-            )
+        self.ffmpeg_path = ffmpeg_path or get_ffmpeg_path()
 
         # 创建临时目录用于存放中间文件
         self.temp_dir = Path(tempfile.mkdtemp(prefix="audio_composer_"))
@@ -232,7 +229,7 @@ class AudioComposer:
             final_audio = self._concatenate_segments(segments, output_path)
 
             # 5. 获取时长
-            duration = self._get_duration(final_audio)
+            duration = get_audio_duration(final_audio, self.ffmpeg_path)
 
             return CompositionResult(
                 success=True,
@@ -359,31 +356,3 @@ class AudioComposer:
             raise RuntimeError(f"Failed to concatenate audio: {result.stderr}")
 
         return output_path
-
-    def _get_duration(self, audio_path: Path) -> float:
-        """
-        获取音频时长
-
-        Args:
-            audio_path: 音频文件路径
-
-        Returns:
-            时长（秒）
-        """
-        cmd = [
-            self.ffmpeg_path,
-            "-i", str(audio_path),
-            "-hide_banner",
-            "-f", "null",
-            "-"
-        ]
-
-        result = subprocess.run(cmd, capture_output=True, text=True)
-
-        # 从 stderr 中解析时长，格式: "  Duration: 00:00:03.45, ..."
-        import re
-        match = re.search(r"Duration: (\d+):(\d+):(\d+\.?\d*)", result.stderr)
-        if match:
-            hours, minutes, seconds = match.groups()
-            return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
-        return 0.0

@@ -402,20 +402,3 @@ class FeishuVoiceSender:
                     results.append(result)
 
         return results
-
-
-# 同步包装器（用于非异步环境）
-class FeishuVoiceSenderSync:
-    """飞书语音发送器的同步包装"""
-
-    def __init__(self, *args, **kwargs):
-        self._async_sender = FeishuVoiceSender(*args, **kwargs)
-
-    def send_voice(self, *args, **kwargs) -> VoiceSendResult:
-        return asyncio.run(self._async_sender.send_voice(*args, **kwargs))
-
-    def send_voice_from_text(self, *args, **kwargs) -> VoiceSendResult:
-        return asyncio.run(self._async_sender.send_voice_from_text(*args, **kwargs))
-
-    def send_keypoint_voices(self, *args, **kwargs) -> List[VoiceSendResult]:
-        return asyncio.run(self._async_sender.send_keypoint_voices(*args, **kwargs))
