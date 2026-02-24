@@ -20,7 +20,6 @@ Thumbs.db
 
 # Backups
 backups/
-data.backup/
 *.bak
 
 # User data
@@ -28,15 +27,6 @@ data/state.json
 data/logs/
 data/daily/
 
-# Daily content (runtime data)
-data/daily/*/
-
 # npm
 node_modules/
 *.tgz
-
-# npm publish directory (local only)
-publish/
-
-# Project files (local only)
-tests/
