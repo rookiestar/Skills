@@ -1,0 +1,94 @@
+{
+  "_meta": {
+    "prompt_version": "quiz_gen_v1.2"
+  },
+  "quiz_date": "2026-02-25",
+  "cefr_level": "A1",
+  "keypoint_fingerprint": "daily_life_thank_you",
+  "questions": [
+    {
+      "id": 1,
+      "type": "multiple_choice",
+      "question": "What do you say when someone helps you?",
+      "context": "A cashier hands you your change at a store.",
+      "options": [
+        "A. Hello",
+        "B. Thank you",
+        "C. Goodbye",
+        "D. Sorry"
+      ],
+      "correct_answer": "B",
+      "explanation": "'Thank you' is what you say when someone helps you or gives you something. 'Hello' is for greeting, 'Goodbye' is for leaving, and 'Sorry' is for apologies.",
+      "xp_value": 10,
+      "display": {
+        "type_emoji": "🔤",
+        "type_name": "选择题 | Multiple Choice",
+        "question_formatted": "💬 What do you say when someone **helps you**?",
+        "context_formatted": "🏪 A cashier hands you your change.",
+        "options_formatted": [
+          "⬜ A. Hello",
+          "⬜ B. Thank you",
+          "⬜ C. Goodbye",
+          "⬜ D. Sorry"
+        ],
+        "hint": "💡 Think: what do you say when you get something?",
+        "correct_feedback": "✅ Correct! **'Thank you'** = 谢谢!",
+        "wrong_feedback": "❌ Not quite. When someone helps you, say **'Thank you'**!",
+        "xp_display": "💎 +10 XP"
+      }
+    },
+    {
+      "id": 2,
+      "type": "chinglish_fix",
+      "question": "Fix this sentence:",
+      "chinglish_sentence": "Thank you very many for your help!",
+      "correct_answer": "Thank you very much",
+      "explanation": "'Many' is for things you can count (many apples, many people). 'Much' is for amount or degree (very much). This is a very common mistake!",
+      "xp_value": 15,
+      "display": {
+        "type_emoji": "🔧",
+        "type_name": "Chinglish 修正 | Fix the Chinglish",
+        "question_formatted": "🔧 What's wrong with this sentence?",
+        "sentence_formatted": "📝 \"Thank you very **many** for your help!\"",
+        "hint": "💡 'Many' or 'Much' - which one for degree?",
+        "correct_feedback": "✅ Fixed! **'Thank you very much!'** sounds natural! 🎉",
+        "wrong_feedback": "❌ Use **'much'** not 'many' here. **'Thank you very much!'**",
+        "xp_display": "💎 +15 XP"
+      }
+    },
+    {
+      "id": 3,
+      "type": "fill_blank",
+      "question": "Complete the sentence:",
+      "context": "Your friend opens the door for you. You say: '___!'",
+      "word_bank": ["Thanks", "Hello", "Goodbye"],
+      "correct_answer": "Thanks",
+      "explanation": "'Thanks' is the casual short form of 'Thank you'. Use it with friends. 'Hello' is for greeting and 'Goodbye' is for leaving.",
+      "xp_value": 12,
+      "display": {
+        "type_emoji": "✏️",
+        "type_name": "填空题 | Fill in the Blank",
+        "question_formatted": "✏️ What do you say?",
+        "context_formatted": "🚪 Your friend opens the door for you. You say: '**___**!'",
+        "word_bank_formatted": "📦 Options: [ **Thanks** | Hello | Goodbye ]",
+        "hint": "💡 Which one means '谢谢'?",
+        "correct_feedback": "✅ Perfect! **'Thanks!'** is casual and friendly! 🎯",
+        "wrong_feedback": "❌ The answer was **'Thanks!'** - it means 谢谢!",
+        "xp_display": "💎 +12 XP"
+      }
+    }
+  ],
+  "total_xp": 37,
+  "passing_score": 70,
+  "display": {
+    "header": "📝 今日测验 | Daily Quiz",
+    "date": "📅 2026-02-25",
+    "difficulty": "📊 Level: **A1** (入门级)",
+    "topic": "🏷️ Topic: **Thank You**",
+    "instructions": "🎯 3道小题，答对2道就过关！3 questions, get 2 right to pass!",
+    "progress_bar": "⬜⬜⬜ 0/3 questions",
+    "xp_summary": "💎 Total XP: 37 | 🏆 Pass: 2/3 correct",
+    "footer": "───────────────────\n💪 Good luck! 加油! 🚀"
+  },
+  "generated": true
+}

@@ -1,0 +1,94 @@
+{
+  "_meta": {
+    "prompt_version": "quiz_gen_v1.2"
+  },
+  "quiz_date": "2026-02-25",
+  "cefr_level": "B2",
+  "keypoint_fingerprint": "workplace_circle_back",
+  "questions": [
+    {
+      "id": 1,
+      "type": "multiple_choice",
+      "question": "Your meeting is running over time. What's the most natural way to postpone a topic?",
+      "context": "You've spent 30 minutes on the budget discussion. There are still 3 agenda items left.",
+      "options": [
+        "A. Let's discuss again later",
+        "B. Let's circle back on this",
+        "C. Let's talk more about this",
+        "D. We should continue this conversation"
+      ],
+      "correct_answer": "B",
+      "explanation": "'Circle back' is the standard corporate idiom for returning to a topic later. 'Discuss again' sounds mechanical. 'Talk more' and 'continue' don't imply postponement.",
+      "xp_value": 10,
+      "display": {
+        "type_emoji": "🔤",
+        "type_name": "选择题 | Multiple Choice",
+        "question_formatted": "💬 What's the most natural way to **postpone** a topic?",
+        "context_formatted": "⏰ Meeting running over. Need to move on.",
+        "options_formatted": [
+          "⬜ A. Let's discuss again later",
+          "⬜ B. Let's circle back on this",
+          "⬜ C. Let's talk more about this",
+          "⬜ D. We should continue this conversation"
+        ],
+        "hint": "💡 Which sounds most natural in American corporate culture?",
+        "correct_feedback": "✅ Correct! **'Circle back'** is the standard corporate idiom!",
+        "wrong_feedback": "❌ **'Circle back'** is the most natural corporate expression here!",
+        "xp_display": "💎 +10 XP"
+      }
+    },
+    {
+      "id": 2,
+      "type": "chinglish_fix",
+      "question": "Make this sound more natural in American business:",
+      "chinglish_sentence": "We need to discuss this topic again after the meeting.",
+      "correct_answer": "Let's circle back on this after the meeting",
+      "explanation": "'Discuss this topic again' is grammatically correct but sounds mechanical. 'Circle back' is the idiomatic corporate expression that implies a planned return to the topic.",
+      "xp_value": 15,
+      "display": {
+        "type_emoji": "🔧",
+        "type_name": "Chinglish 修正 | Fix the Chinglish",
+        "question_formatted": "🔧 Make this sound more corporate:",
+        "sentence_formatted": "📝 \"We need to **discuss this topic again** after the meeting.\"",
+        "hint": "💡 Use a spatial metaphor that implies returning",
+        "correct_feedback": "✅ Much better! **'Let's circle back on this'** sounds professional! 🎉",
+        "wrong_feedback": "❌ Try **'Let's circle back on this'** instead of 'discuss again'",
+        "xp_display": "💎 +15 XP"
+      }
+    },
+    {
+      "id": 3,
+      "type": "fill_blank",
+      "question": "Complete with the correct corporate idiom:",
+      "context": "You want to include your colleague in future emails about a project. You say: 'I'll ___ on the project updates.'",
+      "word_bank": ["loop you in", "circle back", "touch base", "reach out"],
+      "correct_answer": "loop you in",
+      "explanation": "'Loop you in' means to include someone in communication. 'Circle back' is for returning to topics. 'Touch base' is for checking in. 'Reach out' is for initiating contact.",
+      "xp_value": 12,
+      "display": {
+        "type_emoji": "✏️",
+        "type_name": "填空题 | Fill in the Blank",
+        "question_formatted": "✏️ Complete the sentence:",
+        "context_formatted": "📧 \"I'll **___** on the project updates.\"",
+        "word_bank_formatted": "📦 Options: [ **loop you in** | circle back | touch base | reach out ]",
+        "hint": "💡 Include someone = ?",
+        "correct_feedback": "✅ Perfect! **'Loop you in'** means include in communication! 🎯",
+        "wrong_feedback": "❌ **'Loop you in'** is for including someone in future communication!",
+        "xp_display": "💎 +12 XP"
+      }
+    }
+  ],
+  "total_xp": 37,
+  "passing_score": 70,
+  "display": {
+    "header": "📝 今日测验 | Daily Quiz",
+    "date": "📅 2026-02-25",
+    "difficulty": "📊 Level: **B2** (中高级)",
+    "topic": "🏷️ Topic: **Circle Back / Loop In**",
+    "instructions": "🎯 3道小题，答对2道就过关！3 questions, get 2 right to pass!",
+    "progress_bar": "⬜⬜⬜ 0/3 questions",
+    "xp_summary": "💎 Total XP: 37 | 🏆 Pass: 2/3 correct",
+    "footer": "───────────────────\n💪 Good luck! 加油! 🚀"
+  },
+  "generated": true
+}

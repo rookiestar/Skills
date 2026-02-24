@@ -12,8 +12,7 @@ def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> f
     """
     Safe division that returns default if denominator is zero.
 
-    TODO: This function is defined but not currently used in the codebase.
-    Consider using it for XP/ratio calculations to avoid division by zero errors.
+    Reserved for future use in XP/ratio calculations.
 
     Args:
         numerator: The number to divide
@@ -30,7 +29,7 @@ def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> f
         0.0
         >>> safe_divide(10, 0, default=100)
         100.0
-    """
+    """  # noqa: DOC501 - Reserved for future use
     return numerator / denominator if denominator != 0 else default
 
 
@@ -70,8 +69,7 @@ def clamp(value: float, min_val: float, max_val: float) -> float:
     """
     Clamp a value to a range.
 
-    TODO: This function is defined but not currently used in the codebase.
-    Consider using it for streak multiplier capping or level calculations.
+    Reserved for future use in streak multiplier capping or level calculations.
 
     Args:
         value: Value to clamp
@@ -80,5 +78,5 @@ def clamp(value: float, min_val: float, max_val: float) -> float:
 
     Returns:
         Value clamped to [min_val, max_val]
-    """
+    """  # noqa: DOC501 - Reserved for future use
     return max(min_val, min(max_val, value))

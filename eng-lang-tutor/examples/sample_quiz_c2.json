@@ -1,0 +1,104 @@
+{
+  "_meta": {
+    "prompt_version": "quiz_gen_v1.2"
+  },
+  "quiz_date": "2026-02-25",
+  "cefr_level": "C2",
+  "keypoint_fingerprint": "workplace_boil_the_ocean",
+  "questions": [
+    {
+      "id": 1,
+      "type": "multiple_choice",
+      "question": "In an executive meeting, a VP proposes rebuilding the entire platform, adding AI, AND entering 3 new markets in Q1. What's the most strategic response?",
+      "context": "You need to push back diplomatically while showing strategic thinking.",
+      "options": [
+        "A. That's impossible, we can't do it",
+        "B. Let's not boil the ocean—what's the minimum viable scope?",
+        "C. I think we should do less",
+        "D. This is too ambitious"
+      ],
+      "correct_answer": "B",
+      "explanation": "'Boil the ocean' is the C-suite idiom for impossibly ambitious scope. Using it shows strategic thinking. It's visual, slightly humorous, and makes the point diplomatically. The other options are too direct or unsophisticated for executive settings.",
+      "xp_value": 10,
+      "display": {
+        "type_emoji": "🔤",
+        "type_name": "选择题 | Multiple Choice",
+        "question_formatted": "💬 What's the most **strategic** response?",
+        "context_formatted": "🎯 VP proposes impossibly ambitious scope in executive meeting.",
+        "options_formatted": [
+          "⬜ A. That's impossible, we can't do it",
+          "⬜ B. Let's not boil the ocean—what's the minimum viable scope?",
+          "⬜ C. I think we should do less",
+          "⬜ D. This is too ambitious"
+        ],
+        "hint": "💡 Which shows C-suite language mastery?",
+        "correct_feedback": "✅ Excellent! **'Boil the ocean'** is strategic C-suite language!",
+        "wrong_feedback": "❌ **'Boil the ocean'** shows strategic thinking at executive level!",
+        "xp_display": "💎 +10 XP"
+      }
+    },
+    {
+      "id": 2,
+      "type": "chinglish_fix",
+      "question": "Your CEO wants a complete digital transformation by Q2. Transform this response to sound more executive:",
+      "chinglish_sentence": "That's too ambitious. We need to reduce the scope.",
+      "correct_answer": "That's boiling the ocean. We need a phased approach.",
+      "explanation": "'Too ambitious' and 'reduce scope' sound unsophisticated. 'Boiling the ocean' and 'phased approach' are the idiomatic expressions that signal strategic thinking. The ocean metaphor is powerful and memorable.",
+      "xp_value": 15,
+      "display": {
+        "type_emoji": "🔧",
+        "type_name": "Chinglish 修正 | Fix the Chinglish",
+        "question_formatted": "🔧 Make this sound more C-suite:",
+        "sentence_formatted": "📝 \"That's **too ambitious**. We need to **reduce the scope**.\"",
+        "hint": "💡 Use the ocean metaphor and 'phased'",
+        "correct_feedback": "✅ Perfect! **'Boiling the ocean' + 'phased approach'** = executive language! 🎉",
+        "wrong_feedback": "❌ Try **'That's boiling the ocean. We need a phased approach.'**",
+        "xp_display": "💎 +15 XP"
+      }
+    },
+    {
+      "id": 3,
+      "type": "dialogue_completion",
+      "question": "What's the best next step after proposing a major initiative?",
+      "context": "You've proposed a new strategy. Before finalizing, you need buy-in from regional teams.",
+      "options": [
+        "A. Let's implement immediately",
+        "B. We need to socialize this with the regional teams first",
+        "C. Let's keep it confidential",
+        "D. We should decide now"
+      ],
+      "correct_answer": "B",
+      "explanation": "'Socialize this' is uniquely corporate. It means systematically sharing with stakeholders to gather input and build consensus. It's more deliberate than 'discussing'—it's a process. This is standard C-suite decision-making language.",
+      "xp_value": 15,
+      "display": {
+        "type_emoji": "💬",
+        "type_name": "对话补全 | Dialogue Completion",
+        "question_formatted": "💬 What's the best next step?",
+        "context_formatted": "📋 You've proposed a new strategy. Regional teams need input.",
+        "options_formatted": [
+          "⬜ A. Let's implement immediately",
+          "⬜ B. We need to socialize this with the regional teams first",
+          "⬜ C. Let's keep it confidential",
+          "⬜ D. We should decide now"
+        ],
+        "hint": "💡 Get stakeholder buy-in before deciding = ?",
+        "correct_feedback": "✅ Perfect! **'Socialize this'** = systematic stakeholder buy-in! 🎯",
+        "wrong_feedback": "❌ **'Socialize this with stakeholders'** is the C-suite process!",
+        "xp_display": "💎 +15 XP"
+      }
+    }
+  ],
+  "total_xp": 40,
+  "passing_score": 70,
+  "display": {
+    "header": "📝 今日测验 | Daily Quiz",
+    "date": "📅 2026-02-25",
+    "difficulty": "📊 Level: **C2** (精通级)",
+    "topic": "🏷️ Topic: **Boil the Ocean / Socialize**",
+    "instructions": "🎯 3道小题，答对2道就过关！3 questions, get 2 right to pass!",
+    "progress_bar": "⬜⬜⬜ 0/3 questions",
+    "xp_summary": "💎 Total XP: 40 | 🏆 Pass: 2/3 correct",
+    "footer": "───────────────────\n💪 Good luck! 加油! 🚀"
+  },
+  "generated": true
+}

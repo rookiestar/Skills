@@ -1,0 +1,141 @@
+{
+  "_meta": {
+    "prompt_version": "keypoint_gen_v2.1"
+  },
+  "date": "2026-02-25",
+  "topic_fingerprint": "workplace_boil_the_ocean",
+  "category": "oral",
+  "topic": "workplace",
+  "scene": {
+    "context": "You're in a strategic planning session or executive meeting. Someone proposes an overly ambitious scope. This idiom elegantly pushes back while sounding experienced and pragmatic.",
+    "formality": "formal"
+  },
+  "expressions": [
+    {
+      "phrase": "Let's not boil the ocean",
+      "pronunciation_tip": "'lets-not-boil-the-o-shun' - 'ocean' flows into 'shun' sound",
+      "usage_note": "Use when someone proposes something impossibly ambitious. This idiom means 'let's not try to do everything at once.' It signals strategic thinking and scope management."
+    },
+    {
+      "phrase": "We need to socialize this",
+      "pronunciation_tip": "'so-shuh-lize-this' - verb form, not the social media meaning",
+      "usage_note": "Use when a decision or idea needs to be shared with stakeholders for input and buy-in before finalizing. Very common in corporate decision-making."
+    }
+  ],
+  "alternatives": [
+    "Let's not try to solve world hunger here",
+    "We should scope this down",
+    "Let's focus on what's achievable",
+    "This needs broader alignment"
+  ],
+  "chinglish_trap": {
+    "wrong": "Don't do too much / Let's not be too ambitious / This is too big",
+    "correct": "Let's not boil the ocean",
+    "explanation": "Direct translations like 'don't do too much' sound unsophisticated in executive settings. 'Boil the ocean' is the idiom that shows you understand corporate strategic language. It's a metaphor for attempting something impossible (boiling the entire ocean) that originated in management consulting."
+  },
+  "examples": [
+    {
+      "situation": "Overly ambitious project scope",
+      "dialogue": [
+        "A: For Phase 1, let's rebuild the entire platform, add AI capabilities, and enter three new markets.",
+        "B: I appreciate the ambition, but let's not boil the ocean. What's the minimum viable scope that still moves the needle?",
+        "A: Fair enough. If we just focus on the platform rebuild first...",
+        "B: That's more like it. And we should socialize this with the regional teams before locking it down."
+      ]
+    },
+    {
+      "situation": "Unrealistic timeline expectations",
+      "dialogue": [
+        "A: The CEO wants a complete digital transformation by Q2.",
+        "B: Q2? That's boiling the ocean. We need to push back with a realistic phased approach.",
+        "A: Should I prepare a presentation with the revised timeline?",
+        "B: Yes, but socialize it with the key stakeholders first. Get alignment before going to the board."
+      ]
+    }
+  ],
+  "extended_learning": {
+    "related_phrases": [
+      "move the needle - make meaningful progress",
+      "minimum viable - smallest workable version",
+      "low-hanging fruit - easy wins",
+      "nice-to-have vs must-have - prioritize features"
+    ],
+    "cultural_note": "'Boil the ocean' originated in management consulting (McKinsey, BCG) in the 1980s. It's now standard C-suite language. Using it correctly signals you think strategically and understand scope trade-offs. The idiom is particularly powerful because it's visual and slightly humorous while making a serious point.",
+    "common_mistakes": [
+      "Using it too casually - it's for strategic discussions, not daily tasks",
+      "Using it to dismiss all ambitious ideas (some ambition is good)",
+      "Not offering an alternative scope after using it",
+      "Confusing 'socialize' with 'discuss' - socialize implies getting buy-in"
+    ],
+    "nuance": "'Socialize this' is uniquely corporate. It means systematically sharing an idea with stakeholders to gather input and build consensus. It's more deliberate than just 'discussing'—it's a process. In contrast, 'boil the ocean' is about avoiding overreach."
+  },
+  "references": {
+    "dictionary": {
+      "source": "merriam-webster",
+      "url": "https://www.merriam-webster.com/dictionary/boil%20the%20ocean",
+      "note": "Definition of business idiom"
+    },
+    "usage_context": {
+      "source": "youglish",
+      "url": "https://youglish.com/pronounce/boil%20the%20ocean/english/us",
+      "note": "Hear it in executive contexts"
+    },
+    "etymology": {
+      "source": "hbr",
+      "url": "https://hbr.org/2019/01/consulting-lingo-explained",
+      "note": "Origin: 1980s management consulting"
+    }
+  },
+  "display": {
+    "title": "🏢 今日知识点 | Today's Knowledge Point",
+    "topic_tag": "🏷️ 主题: 职场高级 | Executive Workplace",
+    "formality_tag": "📊 正式度: 正式 | Formal",
+    "scene_intro": "🎬 场景 | Scene",
+    "scene_text": "Strategic planning or executive meeting - managing scope and expectations",
+    "expressions_title": "💬 核心表达 | Key Expressions",
+    "expressions_formatted": [
+      {
+        "emoji": "✨",
+        "phrase": "**Let's not boil the ocean**",
+        "phrase_plain": "Let's not boil the ocean",
+        "pronunciation": "🔊 'boil-the-o-shun' - ocean flows",
+        "usage": "💡 Don't be impossibly ambitious. Shows strategic thinking."
+      },
+      {
+        "emoji": "✨",
+        "phrase": "**We need to socialize this**",
+        "phrase_plain": "We need to socialize this",
+        "pronunciation": "🔊 'so-shuh-lize' - verb form",
+        "usage": "💡 Share with stakeholders for buy-in before deciding."
+      }
+    ],
+    "alternatives_title": "🔄 其他说法 | Alternatives",
+    "alternatives_formatted": "• **Let's scope this down**\n• **Let's focus on what's achievable**\n• **This needs broader alignment**\n• **What's the minimum viable scope?**",
+    "chinglish_title": "⚠️ Chinglish 陷阱 | Chinglish Trap",
+    "chinglish_formatted": "❌ Wrong: \"Don't do too much\" / \"This is too big\"\n✅ Correct: **Let's not boil the ocean!**\n\n📝 Direct translations sound unsophisticated. This idiom shows you understand C-suite language. Metaphor: attempting the impossible (boiling an entire ocean).",
+    "examples_title": "🗣️ 对话示例 | Example Dialogues",
+    "examples_formatted": [
+      {
+        "situation_emoji": "🎯",
+        "situation": "Overly ambitious scope",
+        "dialogue": "💬 A: Let's rebuild everything AND add AI AND enter 3 markets!\n💬 B: **Let's not boil the ocean.** What's the minimum viable scope?\n💬 A: Focus on platform first?\n💬 B: Better. **We should socialize this** with regional teams first.",
+        "key_phrase_highlight": "**boil the ocean / socialize**"
+      },
+      {
+        "situation_emoji": "⏱️",
+        "situation": "Unrealistic timeline",
+        "dialogue": "💬 A: CEO wants full digital transformation by Q2.\n💬 B: Q2? **That's boiling the ocean.** We need a phased approach.\n💬 A: Prepare revised timeline?\n💬 B: Yes, but **socialize it with stakeholders first.**",
+        "key_phrase_highlight": "**boiling the ocean / socialize**"
+      }
+    ],
+    "extended_title": "📚 延伸学习 | Extended Learning",
+    "extended_formatted": "🔗 Related: **move the needle** | **minimum viable** | **low-hanging fruit** | **nice-to-have vs must-have**\n\n🌎 Cultural Note: 'Boil the ocean' = 1980s consulting lingo (McKinsey, BCG). Now standard C-suite language. Using it signals strategic thinking.\n\n💡 Nuance: 'Socialize' ≠ just 'discuss'. It means systematically getting stakeholder buy-in.\n\n🚫 Common Mistakes:\n  • Using it for daily tasks (too casual)\n  • Dismissing ALL ambition (some is good)\n  • Not offering alternative scope",
+    "references_title": "📖 权威参考 | References",
+    "references_formatted": "📚 [Merriam-Webster](https://www.merriam-webster.com/dictionary/boil%20the%20ocean) - Definition\n🎬 [YouGlish](https://youglish.com/pronounce/boil%20the%20ocean/english/us) - Executive contexts\n📜 [HBR](https://hbr.org/2019/01/consulting-lingo-explained) - Origins",
+    "footer": "───────────────────\n📅 2026-02-25 | 📝 Take the quiz to earn XP!"
+  },
+  "audio": {
+    "enabled": true
+  },
+  "generated": true
+}

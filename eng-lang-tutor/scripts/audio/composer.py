@@ -62,10 +62,23 @@ class AudioComposer:
         # 创建临时目录用于存放中间文件
         self.temp_dir = Path(tempfile.mkdtemp(prefix="audio_composer_"))
 
-    def __del__(self):
+    def __enter__(self):
+        """上下文管理器入口"""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """上下文管理器退出，确保清理临时目录"""
+        self._cleanup()
+        return False
+
+    def _cleanup(self):
         """清理临时目录"""
         if hasattr(self, 'temp_dir') and self.temp_dir.exists():
             shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def __del__(self):
+        """析构函数（备用清理，不保证被调用）"""
+        self._cleanup()
 
     def compose_keypoint_audio(
         self,

@@ -1,0 +1,134 @@
+{
+  "_meta": {
+    "prompt_version": "keypoint_gen_v2.1"
+  },
+  "date": "2026-02-25",
+  "topic_fingerprint": "workplace_take_offline",
+  "category": "oral",
+  "topic": "workplace",
+  "scene": {
+    "context": "You're in a meeting with multiple stakeholders and a sensitive or detailed topic comes up that's better discussed privately. This is a diplomatic way to redirect the conversation.",
+    "formality": "neutral"
+  },
+  "expressions": [
+    {
+      "phrase": "Let's take this offline",
+      "pronunciation_tip": "Natural: 'lets-take-this-off-line'. Emphasis on 'offline'.",
+      "usage_note": "Use when a discussion is getting too detailed, sensitive, or off-topic for the current meeting. It's a polite way to say 'let's discuss this privately later'."
+    },
+    {
+      "phrase": "We're spinning our wheels",
+      "pronunciation_tip": "'spinning-our-wheels' - all words connect smoothly",
+      "usage_note": "Use when a discussion is unproductive and going in circles. Signals it's time to move on or change approach."
+    }
+  ],
+  "alternatives": [
+    "Let's continue this conversation separately",
+    "Let's set up a separate call for this",
+    "Let's park this for now",
+    "This might be better as a follow-up"
+  ],
+  "chinglish_trap": {
+    "wrong": "Let's talk privately / Let's discuss this in private later",
+    "correct": "Let's take this offline",
+    "explanation": "'Talk privately' can sound exclusionary or secretive in a group setting. 'Take offline' is the standard corporate euphemism that sounds professional and inclusive while still redirecting. It implies efficiency, not secrecy."
+  },
+  "examples": [
+    {
+      "situation": "Sensitive HR issue in team meeting",
+      "dialogue": [
+        "A: I think the problem is that some team members aren't pulling their weight...",
+        "B: (interrupting) This might be getting into specifics that are better discussed separately. Let's take this offline and focus on the process improvements.",
+        "A: Fair point. So about the new workflow..."
+      ]
+    },
+    {
+      "situation": "Technical deep-dive in stakeholder meeting",
+      "dialogue": [
+        "A: The API latency is caused by the database connection pooling which—",
+        "B: We're spinning our wheels on technical details here. The stakeholders don't need this level of detail. Let's take this offline with just the engineering team.",
+        "A: You're right. Moving on to the timeline..."
+      ]
+    }
+  ],
+  "extended_learning": {
+    "related_phrases": [
+      "take it offline - discuss privately",
+      "parking lot - table a topic for later",
+      "side bar - quick private discussion",
+      "back-channel - informal communication"
+    ],
+    "cultural_note": "American corporate culture values meeting efficiency. 'Take offline' originated from the idea of taking a conversation 'off the main line' (like a railway siding). It's considered diplomatic because it doesn't shut down the topic—just redirects it appropriately.",
+    "common_mistakes": [
+      "Using it to avoid difficult conversations entirely",
+      "Saying it in a way that embarrasses the person speaking",
+      "Not following up on the offline discussion",
+      "Using it too casually with clients (can seem dismissive)"
+    ],
+    "nuance": "'Spinning our wheels' comes from car imagery—when wheels spin in mud/snow without moving forward. Use it when discussion is unproductive, not when you simply disagree."
+  },
+  "references": {
+    "dictionary": {
+      "source": "merriam-webster",
+      "url": "https://www.merriam-webster.com/dictionary/off-line",
+      "note": "Definition of 'offline' in business context"
+    },
+    "usage_context": {
+      "source": "youglish",
+      "url": "https://youglish.com/pronounce/take%20this%20offline/english/us",
+      "note": "Hear it in real business contexts"
+    }
+  },
+  "display": {
+    "title": "🏢 今日知识点 | Today's Knowledge Point",
+    "topic_tag": "🏷️ 主题: 职场口语 | Workplace Oral",
+    "formality_tag": "📊 正式度: 中性 | Neutral",
+    "scene_intro": "🎬 场景 | Scene",
+    "scene_text": "Redirecting sensitive or detailed discussions in meetings",
+    "expressions_title": "💬 核心表达 | Key Expressions",
+    "expressions_formatted": [
+      {
+        "emoji": "✨",
+        "phrase": "**Let's take this offline**",
+        "phrase_plain": "Let's take this offline",
+        "pronunciation": "🔊 'lets-take-this-off-line' - emphasis on 'offline'",
+        "usage": "💡 Discuss privately later. Polite redirect in meetings."
+      },
+      {
+        "emoji": "✨",
+        "phrase": "**We're spinning our wheels**",
+        "phrase_plain": "We're spinning our wheels",
+        "pronunciation": "🔊 'spinning-our-wheels' - all connect",
+        "usage": "💡 Discussion is unproductive. Time to move on."
+      }
+    ],
+    "alternatives_title": "🔄 其他说法 | Alternatives",
+    "alternatives_formatted": "• **Let's continue this separately**\n• **Let's set up a separate call**\n• **Let's park this for now**\n• **This might be better as a follow-up**",
+    "chinglish_title": "⚠️ Chinglish 陷阱 | Chinglish Trap",
+    "chinglish_formatted": "❌ Wrong: \"Let's **talk privately**\"\n✅ Correct: **Let's take this offline!**\n\n📝 'Talk privately' sounds secretive or exclusionary. **Take offline** is the professional euphemism that sounds efficient, not secretive.",
+    "examples_title": "🗣️ 对话示例 | Example Dialogues",
+    "examples_formatted": [
+      {
+        "situation_emoji": "🔒",
+        "situation": "Sensitive HR issue",
+        "dialogue": "💬 A: Some team members aren't pulling their weight...\n💬 B: **Let's take this offline** and focus on process.\n💬 A: Fair point. About the workflow...",
+        "key_phrase_highlight": "**take this offline**"
+      },
+      {
+        "situation_emoji": "⚙️",
+        "situation": "Technical deep-dive",
+        "dialogue": "💬 A: The API latency is caused by—\n💬 B: **We're spinning our wheels** on details. **Let's take this offline** with just engineering.\n💬 A: You're right. Moving to timeline...",
+        "key_phrase_highlight": "**spinning our wheels / take offline**"
+      }
+    ],
+    "extended_title": "📚 延伸学习 | Extended Learning",
+    "extended_formatted": "🔗 Related: **parking lot** | **side bar** | **back-channel**\n\n🌎 Cultural Note: 'Take offline' = 'off the main line' (railway metaphor). Signals efficiency, not secrecy.\n\n🚫 Common Mistakes:\n  • Using it to avoid difficult conversations\n  • Embarrassing the speaker\n  • Not following up\n\n💡 Nuance: 'Spinning wheels' = car in mud, going nowhere. Use for unproductive discussions.",
+    "references_title": "📖 权威参考 | References",
+    "references_formatted": "📚 [Merriam-Webster](https://www.merriam-webster.com/dictionary/off-line) - Definition\n🎬 [YouGlish](https://youglish.com/pronounce/take%20this%20offline/english/us) - Real usage",
+    "footer": "───────────────────\n📅 2026-02-25 | 📝 Take the quiz to earn XP!"
+  },
+  "audio": {
+    "enabled": true
+  },
+  "generated": true
+}

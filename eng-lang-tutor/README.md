@@ -296,9 +296,19 @@ eng-lang-tutor/
 │       └── output_rules.md
 ├── references/
 │   └── resources.md            # 主题化学习资源
-├── examples/
-│   ├── sample_keypoint.json    # 知识点示例
-│   └── sample_quiz.json        # 测验示例
+├── examples/                   # 示例文件（按 CEFR 级别）
+│   ├── sample_keypoint_a1.json # A1 入门级知识点
+│   ├── sample_keypoint_a2.json # A2 初级知识点
+│   ├── sample_keypoint_b1.json # B1 中级知识点
+│   ├── sample_keypoint_b2.json # B2 中高级知识点
+│   ├── sample_keypoint_c1.json # C1 高级知识点
+│   ├── sample_keypoint_c2.json # C2 精通级知识点
+│   ├── sample_quiz_a1.json     # A1 测验
+│   ├── sample_quiz_a2.json     # A2 测验
+│   ├── sample_quiz_b1.json     # B1 测验
+│   ├── sample_quiz_b2.json     # B2 测验
+│   ├── sample_quiz_c1.json     # C1 测验
+│   └── sample_quiz_c2.json     # C2 测验
 └── docs/
     └── OPENCLAW_DEPLOYMENT.md  # 部署文档
 ```

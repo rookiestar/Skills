@@ -15,6 +15,7 @@ from pathlib import Path
 from datetime import datetime, date
 from typing import Dict, Any, Optional, List
 import shutil
+import threading
 
 try:
     from ..utils.helpers import deep_merge
@@ -71,6 +72,9 @@ class StateManager:
 
         # Initialize sub-managers
         self.error_notebook = ErrorNotebookManager(self)
+
+        # Track background audio generation threads
+        self._audio_threads: Dict[str, Any] = {}
 
     def _migrate_from_old_location(self) -> None:
         """
@@ -296,7 +300,8 @@ class StateManager:
 
     def save_daily_content(self, content_type: str, content: Dict[str, Any],
                            target_date: Optional[date] = None,
-                           generate_audio: bool = True) -> Path:
+                           generate_audio: bool = True,
+                           async_audio: bool = True) -> Path:
         """
         Save content to the daily directory.
 
@@ -305,6 +310,7 @@ class StateManager:
             content: Content dictionary to save
             target_date: Date for the content (defaults to today)
             generate_audio: Whether to auto-generate audio for keypoints (default True)
+            async_audio: Whether to generate audio in background thread (default True)
 
         Returns:
             Path to the saved file
@@ -322,23 +328,71 @@ class StateManager:
 
         # Auto-generate audio for keypoints
         if content_type == 'keypoint' and generate_audio:
-            try:
-                audio_result = self.generate_keypoint_audio(target_date)
-                if audio_result.get('success'):
-                    audio_path = audio_result.get('audio_path')
-                    # Update keypoint with audio metadata
-                    content['audio'] = {
-                        'composed': audio_path,
-                        'duration_seconds': audio_result.get('duration_seconds'),
-                        'generated_at': datetime.now().isoformat()
-                    }
-                    # Re-save with audio info
-                    with open(file_path, 'w', encoding='utf-8') as f:
-                        json.dump(content, f, ensure_ascii=False, indent=2)
-            except Exception as e:
-                print(f"Warning: Audio generation failed: {e}")
+            if async_audio:
+                # Mark as pending
+                content['audio'] = {
+                    'status': 'pending',
+                    'generated_at': None
+                }
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(content, f, ensure_ascii=False, indent=2)
+
+                # Start background thread
+                date_str = target_date.isoformat()
+                thread = threading.Thread(
+                    target=self._generate_audio_background,
+                    args=(target_date, file_path),
+                    daemon=True
+                )
+                self._audio_threads[date_str] = thread
+                thread.start()
+            else:
+                # Synchronous generation (backward compatible)
+                try:
+                    audio_result = self.generate_keypoint_audio(target_date)
+                    if audio_result.get('success'):
+                        audio_path = audio_result.get('audio_path')
+                        content['audio'] = {
+                            'status': 'completed',
+                            'composed': audio_path,
+                            'duration_seconds': audio_result.get('duration_seconds'),
+                            'generated_at': datetime.now().isoformat()
+                        }
+                        with open(file_path, 'w', encoding='utf-8') as f:
+                            json.dump(content, f, ensure_ascii=False, indent=2)
+                except Exception as e:
+                    print(f"Warning: Audio generation failed: {e}")
 
         return file_path
+
+    def _generate_audio_background(self, target_date: date, file_path: Path) -> None:
+        """
+        Generate audio in background thread and update keypoint file.
+
+        Args:
+            target_date: Date for the keypoint
+            file_path: Path to the keypoint JSON file
+        """
+        date_str = target_date.isoformat()
+        try:
+            audio_result = self.generate_keypoint_audio(target_date)
+            if audio_result.get('success'):
+                # Re-read and update
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = json.load(f)
+                content['audio'] = {
+                    'status': 'completed',
+                    'composed': audio_result.get('audio_path'),
+                    'duration_seconds': audio_result.get('duration_seconds'),
+                    'generated_at': datetime.now().isoformat()
+                }
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(content, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Warning: Background audio generation failed for {date_str}: {e}")
+        finally:
+            # Clean up thread reference
+            self._audio_threads.pop(date_str, None)
 
     def generate_keypoint_audio(self, target_date: Optional[date] = None) -> Dict[str, Any]:
         """

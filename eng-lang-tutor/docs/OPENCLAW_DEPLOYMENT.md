@@ -35,13 +35,19 @@ git clone https://github.com/rookiestar/eng-lang-tutor.git
 ~/.openclaw/skills/eng-lang-tutor/
 ├── SKILL.md              # 核心技能文件（必需）
 ├── scripts/              # Python 脚本
-│   ├── state_manager.py
-│   ├── scorer.py
-│   ├── gamification.py
-│   └── dedup.py
-├── templates/            # JSON Schema
+│   ├── core/             # 核心模块
+│   │   ├── state_manager.py
+│   │   ├── scorer.py
+│   │   ├── gamification.py
+│   │   ├── constants.py
+│   │   └── error_notebook.py
+│   ├── cli/              # 命令行模块
+│   ├── scheduling/       # 调度模块
+│   ├── utils/            # 工具模块
+│   └── audio/            # 音频模块
+├── templates/            # JSON Schema + Prompt 模板
 ├── references/           # 参考资源
-├── examples/             # 示例文件
+├── examples/             # 示例文件（按 CEFR 级别）
 └── (数据存储在外部目录)
     ~/.openclaw/state/eng-lang-tutor/  # 运行时数据（自动创建）
 ```
@@ -193,8 +199,8 @@ python3 --version
 pip3 install -r ~/.openclaw/skills/eng-lang-tutor/requirements.txt
 
 # 手动测试脚本
-cd ~/.openclaw/skills/eng-lang-tutor/scripts/
-python3 state_manager.py --show
+cd ~/.openclaw/skills/eng-lang-tutor/
+python3 -m scripts.cli.cli stats
 ```
 
 ## 7. 架构图

@@ -16,12 +16,15 @@ from typing import Dict, Any, List
 from datetime import datetime, date
 from collections import Counter
 
+from .constants import (
+    ERROR_ARCHIVE_WRONG_THRESHOLD,
+    ERROR_ARCHIVE_DAYS_THRESHOLD,
+    ERROR_NOTEBOOK_MAX
+)
+
 
 class ErrorNotebookManager:
     """错题本管理器"""
-
-    # Maximum size for error notebook before auto-archiving
-    MAX_ERROR_NOTEBOOK_SIZE = 100
 
     def __init__(self, state_manager=None):
         """
@@ -53,7 +56,7 @@ class ErrorNotebookManager:
         errors.append(error)
 
         # Auto-archive oldest if over size limit
-        if len(errors) > self.MAX_ERROR_NOTEBOOK_SIZE:
+        if len(errors) > ERROR_NOTEBOOK_MAX:
             # Sort by date to find oldest
             errors.sort(key=lambda x: x.get('date', ''))
             # Archive the oldest
@@ -239,7 +242,7 @@ class ErrorNotebookManager:
 
     def archive_stale_errors(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Archive errors with wrong_count >= 3 and over 30 days old.
+        Archive errors with wrong_count >= threshold and over threshold days old.
 
         Args:
             state: Current state
@@ -270,8 +273,8 @@ class ErrorNotebookManager:
             except (ValueError, TypeError):
                 days_old = 0
 
-            # Archive if wrong_count >= 3 and over 30 days old
-            if wrong_count >= 3 and days_old >= 30:
+            # Archive if wrong_count and days_old meet thresholds
+            if wrong_count >= ERROR_ARCHIVE_WRONG_THRESHOLD and days_old >= ERROR_ARCHIVE_DAYS_THRESHOLD:
                 error['archived_at'] = today.isoformat()
                 archive.append(error)
                 archived_count += 1

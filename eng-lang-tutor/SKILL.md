@@ -200,7 +200,16 @@ See templates/ directory:
 
 ## Examples
 
-See examples/ directory for sample outputs.
+See `examples/` directory for sample outputs covering all CEFR levels:
+
+| Level | Keypoint | Quiz |
+|-------|----------|------|
+| A1 (入门级) | sample_keypoint_a1.json | sample_quiz_a1.json |
+| A2 (初级) | sample_keypoint_a2.json | sample_quiz_a2.json |
+| B1 (中级) | sample_keypoint_b1.json | sample_quiz_b1.json |
+| B2 (中高级) | sample_keypoint_b2.json | sample_quiz_b2.json |
+| C1 (高级) | sample_keypoint_c1.json | sample_quiz_c1.json |
+| C2 (精通级) | sample_keypoint_c2.json | sample_quiz_c2.json |
 
 ---
 

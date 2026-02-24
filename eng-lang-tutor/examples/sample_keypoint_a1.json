@@ -1,0 +1,112 @@
+{
+  "_meta": {
+    "prompt_version": "keypoint_gen_v2.1"
+  },
+  "date": "2026-02-25",
+  "topic_fingerprint": "daily_life_thank_you",
+  "category": "oral",
+  "topic": "daily_life",
+  "scene": {
+    "context": "You are at a shop or restaurant. Someone helps you or gives you something. This is the most basic polite expression in English.",
+    "formality": "neutral"
+  },
+  "expressions": [
+    {
+      "phrase": "Thank you",
+      "pronunciation_tip": "Sounds like 'thank-you', say it as one word. Natural speed: 'than-kyou'",
+      "usage_note": "Use this when someone helps you or gives you something. It works in ALL situations."
+    },
+    {
+      "phrase": "Thanks",
+      "pronunciation_tip": "Short and casual: 'thanks'",
+      "usage_note": "More casual than 'Thank you'. Use with friends or in informal situations."
+    }
+  ],
+  "alternatives": [
+    "Thanks a lot",
+    "Thank you very much"
+  ],
+  "chinglish_trap": {
+    "wrong": "Thank you very many",
+    "correct": "Thank you very much",
+    "explanation": "'Many' is for things you can count (many apples). 'Much' is for amount or degree (very much). This is a common mistake from direct Chinese translation."
+  },
+  "examples": [
+    {
+      "situation": "At a coffee shop",
+      "dialogue": [
+        "A: Here's your coffee.",
+        "B: Thank you!"
+      ]
+    },
+    {
+      "situation": "Someone holds the door",
+      "dialogue": [
+        "A: (holds door open)",
+        "B: Thanks!"
+      ]
+    }
+  ],
+  "references": {
+    "dictionary": {
+      "source": "merriam-webster",
+      "url": "https://www.merriam-webster.com/dictionary/thank%20you",
+      "note": "Definition and usage examples"
+    },
+    "usage_context": {
+      "source": "youglish",
+      "url": "https://youglish.com/pronounce/thank%20you/english/us",
+      "note": "Hear it in real YouTube videos"
+    }
+  },
+  "display": {
+    "title": "🏢 今日知识点 | Today's Knowledge Point",
+    "topic_tag": "🏷️ 主题: 日常生活 | Daily Life",
+    "formality_tag": "📊 正式度: 中性 | Neutral",
+    "scene_intro": "🎬 场景 | Scene",
+    "scene_text": "At a shop or restaurant - basic polite expression",
+    "expressions_title": "💬 核心表达 | Key Expressions",
+    "expressions_formatted": [
+      {
+        "emoji": "✨",
+        "phrase": "**Thank you**",
+        "phrase_plain": "Thank you",
+        "pronunciation": "🔊 'than-kyou' - say as one word",
+        "usage": "💡 Use when someone helps you. Works in ALL situations."
+      },
+      {
+        "emoji": "✨",
+        "phrase": "**Thanks**",
+        "phrase_plain": "Thanks",
+        "pronunciation": "🔊 Short and casual",
+        "usage": "💡 More casual. Use with friends."
+      }
+    ],
+    "alternatives_title": "🔄 其他说法 | Alternatives",
+    "alternatives_formatted": "• **Thanks a lot**\n• **Thank you very much**",
+    "chinglish_title": "⚠️ Chinglish 陷阱 | Chinglish Trap",
+    "chinglish_formatted": "❌ Wrong: \"Thank you very **many**\"\n✅ Correct: **Thank you very much!**\n\n📝 'Many' = 可数 (many apples). 'Much' = 程度 (very much).",
+    "examples_title": "🗣️ 对话示例 | Example Dialogues",
+    "examples_formatted": [
+      {
+        "situation_emoji": "☕",
+        "situation": "At a coffee shop",
+        "dialogue": "💬 A: Here's your coffee.\n💬 B: **Thank you!**",
+        "key_phrase_highlight": "**Thank you**"
+      },
+      {
+        "situation_emoji": "🚪",
+        "situation": "Someone holds the door",
+        "dialogue": "💬 A: (holds door)\n💬 B: **Thanks!**",
+        "key_phrase_highlight": "**Thanks**"
+      }
+    ],
+    "references_title": "📖 权威参考 | References",
+    "references_formatted": "📚 [Merriam-Webster](https://www.merriam-webster.com/dictionary/thank%20you) - Definition\n🎬 [YouGlish](https://youglish.com/pronounce/thank%20you/english/us) - Real usage",
+    "footer": "───────────────────\n📅 2026-02-25 | 📝 Take the quiz to earn XP!"
+  },
+  "audio": {
+    "enabled": true
+  },
+  "generated": true
+}

@@ -95,6 +95,9 @@ Based on today's knowledge point, generate a 3-question quiz calibrated to user'
 
 ```json
 {
+  "_meta": {
+    "prompt_version": "quiz_gen_v1.2"
+  },
   "quiz_date": "{today_date}",
   "keypoint_fingerprint": "{fingerprint}",
   "cefr_level": "{cefr_level}",

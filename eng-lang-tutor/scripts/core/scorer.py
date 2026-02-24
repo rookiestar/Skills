@@ -38,6 +38,15 @@ class Scorer:
         """
         self.state_manager = state_manager
 
+    # Wrapper methods for backward compatibility with tests
+    def calculate_level(self, xp: int) -> int:
+        """Wrapper for calculate_level function."""
+        return calculate_level(xp)
+
+    def get_streak_multiplier(self, streak: int) -> float:
+        """Wrapper for get_streak_multiplier function."""
+        return get_streak_multiplier(streak)
+
     def evaluate_quiz(
         self,
         quiz: Dict[str, Any],

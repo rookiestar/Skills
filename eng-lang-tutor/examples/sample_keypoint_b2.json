@@ -1,0 +1,137 @@
+{
+  "_meta": {
+    "prompt_version": "keypoint_gen_v2.1"
+  },
+  "date": "2026-02-25",
+  "topic_fingerprint": "workplace_circle_back",
+  "category": "oral",
+  "topic": "workplace",
+  "scene": {
+    "context": "You're in a meeting and need to postpone a discussion. This corporate idiom is essential for professional communication in American business culture.",
+    "formality": "neutral"
+  },
+  "expressions": [
+    {
+      "phrase": "Let's circle back on this",
+      "pronunciation_tip": "Natural: 'lets-circle-back-on-this'. The 'le' in circle is often dropped: 'cir-cle-back' → 'sur-kull-back'.",
+      "usage_note": "Use when you want to return to a topic later. Very common in meetings when time is limited or more research is needed."
+    },
+    {
+      "phrase": "I'll loop you in",
+      "pronunciation_tip": "'loop-you-in' flows together smoothly",
+      "usage_note": "Use when you'll include someone in future communication about a topic."
+    }
+  ],
+  "alternatives": [
+    "Let's revisit this later",
+    "Let's table this for now",
+    "We can follow up on this",
+    "Let's take this offline"
+  ],
+  "chinglish_trap": {
+    "wrong": "Let's discuss again later / Let's talk about this again",
+    "correct": "Let's circle back on this",
+    "explanation": "'Discuss again' sounds mechanical and direct. Americans prefer the spatial metaphor 'circle back' (returning to a point) which sounds more natural in corporate settings. It implies a planned return rather than just repeating."
+  },
+  "examples": [
+    {
+      "situation": "Running out of meeting time",
+      "dialogue": [
+        "A: We've spent 20 minutes on the budget. We still have three more items.",
+        "B: Good point. Let's circle back on the budget after we cover the other items.",
+        "A: Sounds good. Moving on to the marketing plan..."
+      ]
+    },
+    {
+      "situation": "Need more information",
+      "dialogue": [
+        "A: Should we increase the ad spend for Q4?",
+        "B: I don't have the ROI data yet. Can we circle back on this tomorrow?",
+        "A: Absolutely. I'll loop you in once I get the numbers from analytics."
+      ]
+    }
+  ],
+  "extended_learning": {
+    "related_phrases": [
+      "touch base - quick check-in",
+      "loop in - include someone",
+      "keep in the loop - keep someone informed",
+      "reach out - contact someone"
+    ],
+    "cultural_note": "Corporate jargon often uses spatial metaphors (circle back, touch base, loop in). These originated from baseball and navigation but are now standard business language. Using them correctly signals you're familiar with American corporate culture.",
+    "common_mistakes": [
+      "Saying 'circle around' instead of 'circle back'",
+      "Using it too often - it can sound evasive if overused",
+      "Not actually following up - only say it if you mean to return to the topic"
+    ]
+  },
+  "references": {
+    "dictionary": {
+      "source": "merriam-webster",
+      "url": "https://www.merriam-webster.com/dictionary/circle%20back",
+      "note": "Definition and business usage"
+    },
+    "usage_context": {
+      "source": "youglish",
+      "url": "https://youglish.com/pronounce/circle%20back/english/us",
+      "note": "Hear it in real business meetings"
+    },
+    "etymology": {
+      "source": "corporate-lingo",
+      "url": "https://www.linkedin.com/pulse/origins-corporate-jargon/",
+      "note": "Originated in 1990s corporate America"
+    }
+  },
+  "display": {
+    "title": "🏢 今日知识点 | Today's Knowledge Point",
+    "topic_tag": "🏷️ 主题: 职场口语 | Workplace Oral",
+    "formality_tag": "📊 正式度: 中性 | Neutral",
+    "scene_intro": "🎬 场景 | Scene",
+    "scene_text": "Postponing a discussion in a meeting - essential corporate idiom",
+    "expressions_title": "💬 核心表达 | Key Expressions",
+    "expressions_formatted": [
+      {
+        "emoji": "✨",
+        "phrase": "**Let's circle back on this**",
+        "phrase_plain": "Let's circle back on this",
+        "pronunciation": "🔊 'sur-kull-back' - 'le' often dropped",
+        "usage": "💡 Return to a topic later. Very common in meetings."
+      },
+      {
+        "emoji": "✨",
+        "phrase": "**I'll loop you in**",
+        "phrase_plain": "I'll loop you in",
+        "pronunciation": "🔊 'loop-you-in' - flows together",
+        "usage": "💡 Include someone in future communication."
+      }
+    ],
+    "alternatives_title": "🔄 其他说法 | Alternatives",
+    "alternatives_formatted": "• **Let's revisit this later**\n• **Let's table this for now**\n• **We can follow up on this**\n• **Let's take this offline**",
+    "chinglish_title": "⚠️ Chinglish 陷阱 | Chinglish Trap",
+    "chinglish_formatted": "❌ Wrong: \"Let's **discuss again later**\"\n✅ Correct: **Let's circle back on this!**\n\n📝 'Discuss again' sounds mechanical. **Circle back** uses a spatial metaphor that sounds natural in American corporate culture.",
+    "examples_title": "🗣️ 对话示例 | Example Dialogues",
+    "examples_formatted": [
+      {
+        "situation_emoji": "⏰",
+        "situation": "Running out of meeting time",
+        "dialogue": "💬 A: We've spent 20 minutes on budget.\n💬 B: **Let's circle back** after other items.\n💬 A: Sounds good. Moving on...",
+        "key_phrase_highlight": "**circle back**"
+      },
+      {
+        "situation_emoji": "📊",
+        "situation": "Need more information",
+        "dialogue": "💬 A: Should we increase ad spend?\n💬 B: **Can we circle back** tomorrow? I need ROI data.\n💬 A: Absolutely. **I'll loop you in** once I get numbers.",
+        "key_phrase_highlight": "**circle back / loop you in**"
+      }
+    ],
+    "extended_title": "📚 延伸学习 | Extended Learning",
+    "extended_formatted": "🔗 Related: **touch base** | **loop in** | **keep in the loop** | **reach out**\n\n🌎 Cultural Note: Corporate jargon uses spatial metaphors (circle back, touch base, loop in). Using them correctly signals familiarity with American corporate culture.\n\n🚫 Common Mistakes:\n  • 'Circle around' ❌ (should be 'back')\n  • Overusing it (can sound evasive)\n  • Not actually following up",
+    "references_title": "📖 权威参考 | References",
+    "references_formatted": "📚 [Merriam-Webster](https://www.merriam-webster.com/dictionary/circle%20back) - Definition\n🎬 [YouGlish](https://youglish.com/pronounce/circle%20back/english/us) - Real meetings\n📜 [Corporate Lingo](https://www.linkedin.com/pulse/origins-corporate-jargon/) - Origins",
+    "footer": "───────────────────\n📅 2026-02-25 | 📝 Take the quiz to earn XP!"
+  },
+  "audio": {
+    "enabled": true
+  },
+  "generated": true
+}

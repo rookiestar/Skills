@@ -94,6 +94,8 @@ Agent结合难度与偏好的设置，以及用户的历史学习进度动态生
 | 导师风格 | humorous/rigorous/casual/professional | humorous |
 | 去重天数 | 避免重复内容的时间窗口 | 14天 |
 
+**配置常量：** 集中定义于 `scripts/core/constants.py`（宝石消耗、XP值、超时阈值等）
+
 ### 2.2. MVP版本不做 / 延后
 
 - **周周练**：5道综合性场景练习，覆盖本周知识点，约62 XP，答对3题即过关。计划周日推送。
@@ -173,9 +175,9 @@ eng-lang-tutor/
 ├── references/
 │   ├── resources.md            # 主题化英语学习资源库
 │   └── prompt_templates.md     # LLM Prompt 模板
-├── examples/
-│   ├── sample_keypoint.json    # 示例知识点
-│   └── sample_quiz.json        # 示例Quiz
+├── examples/                   # 示例文件（按 CEFR 级别命名）
+│   ├── sample_keypoint_*.json  # 知识点示例 (a1-c2)
+│   └── sample_quiz_*.json      # Quiz示例 (a1-c2)
 └── (数据存储在外部目录)
     ~/.openclaw/state/eng-lang-tutor/   # 实际数据存储位置
     ├── state.json              # 运行时状态
@@ -205,6 +207,7 @@ eng-lang-tutor/
 | 等级更新 | core/gamification.py | XP | level |
 | 徽章检查 | core/gamification.py | progress | new_badges |
 | 去重检查 | utils/dedup.py | new_content, recent_content | is_duplicate |
+| 异步音频生成 | core/state_manager.py | keypoint.json | audio/*.mp3 |
 
 ### 4.2 核心工作流
 
