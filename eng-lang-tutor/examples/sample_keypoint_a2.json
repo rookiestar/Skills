@@ -1,0 +1,124 @@
+{
+  "_meta": {
+    "prompt_version": "keypoint_gen_v2.1"
+  },
+  "date": "2026-02-25",
+  "topic_fingerprint": "social_nice_to_meet_you",
+  "category": "oral",
+  "topic": "social",
+  "scene": {
+    "context": "You are meeting someone for the first time. This is the standard polite expression when introduced to a new person.",
+    "formality": "neutral"
+  },
+  "expressions": [
+    {
+      "phrase": "Nice to meet you",
+      "pronunciation_tip": "Natural: 'nice-tuh-meet-chu'. The 'to' becomes 'tuh' and 'you' becomes 'chu'.",
+      "usage_note": "Use ONLY when meeting someone for the FIRST time. This is the most common introduction phrase."
+    },
+    {
+      "phrase": "Pleasure to meet you",
+      "pronunciation_tip": "More formal: 'pleh-zher-tuh-meet-chu'",
+      "usage_note": "Slightly more formal than 'Nice to meet you'. Good for business settings."
+    }
+  ],
+  "alternatives": [
+    "Good to meet you",
+    "It's a pleasure",
+    "Glad to meet you"
+  ],
+  "chinglish_trap": {
+    "wrong": "Nice to see you (when first meeting)",
+    "correct": "Nice to meet you",
+    "explanation": "'See you' is for people you already know or have met before. 'Meet you' is ONLY for first introductions. Chinese speakers often mix these up."
+  },
+  "examples": [
+    {
+      "situation": "At a party introduction",
+      "dialogue": [
+        "A: Sarah, this is Tom. Tom, this is Sarah.",
+        "B: Nice to meet you, Sarah!",
+        "C: Nice to meet you too, Tom!"
+      ]
+    },
+    {
+      "situation": "First day at work",
+      "dialogue": [
+        "A: Welcome to the team! I'm the manager, Lisa.",
+        "B: Pleasure to meet you, Lisa. I'm excited to be here."
+      ]
+    }
+  ],
+  "extended_learning": {
+    "related_phrases": [
+      "See you later - for someone you'll see again soon",
+      "See you soon - promise to meet again",
+      "It was nice meeting you - when saying goodbye after first meeting"
+    ],
+    "cultural_note": "In American culture, it's polite to smile and make eye contact when saying 'Nice to meet you'. A firm handshake is common in business settings."
+  },
+  "references": {
+    "dictionary": {
+      "source": "merriam-webster",
+      "url": "https://www.merriam-webster.com/dictionary/meet",
+      "note": "Definition of 'meet' vs 'see'"
+    },
+    "usage_context": {
+      "source": "youglish",
+      "url": "https://youglish.com/pronounce/nice%20to%20meet%20you/english/us",
+      "note": "Hear it in real introductions"
+    }
+  },
+  "display": {
+    "title": "🏢 今日知识点 | Today's Knowledge Point",
+    "topic_tag": "🏷️ 主题: 社交 | Social",
+    "formality_tag": "📊 正式度: 中性 | Neutral",
+    "scene_intro": "🎬 场景 | Scene",
+    "scene_text": "Meeting someone for the first time - standard introduction",
+    "expressions_title": "💬 核心表达 | Key Expressions",
+    "expressions_formatted": [
+      {
+        "emoji": "✨",
+        "phrase": "**Nice to meet you**",
+        "phrase_plain": "Nice to meet you",
+        "pronunciation": "🔊 'nice-tuh-meet-chu' - natural flow",
+        "usage": "💡 ONLY for first-time introductions!"
+      },
+      {
+        "emoji": "✨",
+        "phrase": "**Pleasure to meet you**",
+        "phrase_plain": "Pleasure to meet you",
+        "pronunciation": "🔊 'pleh-zher-tuh-meet-chu' - more formal",
+        "usage": "💡 Slightly more formal, good for business."
+      }
+    ],
+    "alternatives_title": "🔄 其他说法 | Alternatives",
+    "alternatives_formatted": "• **Good to meet you**\n• **It's a pleasure**\n• **Glad to meet you**",
+    "chinglish_title": "⚠️ Chinglish 陷阱 | Chinglish Trap",
+    "chinglish_formatted": "❌ Wrong: \"Nice to **see** you\" (first meeting)\n✅ Correct: **Nice to meet you!**\n\n📝 'See' = already know. 'Meet' = first time only!",
+    "examples_title": "🗣️ 对话示例 | Example Dialogues",
+    "examples_formatted": [
+      {
+        "situation_emoji": "🎉",
+        "situation": "At a party introduction",
+        "dialogue": "💬 A: Sarah, this is Tom.\n💬 B: **Nice to meet you**, Sarah!\n💬 C: **Nice to meet you too**, Tom!",
+        "key_phrase_highlight": "**Nice to meet you**"
+      },
+      {
+        "situation_emoji": "💼",
+        "situation": "First day at work",
+        "dialogue": "💬 A: Welcome! I'm Lisa, the manager.\n💬 B: **Pleasure to meet you**, Lisa.",
+        "key_phrase_highlight": "**Pleasure to meet you**"
+      }
+    ],
+    "extended_title": "📚 延伸学习 | Extended Learning",
+    "extended_formatted": "🔗 Related: **See you later** | **See you soon** | **It was nice meeting you**\n\n🌎 Tip: Smile + eye contact when saying 'Nice to meet you'!",
+    "references_title": "📖 权威参考 | References",
+    "references_formatted": "📚 [Merriam-Webster](https://www.merriam-webster.com/dictionary/meet) - Meet vs See\n🎬 [YouGlish](https://youglish.com/pronounce/nice%20to%20meet%20you/english/us) - Real usage",
+    "footer": "───────────────────\n📅 2026-02-25 | 📝 Take the quiz to earn XP!"
+  },
+  "audio": {
+    "enabled": true
+  },
+  "generated": true
+}

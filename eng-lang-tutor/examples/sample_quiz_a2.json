@@ -1,0 +1,94 @@
+{
+  "_meta": {
+    "prompt_version": "quiz_gen_v1.2"
+  },
+  "quiz_date": "2026-02-25",
+  "cefr_level": "A2",
+  "keypoint_fingerprint": "social_nice_to_meet_you",
+  "questions": [
+    {
+      "id": 1,
+      "type": "multiple_choice",
+      "question": "When do you say 'Nice to meet you'?",
+      "context": "Your colleague introduces you to a new team member.",
+      "options": [
+        "A. When you see an old friend",
+        "B. When you meet someone for the first time",
+        "C. When you say goodbye",
+        "D. When you ask for help"
+      ],
+      "correct_answer": "B",
+      "explanation": "'Nice to meet you' is ONLY used when meeting someone for the FIRST time. For old friends, use 'Good to see you'. For goodbye, use 'See you later'.",
+      "xp_value": 10,
+      "display": {
+        "type_emoji": "🔤",
+        "type_name": "选择题 | Multiple Choice",
+        "question_formatted": "💬 When do you say **'Nice to meet you'**?",
+        "context_formatted": "👋 Your colleague introduces you to a new team member.",
+        "options_formatted": [
+          "⬜ A. When you see an old friend",
+          "⬜ B. When you meet someone for the first time",
+          "⬜ C. When you say goodbye",
+          "⬜ D. When you ask for help"
+        ],
+        "hint": "💡 'Meet' = first time introduction",
+        "correct_feedback": "✅ Correct! **'Nice to meet you'** = first time only!",
+        "wrong_feedback": "❌ **'Nice to meet you'** is for first-time introductions only!",
+        "xp_display": "💎 +10 XP"
+      }
+    },
+    {
+      "id": 2,
+      "type": "chinglish_fix",
+      "question": "Fix the mistake in this introduction:",
+      "chinglish_sentence": "Hi John! Nice to see you. This is our first meeting.",
+      "correct_answer": "Nice to meet you",
+      "explanation": "If this is your FIRST meeting, use 'Nice to MEET you', not 'see you'. 'See you' is for people you already know or have met before.",
+      "xp_value": 15,
+      "display": {
+        "type_emoji": "🔧",
+        "type_name": "Chinglish 修正 | Fix the Chinglish",
+        "question_formatted": "🔧 Find and fix the error:",
+        "sentence_formatted": "📝 \"Hi John! **Nice to see you.** This is our first meeting.\"",
+        "hint": "💡 If it's the FIRST meeting, 'see' or 'meet'?",
+        "correct_feedback": "✅ Fixed! **'Nice to meet you!'** for first introductions! 🎉",
+        "wrong_feedback": "❌ First time = **'Nice to meet you'**, not 'see you'!",
+        "xp_display": "💎 +15 XP"
+      }
+    },
+    {
+      "id": 3,
+      "type": "fill_blank",
+      "question": "Choose the correct phrase:",
+      "context": "You're at a party. Your friend introduces you to someone. You say: '___!'",
+      "word_bank": ["Nice to meet you", "Nice to see you", "Good to know you"],
+      "correct_answer": "Nice to meet you",
+      "explanation": "'Nice to meet you' is the standard phrase for first introductions. 'Nice to see you' is for people you already know. 'Good to know you' is not commonly used.",
+      "xp_value": 12,
+      "display": {
+        "type_emoji": "✏️",
+        "type_name": "填空题 | Fill in the Blank",
+        "question_formatted": "✏️ Complete the response:",
+        "context_formatted": "🎉 Friend: \"This is Sarah.\" You: \"**___!**\"",
+        "word_bank_formatted": "📦 Options: [ **Nice to meet you** | Nice to see you | Good to know you ]",
+        "hint": "💡 First introduction = 'meet' or 'see'?",
+        "correct_feedback": "✅ Perfect! **'Nice to meet you!'** is the standard introduction! 🎯",
+        "wrong_feedback": "❌ For first introductions, say **'Nice to meet you!'**",
+        "xp_display": "💎 +12 XP"
+      }
+    }
+  ],
+  "total_xp": 37,
+  "passing_score": 70,
+  "display": {
+    "header": "📝 今日测验 | Daily Quiz",
+    "date": "📅 2026-02-25",
+    "difficulty": "📊 Level: **A2** (初级)",
+    "topic": "🏷️ Topic: **Nice to Meet You**",
+    "instructions": "🎯 3道小题，答对2道就过关！3 questions, get 2 right to pass!",
+    "progress_bar": "⬜⬜⬜ 0/3 questions",
+    "xp_summary": "💎 Total XP: 37 | 🏆 Pass: 2/3 correct",
+    "footer": "───────────────────\n💪 Good luck! 加油! 🚀"
+  },
+  "generated": true
+}

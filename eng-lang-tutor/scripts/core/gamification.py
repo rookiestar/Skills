@@ -14,7 +14,14 @@ Note: Leagues removed - not applicable for single-user scenario.
 from typing import Dict, Any, List, Tuple, Optional
 from datetime import datetime, date, timedelta
 
-from .constants import LEVEL_THRESHOLDS, get_level_name, calculate_level, get_streak_multiplier
+from .constants import (
+    LEVEL_THRESHOLDS,
+    get_level_name,
+    calculate_level,
+    get_streak_multiplier,
+    STREAK_FREEZE_COST,
+    HINT_COST
+)
 
 
 class GamificationManager:
@@ -60,10 +67,6 @@ class GamificationManager:
         }
     }
 
-    # Gem costs
-    STREAK_FREEZE_COST = 50
-    HINT_COST = 5
-
     def __init__(self, state_manager=None):
         """
         Initialize the gamification manager.
@@ -72,6 +75,19 @@ class GamificationManager:
             state_manager: Optional StateManager instance
         """
         self.state_manager = state_manager
+
+    # Wrapper methods for backward compatibility with tests
+    def calculate_level(self, xp: int) -> int:
+        """Wrapper for calculate_level function."""
+        return calculate_level(xp)
+
+    def get_level_name(self, level: int) -> str:
+        """Wrapper for get_level_name function."""
+        return get_level_name(level)
+
+    def get_streak_multiplier(self, streak: int) -> float:
+        """Wrapper for get_streak_multiplier function."""
+        return get_streak_multiplier(streak)
 
     def update_streak(self, state: Dict[str, Any], study_date: str) -> Tuple[int, bool, str]:
         """
@@ -262,8 +278,9 @@ class GamificationManager:
         """
         Spend gems on items.
 
-        TODO: This function is defined but not currently called in production.
-        Implement gem spending flow for streak freeze purchase and quiz hints.
+        Reserved for future gem economy features:
+        - Buy streak freeze: 50 gems
+        - Buy quiz hint: 10 gems
 
         Args:
             state: Current state
@@ -271,10 +288,10 @@ class GamificationManager:
 
         Returns:
             Tuple of (success, gems_spent)
-        """
+        """  # noqa: DOC501 - Reserved for future use
         GEM_COSTS = {
-            'streak_freeze': self.STREAK_FREEZE_COST,
-            'hint': self.HINT_COST
+            'streak_freeze': STREAK_FREEZE_COST,
+            'hint': HINT_COST
         }
 
         cost = GEM_COSTS.get(action, 0)

@@ -5,6 +5,10 @@ Shared constants for eng-lang-tutor.
 This module contains constants used across multiple scripts to avoid duplication.
 """
 
+# =============================================================================
+# GAME MECHANICS - Activity Levels & Progression
+# =============================================================================
+
 # Level thresholds (XP needed for each level)
 # Note: Level is Activity Level (活跃等级), measuring engagement depth,
 # NOT language ability (which is CEFR level A1-C2)
@@ -23,6 +27,58 @@ LEVEL_NAMES = {
     (16, 20): "Pioneer"     # 开拓者
 }
 
+# Streak bonus configuration
+STREAK_BONUS_PER_DAY = 0.05  # 5% bonus per day
+STREAK_BONUS_CAP = 2.0       # Maximum 2x multiplier
+
+# Gem economy
+STREAK_FREEZE_COST = 50  # gems to buy one streak freeze
+HINT_COST = 10           # gems to buy a quiz hint
+
+# =============================================================================
+# QUIZ XP VALUES
+# =============================================================================
+
+QUIZ_XP = {
+    "multiple_choice": 10,
+    "chinglish_fix": 15,
+    "fill_blank": 12,
+    "dialogue_completion": 15
+}
+QUIZ_PASS_THRESHOLD = 2  # 2/3 correct to pass
+QUIZ_QUESTIONS_PER_DAY = 3
+
+# =============================================================================
+# ERROR NOTEBOOK
+# =============================================================================
+
+ERROR_ARCHIVE_WRONG_THRESHOLD = 3   # Archive if wrong_count >= 3
+ERROR_ARCHIVE_DAYS_THRESHOLD = 30   # Archive if over 30 days old
+ERROR_NOTEBOOK_MAX = 100            # Maximum errors in notebook
+
+# =============================================================================
+# AUDIO PROCESSING
+# =============================================================================
+
+AUDIO_TTS_TIMEOUT = 30          # seconds, for single TTS synthesis
+AUDIO_CONCAT_TIMEOUT = 120      # seconds, for concatenating segments
+AUDIO_CONVERSION_TIMEOUT = 60   # seconds, for format conversion
+
+# Audio silence durations
+AUDIO_SILENCE_LEAD_IN = 1.0     # seconds, after lead-in phrase
+AUDIO_SILENCE_SECTION = 2.0     # seconds, between sections
+AUDIO_SILENCE_DIALOGUE = 0.5    # seconds, between dialogue lines
+
+# =============================================================================
+# DEDUPLICATION
+# =============================================================================
+
+DEDUP_DEFAULT_DAYS = 14  # Default days for content deduplication
+
+
+# =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
 
 def get_level_name(level: int) -> str:
     """
@@ -54,11 +110,6 @@ def calculate_level(xp: int) -> int:
         if xp >= LEVEL_THRESHOLDS[i]:
             return i + 1
     return 1
-
-
-# Streak bonus configuration
-STREAK_BONUS_PER_DAY = 0.05  # 5% bonus per day
-STREAK_BONUS_CAP = 2.0       # Maximum 2x multiplier
 
 
 def get_streak_multiplier(streak: int) -> float:

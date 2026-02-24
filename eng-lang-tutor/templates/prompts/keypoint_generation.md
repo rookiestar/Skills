@@ -105,6 +105,9 @@ When generating knowledge points, include links to these authoritative sources:
 
 ```json
 {
+  "_meta": {
+    "prompt_version": "keypoint_gen_v2.1"
+  },
   "date": "{today_date}",
   "topic_fingerprint": "unique_lowercase_with_underscores",
   "category": "oral|written",
