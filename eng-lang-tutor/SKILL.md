@@ -1,11 +1,9 @@
 ---
 name: eng-lang-tutor
-description: "地道美式英语导师 - 提供每日知识点、Quiz测验等学习内容。支持游戏化学习（XP/连胜/等级/徽章）。触发场景：学习英语、英语知识点、Quiz、错题本、学习进度。被 cron job 调用以实现定期内容推送。【⛔重要：引导流程固定7步，显示为 Step 1/7 到 Step 7/7，绝不可显示 Step X/6】"
+description: "地道美式英语导师 - 提供每日知识点、Quiz测验等学习内容。支持游戏化学习（XP/连胜/等级/徽章）。触发场景：学习英语、英语知识点、Quiz、错题本、学习进度。被 cron job 调用以实现定期内容推送。"
 ---
 
 # American English Tutor
-
-> **⛔ ONBOARDING = 7 STEPS** (Step 1/7 through Step 7/7). NEVER display "Step X/6"!
 
 ## Overview
 
@@ -271,20 +269,16 @@ The bot recognizes these natural language commands:
 
 ## Initialization Flow
 
-> **⛔ CRITICAL - TOTAL ONBOARDING STEPS = 7 (NOT 6!)**
->
-> You MUST display step titles as **"Step 1/7"**, **"Step 2/7"**, etc. (NOT "Step 1/6"!)
->
-> The 7 steps are:
-> 1. CEFR Level
-> 2. Topic Interests
-> 3. Tutor Style
-> 4. Oral/Written Ratio
-> 5. Schedule
-> 6. **Voice Teaching** ← THIS IS THE NEW STEP!
-> 7. Confirm
->
-> Follow [templates/prompts/initialization.md](templates/prompts/initialization.md) exactly. Display ALL options with numbers (1, 2, 3...). NEVER skip or abbreviate options.
+The 7-step onboarding process:
+1. CEFR Level
+2. Topic Interests
+3. Tutor Style
+4. Oral/Written Ratio
+5. Schedule
+6. Voice Teaching
+7. Confirm
+
+Follow [templates/prompts/initialization.md](templates/prompts/initialization.md) exactly. Display ALL options with numbers (1, 2, 3...).
 
 **Step 7 Completion:** Set `initialized=true` + Create cron jobs for keypoint/quiz push times.
 
