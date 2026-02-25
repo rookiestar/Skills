@@ -15,6 +15,20 @@ Includes Duolingo-style gamification (XP, streaks, levels, badges).
 
 ## Core Workflow
 
+### 0. Initialization Guard Check
+
+> **⛔ BEFORE generating any content (keypoint/quiz), check `initialized` status:**
+
+```
+If state.initialized == false:
+  1. Show friendly message: "看起来你还没有完成初始化配置，让我帮你快速设置一下吧！"
+  2. Automatically start onboarding from Step 1/7
+  3. DO NOT proceed with content generation until onboarding completes
+
+If state.initialized == true:
+  Proceed with normal workflow below
+```
+
 ### 1. Daily Knowledge Point Generation
 
 ```
