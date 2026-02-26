@@ -80,11 +80,6 @@ class AudioComposer:
         """析构函数（备用清理，不保证被调用）"""
         self._cleanup()
 
-    # Edge-TTS 默认音色（兼容讯飞时由 TTSProvider 映射）
-    DEFAULT_NARRATOR_VOICE = "en-US-JennyNeural"    # 旁白 - 女声，友好亲切
-    DEFAULT_VOICE_A = "en-US-EricNeural"            # 对话 A - 男声，专业理性
-    DEFAULT_VOICE_B = "en-US-JennyNeural"           # 对话 B - 女声，友好亲切
-
     def compose_keypoint_audio(
         self,
         keypoint: dict,
@@ -92,9 +87,9 @@ class AudioComposer:
         lead_in_silence: float = 1.0,   # 引导语后留白
         section_silence: float = 2.0,   # 内容后留白（段落间隔）
         dialogue_silence: float = 0.5,  # 对话行之间留白
-        narrator_voice: str = None,     # 旁白音色
-        voice_a: str = None,            # 对话 A 音色
-        voice_b: str = None,            # 对话 B 音色
+        narrator_voice: str = None,     # 旁白音色（None 时使用 TTS provider 默认值）
+        voice_a: str = None,            # 对话 A 音色（None 时使用 TTS provider 默认值）
+        voice_b: str = None,            # 对话 B 音色（None 时使用 TTS provider 默认值）
         speed: float = 0.9              # 语速
     ) -> CompositionResult:
         """
@@ -115,10 +110,10 @@ class AudioComposer:
             CompositionResult: 合成结果
         """
         try:
-            # 使用默认音色
-            narrator_voice = narrator_voice or self.DEFAULT_NARRATOR_VOICE
-            voice_a = voice_a or self.DEFAULT_VOICE_A
-            voice_b = voice_b or self.DEFAULT_VOICE_B
+            # 使用 TTS provider 的默认音色（自动适配 Edge-TTS 或讯飞）
+            narrator_voice = narrator_voice or self.tts.get_voice_by_role("narrator")
+            voice_a = voice_a or self.tts.get_voice_by_role("dialogue_a")
+            voice_b = voice_b or self.tts.get_voice_by_role("dialogue_b")
 
             output_path = Path(output_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)

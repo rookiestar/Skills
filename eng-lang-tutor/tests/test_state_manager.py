@@ -342,7 +342,7 @@ class TestCLICommands:
         })
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "save_daily",
              "--content-type", "keypoint",
@@ -376,7 +376,7 @@ class TestCLICommands:
         })
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "save_daily",
              "--content-type", "quiz",
@@ -399,7 +399,7 @@ class TestCLICommands:
         import json
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "record_view",
              "--date", "2026-02-22"],
@@ -424,7 +424,7 @@ class TestCLICommands:
         import subprocess
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "save_daily"],
             capture_output=True,
@@ -439,7 +439,7 @@ class TestCLICommands:
         import subprocess
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "save_daily",
              "--content-type", "keypoint",
@@ -457,7 +457,7 @@ class TestCLICommands:
         import json
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "show"],
             capture_output=True,
@@ -476,7 +476,7 @@ class TestCLICommands:
         import subprocess
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "backup"],
             capture_output=True,
@@ -492,7 +492,7 @@ class TestCLICommands:
         import json
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "stats"],
             capture_output=True,
@@ -511,7 +511,7 @@ class TestCLICommands:
         import json
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "config"],
             capture_output=True,
@@ -530,7 +530,7 @@ class TestCLICommands:
 
         # Update CEFR level
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "config",
              "--cefr", "C1"],
@@ -543,7 +543,7 @@ class TestCLICommands:
 
         # Verify update
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "config"],
             capture_output=True,
@@ -557,7 +557,7 @@ class TestCLICommands:
         import subprocess
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "config",
              "--cefr", "X9"],
@@ -574,7 +574,7 @@ class TestCLICommands:
         import json
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "errors",
              "--stats"],
@@ -598,7 +598,7 @@ class TestCLICommands:
         sm.save_state(sample_state)
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "errors"],
             capture_output=True,
@@ -616,7 +616,7 @@ class TestCLICommands:
         import json
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "schedule"],
             capture_output=True,
@@ -634,7 +634,7 @@ class TestCLICommands:
         import json
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "schedule",
              "--keypoint-time", "07:00",
@@ -651,7 +651,7 @@ class TestCLICommands:
         import subprocess
 
         result = subprocess.run(
-            ["python3", "scripts/state_manager.py",
+            ["python3", "-m", "scripts.core.state_manager",
              "--data-dir", str(tmp_path),
              "schedule",
              "--keypoint-time", "22:00",

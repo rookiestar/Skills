@@ -810,5 +810,8 @@ class StateManager:
 
 # CLI interface - delegated to cli.py for better code organization
 if __name__ == "__main__":
-    from cli import main
+    try:
+        from ..cli.cli import main
+    except ImportError:
+        from scripts.cli.cli import main
     main()
