@@ -225,7 +225,7 @@ class TestGetVoice:
 
     def test_get_female_voice(self):
         """测试获取女声"""
-        from scripts.tts.providers.xunfei import XunFeiProvider
+        from scripts.audio.tts.providers.xunfei import XunFeiProvider
 
         provider = XunFeiProvider(
             appid="test",
@@ -236,7 +236,7 @@ class TestGetVoice:
 
     def test_get_male_voice(self):
         """测试获取男声"""
-        from scripts.tts.providers.xunfei import XunFeiProvider
+        from scripts.audio.tts.providers.xunfei import XunFeiProvider
 
         provider = XunFeiProvider(
             appid="test",
@@ -247,7 +247,7 @@ class TestGetVoice:
 
     def test_get_voice_with_custom_config(self):
         """测试使用自定义配置获取语音"""
-        from scripts.tts.providers.xunfei import XunFeiProvider
+        from scripts.audio.tts.providers.xunfei import XunFeiProvider
 
         config = TTSConfig(female_voice="mary", male_voice="john")
         provider = XunFeiProvider(

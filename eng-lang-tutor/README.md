@@ -277,6 +277,7 @@ eng-lang-tutor/
 │   ├── cli/                    # 命令行模块
 │   │   ├── cli.py              # CLI 入口点
 │   │   └── command_parser.py   # 用户命令解析
+│   ├── setup.py                # 依赖安装脚本 (npm bin)
 │   ├── scheduling/             # 调度模块
 │   │   └── cron_push.py        # 定时内容推送
 │   ├── utils/                  # 工具模块
