@@ -37,10 +37,21 @@ sudo apt-get install ffmpeg python3 python3-venv
 **方式一：npm 安装（推荐）**
 
 ```bash
+# 1. Install the npm package
 npm install -g @rookiestar/eng-lang-tutor
-```
 
-安装会自动执行，skill 将被安装到 `~/.openclaw/skills/eng-lang-tutor/`。
+# 2. Install Python dependencies (choose one method)
+
+# Option A: Using virtual environment (recommended)
+eng-lang-tutor-setup --venv
+# Then activate before using: source ~/.venvs/eng-lang-tutor/bin/activate
+
+# Option B: Install to user directory
+eng-lang-tutor-setup --user
+
+# Option C: Check if dependencies are already installed
+eng-lang-tutor-setup --check
+```
 
 **方式二：从源码安装**
 
@@ -57,12 +68,13 @@ pip install -r eng-lang-tutor/requirements.txt
 **手动安装依赖（如需要）：**
 
 ```bash
-# 创建 Python 虚拟环境
+# 使用 setup 脚本（推荐）
+eng-lang-tutor-setup --venv ~/.venvs/eng-lang-tutor
+
+# 或手动创建虚拟环境
 python3 -m venv ~/.venvs/eng-lang-tutor
 source ~/.venvs/eng-lang-tutor/bin/activate  # Linux/macOS
-
-# 安装依赖
-pip install -r ~/.openclaw/skills/eng-lang-tutor/requirements.txt
+pip install -r $(npm root -g)/@rookiestar/eng-lang-tutor/requirements.txt
 ```
 
 **验证安装：**
