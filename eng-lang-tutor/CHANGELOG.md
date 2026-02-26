@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2025-02-27
+
+### Changed
+- Version bump for npm publishing (1.0.0 was previously unpublished)
+
 ## [1.0.0] - 2025-02-26
 
 Initial release.
