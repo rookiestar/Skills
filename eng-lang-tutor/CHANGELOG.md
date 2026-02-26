@@ -2,7 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.4] - 2026-02-27
+
+### Fixed
+- **TTS voice selection**: Audio composer now automatically selects appropriate voices based on TTS provider
+  - Edge-TTS: `en-US-JennyNeural`, `en-US-EricNeural`
+  - XunFei: `catherine`, `henry`
+- **CLI import paths**: Fixed broken imports in `state_manager.py` CLI module
+
+### Changed
+- **npm package**: Removed automatic `pip install` from postinstall script
+  - Added `eng-lang-tutor-setup` CLI tool for manual dependency installation
+  - Supports `--venv`, `--user`, and `--check` options
+- **Test coverage**: Added 38 new tests covering:
+  - `scripts/audio/utils.py` (6 tests)
+  - `scripts/audio/converter.py` (16 tests)
+  - `scripts/utils/helpers.py` (16 tests)
+- **Test fixes**: Fixed pre-existing test failures in CLI and TTS modules
+
 ## [1.2.3] - 2026-02-27
+
+### Changed
+- Version bump for npm publishing
+
+## [1.2.0] - 2026-02-27
+
+### Changed
+- Initial npm package setup
+
+## [1.0.1] - 2025-02-27
 
 ### Fixed
 - **TTS voice selection**: Audio composer now automatically selects appropriate voices based on TTS provider
