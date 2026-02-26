@@ -269,12 +269,7 @@ eng-lang-tutor/
 | 主题资源库 | references/resources.md | 美剧/新闻/游戏/体育/职场/生活 |
 | LLM提示模板 | references/prompt_templates.md | 知识点/Quiz生成模板 |
 
-### 5.5 安装与使用
+### 5.5 行动准则
 
-```bash
-# 1. 添加官方Skills市场
-/plugin marketplace add anthropics/skills
-
-# 2. 安装skill-creator（可选，用于生成新skill）
-/plugin install skill-creator@anthropic-agent-skills
-```
+- 未经允许不得擅自执行git commit、push和publish等相关动作
+- 针对耗费较长时间做debug或者反复掉坑的情况，需要及时总结复盘，并将经验精炼到本文档中
