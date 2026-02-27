@@ -28,6 +28,7 @@
           "⬜ C. They want to cancel the project",
           "⬜ D. They want you to write the report"
         ],
+        "hint": "💡 Think about what kind of conversation this implies",
         "correct_feedback": "✅ Correct! **'Touch base'** = quick check-in ⚡",
         "wrong_feedback": "❌ Not quite. **'Touch base'** means a brief, informal chat!",
         "key_phrase": "**touch base**",
@@ -70,6 +71,7 @@
         "question_formatted": "✏️ Complete the sentence:",
         "context_formatted": "💼 To your manager: \"I wanted to **___** on the project timeline.\"",
         "word_bank_formatted": "📦 Word Bank: [ **touch base** | 'discuss together' ❌ | 'communicate' ❌ ]",
+        "hint": "💡 Which sounds natural for a quick check-in with your manager?",
         "correct_feedback": "✅ Perfect! **'Touch base'** is the way to go! 🎯",
         "wrong_feedback": "❌ 'Discuss together' sounds awkward. Try **'touch base'**!",
         "key_phrase": "**touch base**",

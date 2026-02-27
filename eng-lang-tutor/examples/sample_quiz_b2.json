@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "prompt_version": "quiz_gen_v1.2"
+    "prompt_version": "quiz_gen_v1.3"
   },
   "quiz_date": "2026-02-25",
   "cefr_level": "B2",
@@ -50,7 +50,7 @@
         "type_name": "Chinglish 修正 | Fix the Chinglish",
         "question_formatted": "🔧 Make this sound more corporate:",
         "sentence_formatted": "📝 \"We need to **discuss this topic again** after the meeting.\"",
-        "hint": "💡 Use a spatial metaphor that implies returning",
+        "hint": "💡 Which sounds most natural in American corporate culture?",
         "correct_feedback": "✅ Much better! **'Let's circle back on this'** sounds professional! 🎉",
         "wrong_feedback": "❌ Try **'Let's circle back on this'** instead of 'discuss again'",
         "xp_display": "💎 +15 XP"
@@ -71,7 +71,7 @@
         "question_formatted": "✏️ Complete the sentence:",
         "context_formatted": "📧 \"I'll **___** on the project updates.\"",
         "word_bank_formatted": "📦 Options: [ **loop you in** | circle back | touch base | reach out ]",
-        "hint": "💡 Include someone = ?",
+        "hint": "💡 Think about the relationship - you're keeping them informed",
         "correct_feedback": "✅ Perfect! **'Loop you in'** means include in communication! 🎯",
         "wrong_feedback": "❌ **'Loop you in'** is for including someone in future communication!",
         "xp_display": "💎 +12 XP"
