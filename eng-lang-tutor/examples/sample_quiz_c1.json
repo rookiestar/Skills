@@ -1,0 +1,94 @@
+{
+  "_meta": {
+    "prompt_version": "quiz_gen_v1.2"
+  },
+  "quiz_date": "2026-02-25",
+  "cefr_level": "C1",
+  "keypoint_fingerprint": "workplace_take_offline",
+  "questions": [
+    {
+      "id": 1,
+      "type": "multiple_choice",
+      "question": "A detailed technical debate is derailing your stakeholder meeting. What's the most diplomatic way to redirect?",
+      "context": "Engineers are deep in API latency details while business stakeholders look confused.",
+      "options": [
+        "A. This is boring, let's stop",
+        "B. Let's take this offline with just the engineering team",
+        "C. You shouldn't discuss this here",
+        "D. We don't have time for this"
+      ],
+      "correct_answer": "B",
+      "explanation": "'Take this offline' is the diplomatic corporate phrase that redirects without dismissing. It implies the discussion is valid, just not in this forum. The other options are too blunt or rude.",
+      "xp_value": 10,
+      "display": {
+        "type_emoji": "🔤",
+        "type_name": "选择题 | Multiple Choice",
+        "question_formatted": "💬 What's the most **diplomatic** way to redirect?",
+        "context_formatted": "⚙️ Engineers debating API details. Stakeholders confused.",
+        "options_formatted": [
+          "⬜ A. This is boring, let's stop",
+          "⬜ B. Let's take this offline with just the engineering team",
+          "⬜ C. You shouldn't discuss this here",
+          "⬜ D. We don't have time for this"
+        ],
+        "hint": "💡 Which redirects politely without dismissing?",
+        "correct_feedback": "✅ Correct! **'Take this offline'** redirects diplomatically!",
+        "wrong_feedback": "❌ **'Take this offline'** is the diplomatic corporate phrase!",
+        "xp_display": "💎 +10 XP"
+      }
+    },
+    {
+      "id": 2,
+      "type": "chinglish_fix",
+      "question": "A team member raises a sensitive performance issue in a large group meeting. Make your response more professional:",
+      "chinglish_sentence": "Let's talk privately about this later.",
+      "correct_answer": "Let's take this offline",
+      "explanation": "'Talk privately' can sound exclusionary or secretive in a group setting. 'Take offline' is the professional euphemism that sounds efficient rather than secretive. It implies appropriateness, not exclusion.",
+      "xp_value": 15,
+      "display": {
+        "type_emoji": "🔧",
+        "type_name": "Chinglish 修正 | Fix the Chinglish",
+        "question_formatted": "🔧 Make this sound more corporate:",
+        "sentence_formatted": "📝 \"Let's **talk privately** about this later.\" (in a group meeting)",
+        "hint": "💡 What's the professional euphemism?",
+        "correct_feedback": "✅ Much better! **'Take this offline'** sounds professional! 🎉",
+        "wrong_feedback": "❌ **'Take this offline'** is the professional euphemism!",
+        "xp_display": "💎 +15 XP"
+      }
+    },
+    {
+      "id": 3,
+      "type": "fill_blank",
+      "question": "Choose the idiom that means 'unproductive discussion':",
+      "context": "Your team has been discussing the same problem for 30 minutes with no progress. You say: 'We're ___ here. Let's move on.'",
+      "word_bank": ["spinning our wheels", "boiling the ocean", "touching base", "circling back"],
+      "correct_answer": "spinning our wheels",
+      "explanation": "'Spinning our wheels' comes from car imagery—wheels spinning in mud without moving forward. It describes unproductive discussion. 'Boiling the ocean' is about over-ambitious scope. The others don't fit this context.",
+      "xp_value": 12,
+      "display": {
+        "type_emoji": "✏️",
+        "type_name": "填空题 | Fill in the Blank",
+        "question_formatted": "✏️ Complete with the right idiom:",
+        "context_formatted": "🔄 30 minutes, no progress. \"We're **___** here.\"",
+        "word_bank_formatted": "📦 Options: [ **spinning our wheels** | boiling the ocean | touching base | circling back ]",
+        "hint": "💡 Car metaphor = going nowhere",
+        "correct_feedback": "✅ Perfect! **'Spinning our wheels'** = unproductive! 🎯",
+        "wrong_feedback": "❌ **'Spinning our wheels'** describes unproductive discussion!",
+        "xp_display": "💎 +12 XP"
+      }
+    }
+  ],
+  "total_xp": 37,
+  "passing_score": 70,
+  "display": {
+    "header": "📝 今日测验 | Daily Quiz",
+    "date": "📅 2026-02-25",
+    "difficulty": "📊 Level: **C1** (高级)",
+    "topic": "🏷️ Topic: **Take Offline / Spinning Wheels**",
+    "instructions": "🎯 3道小题，答对2道就过关！3 questions, get 2 right to pass!",
+    "progress_bar": "⬜⬜⬜ 0/3 questions",
+    "xp_summary": "💎 Total XP: 37 | 🏆 Pass: 2/3 correct",
+    "footer": "───────────────────\n💪 Good luck! 加油! 🚀"
+  },
+  "generated": true
+}

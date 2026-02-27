@@ -1,0 +1,135 @@
+{
+  "date": "2026-02-20",
+  "topic_fingerprint": "workplace_touch_base",
+  "category": "oral",
+  "topic": "workplace",
+  "scene": {
+    "context": "You want to briefly connect with a colleague about a project or task. This is common in American workplaces for quick check-ins without scheduling a formal meeting.",
+    "formality": "neutral"
+  },
+  "expressions": [
+    {
+      "phrase": "Let's touch base",
+      "pronunciation_tip": "Sounds like 'touch base', not 'touch bases'. It comes from baseball!",
+      "usage_note": "Use this when you want to have a brief, informal check-in. Very common in American business culture."
+    },
+    {
+      "phrase": "Can we touch base on this?",
+      "pronunciation_tip": "Natural speed: 'Can-we-touch-base-on-this' flows together.",
+      "usage_note": "Add 'on this' when referring to a specific topic or project."
+    }
+  ],
+  "alternatives": [
+    "Let's sync up",
+    "Can we catch up briefly?",
+    "Let's check in",
+    "Do you have a minute to connect?"
+  ],
+  "chinglish_trap": {
+    "wrong": "Let's discuss together. / I want to communicate with you.",
+    "correct": "Let's touch base. / Can we sync up?",
+    "explanation": "Chinese speakers often translate directly, using 'discuss together' or 'communicate with you', which sounds formal and awkward in casual workplace settings. 'Touch base' is the natural American way to suggest a quick check-in."
+  },
+  "examples": [
+    {
+      "situation": "Morning standup meeting",
+      "dialogue": [
+        "A: Hey, I haven't seen the latest mockups. Can we touch base on those?",
+        "B: Sure, I'll swing by your desk after lunch.",
+        "A: Perfect, thanks!"
+      ]
+    },
+    {
+      "situation": "Email follow-up",
+      "dialogue": [
+        "A: I'm heading into a meeting, but let's touch base later about the client presentation.",
+        "B: Sounds good. I'll be free around 3.",
+        "A: Great, I'll ping you then."
+      ]
+    }
+  ],
+  "extended_learning": {
+    "related_phrases": [
+      "circle back - return to a topic later",
+      "loop in - include someone in communication",
+      "keep in the loop - keep someone informed"
+    ],
+    "cultural_note": "The phrase 'touch base' comes from baseball, where runners must touch each base to score. In business, it means making brief contact to share updates or align on goals. Americans use this several times per day in corporate settings!",
+    "common_mistakes": [
+      "Saying 'touch bases' (wrong plural)",
+      "Using it for long, formal meetings (it implies brevity)",
+      "Not following up after saying you'll 'touch base'"
+    ]
+  },
+  "references": {
+    "dictionary": {
+      "source": "merriam-webster",
+      "url": "https://www.merriam-webster.com/dictionary/touch%20base",
+      "note": "Official definition and usage examples"
+    },
+    "usage_context": {
+      "source": "youglish",
+      "url": "https://youglish.com/pronounce/touch%20base/english/us",
+      "note": "Hear it in 1000+ real YouTube videos"
+    },
+    "etymology": {
+      "source": "etymonline",
+      "url": "https://www.etymonline.com/word/touch",
+      "note": "From baseball: runners must touch each base to score"
+    }
+  },
+  "display": {
+    "title": "🏢 今日知识点 | Today's Knowledge Point",
+    "topic_tag": "🏷️ 主题: 职场口语 | Workplace Oral",
+    "formality_tag": "📊 正式度: 中性 | Neutral",
+    "scene_intro": "🎬 场景 | Scene",
+    "scene_text": "Quick check-in with colleagues without scheduling a formal meeting.",
+    "expressions_title": "💬 核心表达 | Key Expressions",
+    "expressions_formatted": [
+      {
+        "emoji": "✨",
+        "phrase": "**Let's touch base**",
+        "phrase_plain": "Let's touch base",
+        "pronunciation": "🔊 Sounds like 'touch base' (not 'bases')! From baseball ⚾",
+        "usage": "💡 Brief, informal check-in."
+      },
+      {
+        "emoji": "✨",
+        "phrase": "**Can we touch base on this?**",
+        "phrase_plain": "Can we touch base on this?",
+        "pronunciation": "🔊 Flows: Can-we-touch-base-ON-this.",
+        "usage": "💡 Use when referring to a specific topic."
+      }
+    ],
+    "alternatives_title": "🔄 其他说法 | Alternatives",
+    "alternatives_formatted": "• **Let's sync up**\n• **Can we catch up briefly?**\n• **Let's check in**\n• Do you have a minute to connect?",
+    "chinglish_title": "⚠️ Chinglish 陷阱 | Chinglish Trap",
+    "chinglish_formatted": "❌ Wrong: \"Let's discuss together.\"\n❌ Wrong: \"I want to communicate with you.\"\n✅ Correct: **Let's touch base!**\n✅ Correct: **Can we sync up?**\n\n📝 Why? Direct translation sounds formal and awkward. **Touch base** is the natural American way!",
+    "examples_title": "🗣️ 对话示例 | Example Dialogues",
+    "examples_formatted": [
+      {
+        "situation_emoji": "☕",
+        "situation": "Morning standup",
+        "dialogue": "💬 A: Hey, can we **touch base** on those mockups?\n💬 B: Sure, I'll swing by after lunch.\n💬 A: Perfect, thanks!",
+        "key_phrase_highlight": "**touch base**"
+      },
+      {
+        "situation_emoji": "📧",
+        "situation": "Email follow-up",
+        "dialogue": "💬 A: Let's **touch base** later about the presentation.\n💬 B: Sounds good. Free around 3?\n💬 A: Great, I'll ping you then!",
+        "key_phrase_highlight": "**touch base**"
+      }
+    ],
+    "extended_title": "📚 延伸学习 | Extended Learning",
+    "extended_formatted": "🔗 Related: **circle back** | **loop in** | **keep in the loop**\n\n🌎 Cultural Note: From baseball ⚾ - runners **touch** each **base** to score. Americans use this phrase several times a day!\n\n🚫 Common Mistakes:\n  • Saying 'touch bases' ❌\n  • Using for long meetings (it implies brevity)\n  • Not following up",
+    "references_title": "📖 权威参考 | References",
+    "references_formatted": "📚 [Merriam-Webster](https://www.merriam-webster.com/dictionary/touch%20base) - Definition & examples\n🎬 [YouGlish](https://youglish.com/pronounce/touch%20base/english/us) - 1000+ YouTube videos\n📜 [Etymonline](https://www.etymonline.com/word/touch) - Word origin",
+    "footer": "───────────────────\n📅 2026-02-20 | 📝 Take the quiz to earn XP!"
+  },
+  "audio": {
+    "enabled": true,
+    "narrator": "audio/2026-02-20/narrator.mp3",
+    "dialogue": []
+  },
+  "generated": true
+}

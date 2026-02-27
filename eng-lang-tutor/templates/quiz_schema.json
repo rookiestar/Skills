@@ -1,0 +1,214 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "quiz_schema.json",
+  "title": "Quiz",
+  "description": "Daily quiz for knowledge point reinforcement with emoji-enhanced display",
+  "type": "object",
+  "required": ["quiz_date", "questions", "total_xp", "passing_score"],
+  "properties": {
+    "quiz_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of this quiz (YYYY-MM-DD)"
+    },
+    "cefr_level": {
+      "type": "string",
+      "enum": ["A1", "A2", "B1", "B2", "C1", "C2"],
+      "description": "Target CEFR level for this quiz"
+    },
+    "keypoint_fingerprint": {
+      "type": "string",
+      "description": "Reference to the knowledge point this quiz is based on"
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "question", "correct_answer", "xp_value"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Question number"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["multiple_choice", "fill_blank", "dialogue_completion", "chinglish_fix"],
+            "description": "Question type"
+          },
+          "question": {
+            "type": "string",
+            "description": "The question text or prompt"
+          },
+          "chinglish_sentence": {
+            "type": "string",
+            "description": "Original Chinglish sentence for chinglish_fix type"
+          },
+          "context": {
+            "type": "string",
+            "description": "Optional context or scenario description"
+          },
+          "options": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "string"
+            },
+            "description": "Options for multiple_choice type (A, B, C, D)"
+          },
+          "word_bank": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional word bank for fill_blank type"
+          },
+          "correct_answer": {
+            "type": "string",
+            "description": "The correct answer (option letter for multiple_choice, word for others)"
+          },
+          "explanation": {
+            "type": "string",
+            "description": "Explanation of why this answer is correct"
+          },
+          "xp_value": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 20,
+            "description": "XP reward for correct answer"
+          },
+          "display": {
+            "type": "object",
+            "description": "Emoji-enhanced display format for this question",
+            "properties": {
+              "type_emoji": {
+                "type": "string",
+                "description": "Question type emoji (🔤, ✏️, 💬, 🔧)"
+              },
+              "type_name": {
+                "type": "string",
+                "description": "Question type name in bilingual format"
+              },
+              "question_formatted": {
+                "type": "string",
+                "description": "Question with emoji prefix"
+              },
+              "context_formatted": {
+                "type": "string",
+                "description": "Context with appropriate emoji"
+              },
+              "sentence_formatted": {
+                "type": "string",
+                "description": "Formatted sentence for display (e.g., with bold corrections)"
+              },
+              "dialogue_formatted": {
+                "type": "string",
+                "description": "Dialogue with speaker emojis"
+              },
+              "options_formatted": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Options with checkbox emoji"
+              },
+              "word_bank_formatted": {
+                "type": "string",
+                "description": "Word bank with box emoji"
+              },
+              "hint": {
+                "type": "string",
+                "description": "Hint with lightbulb emoji"
+              },
+              "email_formatted": {
+                "type": "string",
+                "description": "Email content with email emoji"
+              },
+              "correct_feedback": {
+                "type": "string",
+                "description": "Positive feedback with checkmark emoji"
+              },
+              "wrong_feedback": {
+                "type": "string",
+                "description": "Helpful hint with X emoji"
+              },
+              "answer_formatted": {
+                "type": "string",
+                "description": "Formatted correct answer"
+              },
+              "xp_display": {
+                "type": "string",
+                "description": "XP display with gem emoji"
+              },
+              "key_phrase": {
+                "type": "string",
+                "description": "Key phrase with bold formatting (e.g., '**touch base**')"
+              },
+              "correct_pattern": {
+                "type": "string",
+                "description": "Pattern explanation with bold (e.g., '**Agree + suggest time**')"
+              }
+            }
+          }
+        }
+      }
+    },
+    "total_xp": {
+      "type": "integer",
+      "minimum": 30,
+      "maximum": 50,
+      "description": "Sum of all question XP values"
+    },
+    "passing_score": {
+      "type": "integer",
+      "minimum": 50,
+      "maximum": 100,
+      "default": 70,
+      "description": "Percentage needed to pass"
+    },
+    "display": {
+      "type": "object",
+      "description": "Emoji-enhanced display format for the entire quiz",
+      "properties": {
+        "header": {
+          "type": "string",
+          "description": "Quiz title with emoji (e.g., '📝 今日测验 | Daily Quiz')"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date with calendar emoji"
+        },
+        "topic": {
+          "type": "string",
+          "description": "Topic tag with label emoji"
+        },
+        "instructions": {
+          "type": "string",
+          "description": "Instructions with target emoji"
+        },
+        "progress_bar": {
+          "type": "string",
+          "description": "Visual progress indicator"
+        },
+        "key_phrase_summary": {
+          "type": "string",
+          "description": "Summary of key phrase with translation (e.g., '🔑 Key Phrase: **touch base** = 快速沟通')"
+        },
+        "xp_summary": {
+          "type": "string",
+          "description": "XP and passing score summary"
+        },
+        "footer": {
+          "type": "string",
+          "description": "Encouraging footer message"
+        }
+      }
+    },
+    "generated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether LLM content has been fully generated. CRITICAL: Set to true after generation to prevent re-generation"
+    }
+  }
+}
