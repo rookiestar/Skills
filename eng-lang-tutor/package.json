@@ -1,6 +1,6 @@
 {
   "name": "@rookiestar/eng-lang-tutor",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "地道美式英语导师 - OpenClaw Skill for learning authentic American English",
   "main": "scripts/cli/cli.py",
   "bin": {
