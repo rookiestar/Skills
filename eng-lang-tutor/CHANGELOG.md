@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.8] - 2026-02-28
+
+### Fixed
+- **scorer.py demo**: Changed hardcoded date to dynamic date using `datetime.now()`
+
 ## [1.2.7] - 2026-02-28
 
 ### Fixed
