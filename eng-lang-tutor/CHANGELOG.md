@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.7] - 2026-02-28
+
+### Fixed
+- **CLI config display**: Fixed `topic_weights` field name mismatch
+  - Changed from `topic_weights` to `topics` to match actual state storage
+- **state_manager.py imports**: Fixed fallback import paths for audio modules
+  - Changed `from audio.composer` to `from scripts.audio.composer`
+- **audio/utils.py timeout**: Added 30-second timeout to `get_audio_duration()`
+  - Prevents infinite hang if ffmpeg stalls
+- **CronPusher data_dir**: Fixed default value to use StateManager's default
+  - Changed `data_dir: str = "data"` to `data_dir: str = None`
+- **CLI generate_audio**: Added keypoint existence check before audio generation
+  - Provides clearer error message when keypoint doesn't exist
+
 ## [1.2.6] - 2026-02-28
 
 ### Fixed

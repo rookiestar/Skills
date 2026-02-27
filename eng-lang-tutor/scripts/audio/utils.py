@@ -53,7 +53,13 @@ def get_audio_duration(audio_path: Path, ffmpeg_path: Optional[str] = None) -> f
         "-"
     ]
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    except subprocess.TimeoutExpired:
+        # ffmpeg 超时，返回 0.0
+        return 0.0
+    except Exception:
+        return 0.0
 
     # 从 stderr 中解析时长，格式: "  Duration: 00:00:03.45, ..."
     match = re.search(r"Duration: (\d+):(\d+):(\d+\.?\d*)", result.stderr)
