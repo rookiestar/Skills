@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.5] - 2026-02-27
+
+### Added
+- **Release management**: Three-layer file distribution system
+  - `.gitattributes` for git archive export filtering
+  - `package.json` files field in whitelist mode
+  - `scripts/release.py` for distribution analysis
+- **Uninstall guide**: Added comprehensive uninstall instructions to README
+
+### Changed
+- **npm package**: Optimized file inclusion with whitelist approach
+  - Includes: scripts/, templates/, examples/, references/, SKILL.md, README.md, requirements.txt
+  - Excludes: tests/, docs/, CLAUDE.md, bin/, setup.py
+- **.gitignore**: Added Python egg-info, test cache, npm cache, and Claude Code entries
+
 ## [1.2.4] - 2026-02-27
 
 ### Fixed
