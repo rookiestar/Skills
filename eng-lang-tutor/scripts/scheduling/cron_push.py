@@ -31,12 +31,12 @@ except ImportError:
 class CronPusher:
     """Handles scheduled content push operations."""
 
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self, data_dir: str = None):
         """
         Initialize the cron pusher.
 
         Args:
-            data_dir: Path to the data directory
+            data_dir: Path to the data directory (defaults to StateManager's default)
         """
         self.state_manager = StateManager(data_dir)
         self.today = date.today()
@@ -201,7 +201,7 @@ def main():
     parser.add_argument('--task', required=True,
                         choices=['keypoint', 'quiz', 'reset_daily', 'status'],
                         help='Task to execute')
-    parser.add_argument('--data-dir', default='data', help='Data directory path')
+    parser.add_argument('--data-dir', default=None, help='Data directory path (default: ~/.openclaw/state/eng-lang-tutor)')
     parser.add_argument('--json', action='store_true', help='Output as JSON only')
 
     args = parser.parse_args()

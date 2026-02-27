@@ -113,7 +113,7 @@ def main():
                 "cefr_level": state.get("preferences", {}).get("cefr_level", "B1"),
                 "tutor_style": state.get("preferences", {}).get("tutor_style", "humorous"),
                 "oral_ratio": int(state.get("preferences", {}).get("oral_written_ratio", 0.7) * 100),
-                "topic_weights": state.get("preferences", {}).get("topic_weights", {}),
+                "topics": state.get("preferences", {}).get("topics", {}),
                 "schedule": state.get("schedule", {})
             }
             print(json.dumps(config, indent=2, ensure_ascii=False))
@@ -214,6 +214,13 @@ def main():
             except ValueError:
                 print("Error: Invalid date format. Use YYYY-MM-DD")
                 exit(1)
+
+        # Check if keypoint exists first
+        keypoint = sm.load_daily_content('keypoint', target_date)
+        if not keypoint:
+            date_str = target_date.isoformat() if target_date else datetime.now().strftime('%Y-%m-%d')
+            print(f"Error: No keypoint found for {date_str}")
+            exit(1)
 
         result = sm.generate_keypoint_audio(target_date)
 
