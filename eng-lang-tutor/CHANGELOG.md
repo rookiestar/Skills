@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.6] - 2026-02-28
+
+### Fixed
+- **TTSManager missing method**: Added `get_voice_by_role()` method to TTSManager class
+  - Fixes `'TTSManager' object has no attribute 'get_voice_by_role'` error during audio synthesis
+- **CLI oral_ratio parameter**: Fixed parameter name mismatch in config command
+  - Changed `oral_ratio` to `oral_written_ratio` with proper percentage-to-decimal conversion
+  - Fixed both read (line 115) and write (line 140) operations
+
 ## [1.2.5] - 2026-02-27
 
 ### Added

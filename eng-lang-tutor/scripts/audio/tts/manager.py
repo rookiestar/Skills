@@ -292,6 +292,18 @@ class TTSManager:
         """
         return self.provider.list_voices()
 
+    def get_voice_by_role(self, role: str) -> str:
+        """
+        获取指定角色的语音 ID
+
+        Args:
+            role: 角色 ("narrator", "dialogue_a", "dialogue_b")
+
+        Returns:
+            语音 ID
+        """
+        return self.provider.get_voice_by_role(role)
+
     def get_audio_path(self, date_str: str, filename: str) -> Path:
         """
         获取音频文件的完整路径
