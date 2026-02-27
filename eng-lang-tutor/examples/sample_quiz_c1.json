@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "prompt_version": "quiz_gen_v1.2"
+    "prompt_version": "quiz_gen_v1.3"
   },
   "quiz_date": "2026-02-25",
   "cefr_level": "C1",
@@ -71,7 +71,7 @@
         "question_formatted": "✏️ Complete with the right idiom:",
         "context_formatted": "🔄 30 minutes, no progress. \"We're **___** here.\"",
         "word_bank_formatted": "📦 Options: [ **spinning our wheels** | boiling the ocean | touching base | circling back ]",
-        "hint": "💡 Car metaphor = going nowhere",
+        "hint": "💡 Think about which idiom describes lack of progress",
         "correct_feedback": "✅ Perfect! **'Spinning our wheels'** = unproductive! 🎯",
         "wrong_feedback": "❌ **'Spinning our wheels'** describes unproductive discussion!",
         "xp_display": "💎 +12 XP"

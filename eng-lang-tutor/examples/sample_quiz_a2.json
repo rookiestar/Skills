@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "prompt_version": "quiz_gen_v1.2"
+    "prompt_version": "quiz_gen_v1.3"
   },
   "quiz_date": "2026-02-25",
   "cefr_level": "A2",
@@ -31,7 +31,7 @@
           "⬜ C. When you say goodbye",
           "⬜ D. When you ask for help"
         ],
-        "hint": "💡 'Meet' = first time introduction",
+        "hint": "💡 Think about when you use this phrase in introductions",
         "correct_feedback": "✅ Correct! **'Nice to meet you'** = first time only!",
         "wrong_feedback": "❌ **'Nice to meet you'** is for first-time introductions only!",
         "xp_display": "💎 +10 XP"
@@ -50,7 +50,7 @@
         "type_name": "Chinglish 修正 | Fix the Chinglish",
         "question_formatted": "🔧 Find and fix the error:",
         "sentence_formatted": "📝 \"Hi John! **Nice to see you.** This is our first meeting.\"",
-        "hint": "💡 If it's the FIRST meeting, 'see' or 'meet'?",
+        "hint": "💡 Think about the difference between first-time and repeat meetings",
         "correct_feedback": "✅ Fixed! **'Nice to meet you!'** for first introductions! 🎉",
         "wrong_feedback": "❌ First time = **'Nice to meet you'**, not 'see you'!",
         "xp_display": "💎 +15 XP"
@@ -71,7 +71,7 @@
         "question_formatted": "✏️ Complete the response:",
         "context_formatted": "🎉 Friend: \"This is Sarah.\" You: \"**___!**\"",
         "word_bank_formatted": "📦 Options: [ **Nice to meet you** | Nice to see you | Good to know you ]",
-        "hint": "💡 First introduction = 'meet' or 'see'?",
+        "hint": "💡 Consider the context - is this person new to you?",
         "correct_feedback": "✅ Perfect! **'Nice to meet you!'** is the standard introduction! 🎯",
         "wrong_feedback": "❌ For first introductions, say **'Nice to meet you!'**",
         "xp_display": "💎 +12 XP"
