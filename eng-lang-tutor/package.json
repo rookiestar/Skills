@@ -1,0 +1,41 @@
+{
+  "name": "@rookiestar/eng-lang-tutor",
+  "version": "1.2.7",
+  "description": "地道美式英语导师 - OpenClaw Skill for learning authentic American English",
+  "main": "scripts/cli/cli.py",
+  "scripts": {
+    "postinstall": "echo '\\n✅ eng-lang-tutor installed successfully!\\n\\n📋 Next step: Install Python dependencies\\n   eng-lang-tutor-setup --venv\\n\\n💡 This creates a virtual environment at ~/.venvs/eng-lang-tutor\\n'"
+  },
+  "keywords": [
+    "english",
+    "learning",
+    "openclaw",
+    "skill",
+    "tutor",
+    "cefr",
+    "american-english",
+    "language-learning",
+    "gamification"
+  ],
+  "author": "RookieStar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rookiestar/Skills.git",
+    "directory": "eng-lang-tutor"
+  },
+  "bugs": {
+    "url": "https://github.com/rookiestar/Skills/issues"
+  },
+  "homepage": "https://github.com/rookiestar/Skills/tree/main/eng-lang-tutor#readme",
+  "files": [
+    "**/*",
+    "!tests/**",
+    "!**/*.pyc",
+    "!**/__pycache__/**",
+    "!.DS_Store"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
