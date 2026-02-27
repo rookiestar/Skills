@@ -273,3 +273,145 @@ eng-lang-tutor/
 
 - 未经允许不得擅自执行git commit、push和publish等相关动作
 - 针对耗费较长时间做debug或者反复掉坑的情况，需要及时总结复盘，并将经验精炼到本文档中
+
+## 6. 三层版本管理与发布流程
+
+### 6.1 架构概述
+
+本项目采用三层文件管理策略，分别控制本地开发、远程仓库和 npm 包的文件可见性：
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  本地仓库 (main 分支) - 最全                              │
+│  - 所有开发文件：tests/, package.json, bin/, CLAUDE.md等  │
+│  - 通过 .gitignore 管理追踪                               │
+│  - 文件数：~75                                            │
+└─────────────────────────────────────────────────────────┘
+                          │
+                          │ (选择性同步)
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│  远程仓库 (public 分支) - 公开                            │
+│  - 用户可见的源代码                                        │
+│  - 排除：tests/, bin/, package.json, CLAUDE.md 等        │
+│  - 文件数：~57                                            │
+└─────────────────────────────────────────────────────────┘
+                          │
+                          │ (npm publish)
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│  npm 包 (@rookiestar/eng-lang-tutor) - 最精简            │
+│  - 用户运行所需的最小文件集                                │
+│  - 通过 package.json "files" 字段控制                     │
+│  - 文件数：~50                                            │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 6.2 配置文件
+
+| 文件 | 作用 | 管理层级 |
+|------|------|----------|
+| `.gitignore` | 控制本地 git 追踪 | 本地仓库 |
+| `.gitattributes` | 控制 `git archive` 导出 | 远程导出 |
+| `package.json` `files` 字段 | 控制 npm 包内容 | npm 包 |
+
+### 6.3 分支管理
+
+| 分支 | 用途 | 文件范围 | 远程状态 |
+|------|------|----------|----------|
+| `main` | 本地开发 | 全部文件 | 推送但不作为默认 |
+| `public` | 远程公开 | 公开文件 | **默认分支** |
+
+### 6.4 各层包含的文件
+
+**本地仓库 (main) 独有：**
+- `tests/` - 单元测试
+- `bin/` - npm CLI 入口
+- `package.json` - npm 包配置
+- `CLAUDE.md` - 本开发文档
+- `CHANGELOG.md` - 变更日志
+- `.gitignore` / `.gitattributes` - Git 配置
+
+**远程仓库 (public) 包含：**
+- `scripts/` - 核心代码
+- `templates/` - LLM 模板
+- `examples/` - 示例文件
+- `references/` - 参考资源
+- `docs/` - 部署文档
+- `SKILL.md`, `README.md`, `requirements.txt`
+
+**npm 包包含：**
+- `scripts/`, `templates/`, `examples/`, `references/`
+- `SKILL.md`, `README.md`, `requirements.txt`
+
+### 6.5 发布流程
+
+#### 6.5.1 日常开发（main 分支）
+
+```bash
+# 在 main 分支开发
+git checkout main
+
+# 开发完成后提交
+git add .
+git commit -m "feat: new feature"
+git push origin main
+```
+
+#### 6.5.2 同步到 public 分支
+
+```bash
+# 切换到 public 分支
+git checkout public
+
+# 从 main 同步公开文件
+git checkout main -- eng-lang-tutor/scripts/ eng-lang-tutor/templates/ eng-lang-tutor/examples/ eng-lang-tutor/references/ eng-lang-tutor/docs/ eng-lang-tutor/SKILL.md eng-lang-tutor/README.md eng-lang-tutor/requirements.txt
+
+# 提交并推送
+git commit -m "sync: update from main"
+git push origin public
+
+# 切回 main 继续开发
+git checkout main
+```
+
+#### 6.5.3 发布 npm 包
+
+```bash
+# 确保在 eng-lang-tutor 目录
+cd eng-lang-tutor
+
+# 更新版本号
+# 编辑 package.json 中的 version 字段
+
+# 更新 CHANGELOG.md
+
+# 提交版本变更
+git add package.json CHANGELOG.md
+git commit -m "chore: bump version to x.x.x"
+git push origin main
+
+# 发布到 npm（需要 OTP）
+npm publish --otp=<your-otp-code>
+```
+
+### 6.6 辅助脚本
+
+使用 `scripts/release.py` 查看文件分布：
+
+```bash
+# 查看三层文件分布
+python3 scripts/release.py --check
+
+# 输出示例：
+# Local=75 | Remote=57 | npm=50
+```
+
+### 6.7 最佳实践
+
+1. **开发时**：始终在 `main` 分支工作，包含完整测试
+2. **发布前**：运行 `pytest` 确保测试通过
+3. **同步时**：只同步必要的公开文件到 `public` 分支
+4. **npm 发布**：使用 `files` 白名单而非黑名单，避免意外包含敏感文件
+5. **版本号**：遵循语义化版本 (semver)：MAJOR.MINOR.PATCH
+6. **CHANGELOG**：每次发布前更新变更日志
