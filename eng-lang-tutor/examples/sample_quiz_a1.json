@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "prompt_version": "quiz_gen_v1.2"
+    "prompt_version": "quiz_gen_v1.3"
   },
   "quiz_date": "2026-02-25",
   "cefr_level": "A1",
@@ -31,7 +31,7 @@
           "⬜ C. Goodbye",
           "⬜ D. Sorry"
         ],
-        "hint": "💡 Think: what do you say when you get something?",
+        "hint": "💡 What's the polite thing to say?",
         "correct_feedback": "✅ Correct! **'Thank you'** = 谢谢!",
         "wrong_feedback": "❌ Not quite. When someone helps you, say **'Thank you'**!",
         "xp_display": "💎 +10 XP"
@@ -50,7 +50,7 @@
         "type_name": "Chinglish 修正 | Fix the Chinglish",
         "question_formatted": "🔧 What's wrong with this sentence?",
         "sentence_formatted": "📝 \"Thank you very **many** for your help!\"",
-        "hint": "💡 'Many' or 'Much' - which one for degree?",
+        "hint": "💡 Think about which word describes amount or degree",
         "correct_feedback": "✅ Fixed! **'Thank you very much!'** sounds natural! 🎉",
         "wrong_feedback": "❌ Use **'much'** not 'many' here. **'Thank you very much!'**",
         "xp_display": "💎 +15 XP"
@@ -71,7 +71,7 @@
         "question_formatted": "✏️ What do you say?",
         "context_formatted": "🚪 Your friend opens the door for you. You say: '**___**!'",
         "word_bank_formatted": "📦 Options: [ **Thanks** | Hello | Goodbye ]",
-        "hint": "💡 Which one means '谢谢'?",
+        "hint": "💡 Which one is for showing appreciation?",
         "correct_feedback": "✅ Perfect! **'Thanks!'** is casual and friendly! 🎯",
         "wrong_feedback": "❌ The answer was **'Thanks!'** - it means 谢谢!",
         "xp_display": "💎 +12 XP"

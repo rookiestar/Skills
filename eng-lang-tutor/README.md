@@ -195,6 +195,59 @@ export XUNFEI_API_SECRET=xxx
 | 快速 | 1.3 | 听力挑战 |
 | 非常快 | 1.7 | 进阶训练 |
 
+## 🛠️ 飞书语音气泡魔改指南
+
+> 通过修改 OpenClaw 飞书插件，可使 `.opus` 音频文件以语音气泡形式展示，提升用户体验。
+
+**文件位置：** `/home/linuxbrew/.linuxbrew/lib/node_modules/openclaw/extensions/feishu/src/media.ts`
+
+### 📍 第一处修改：扩充类型定义 (约第 276 行)
+
+```typescript
+// 【修改前】
+msgType?: "file" | "media";
+
+// 【修改后】
+msgType?: "file" | "media" | "audio";
+```
+
+### 📍 第二处修改：重构路由逻辑 (约第 375 行)
+
+```typescript
+// 【修改前】
+// Feishu requires msg_type "media" for audio/video, "file" for documents
+const isMedia = fileType === "mp4" || fileType === "opus";
+return sendFileFeishu({
+  cfg,
+  to,
+  fileKey,
+  msgType: isMedia ? "media" : "file",
+  replyToMessageId,
+  accountId,
+});
+
+// 【修改后】
+// 精细化路由：mp4 走 media (视频), opus 走 audio (语音气泡), 其余走 file
+let msgType: "file" | "media" | "audio" = "file";
+if (fileType === "mp4") {
+  msgType = "media";
+} else if (fileType === "opus") {
+  msgType = "audio";
+}
+return sendFileFeishu({
+  cfg,
+  to,
+  fileKey,
+  msgType,
+  replyToMessageId,
+  accountId,
+});
+```
+
+**效果：**
+- `.opus` 文件 → 语音气泡形式播放
+- 其他文件 → 普通文件附件形式
+
 ## 命令列表
 
 | 命令 | 别名 | 描述 |

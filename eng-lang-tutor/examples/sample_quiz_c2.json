@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "prompt_version": "quiz_gen_v1.2"
+    "prompt_version": "quiz_gen_v1.3"
   },
   "quiz_date": "2026-02-25",
   "cefr_level": "C2",
@@ -50,7 +50,7 @@
         "type_name": "Chinglish 修正 | Fix the Chinglish",
         "question_formatted": "🔧 Make this sound more C-suite:",
         "sentence_formatted": "📝 \"That's **too ambitious**. We need to **reduce the scope**.\"",
-        "hint": "💡 Use the ocean metaphor and 'phased'",
+        "hint": "💡 What's the C-suite way to say 'too ambitious'?",
         "correct_feedback": "✅ Perfect! **'Boiling the ocean' + 'phased approach'** = executive language! 🎉",
         "wrong_feedback": "❌ Try **'That's boiling the ocean. We need a phased approach.'**",
         "xp_display": "💎 +15 XP"
@@ -81,7 +81,7 @@
           "⬜ C. Let's keep it confidential",
           "⬜ D. We should decide now"
         ],
-        "hint": "💡 Get stakeholder buy-in before deciding = ?",
+        "hint": "💡 What's the corporate process for building consensus?",
         "correct_feedback": "✅ Perfect! **'Socialize this'** = systematic stakeholder buy-in! 🎯",
         "wrong_feedback": "❌ **'Socialize this with stakeholders'** is the C-suite process!",
         "xp_display": "💎 +15 XP"
