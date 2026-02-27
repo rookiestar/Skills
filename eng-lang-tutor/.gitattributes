@@ -1,0 +1,35 @@
+# Files to exclude from git archive export
+# These files are tracked locally but excluded when creating archives
+# for remote distribution
+
+# Test files
+tests/ export-ignore
+
+# npm package management
+package.json export-ignore
+package-lock.json export-ignore
+bin/ export-ignore
+
+# Setup scripts (local development only)
+scripts/setup.py export-ignore
+
+# Development documentation
+CLAUDE.md export-ignore
+
+# Python cache
+__pycache__/ export-ignore
+*.pyc export-ignore
+*.pyo export-ignore
+
+# Test coverage
+.pytest_cache/ export-ignore
+.coverage export-ignore
+htmlcov/ export-ignore
+
+# IDE
+.idea/ export-ignore
+.vscode/ export-ignore
+
+# Build artifacts
+*.egg-info/ export-ignore
+*.tgz export-ignore

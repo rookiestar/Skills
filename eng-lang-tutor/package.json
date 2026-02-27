@@ -29,11 +29,13 @@
   },
   "homepage": "https://github.com/rookiestar/Skills/tree/main/eng-lang-tutor#readme",
   "files": [
-    "**/*",
-    "!tests/**",
-    "!**/*.pyc",
-    "!**/__pycache__/**",
-    "!.DS_Store"
+    "scripts/",
+    "templates/",
+    "examples/",
+    "references/",
+    "SKILL.md",
+    "README.md",
+    "requirements.txt"
   ],
   "engines": {
     "node": ">=14.0.0"
