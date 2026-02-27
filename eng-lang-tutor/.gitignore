@@ -7,6 +7,16 @@ __pycache__/
 .venv/
 venv/
 ENV/
+*.egg-info/
+.eggs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+pytestdebug.log
 
 # IDE
 .idea/
@@ -30,3 +40,7 @@ data/daily/
 # npm
 node_modules/
 *.tgz
+.npm/
+
+# Claude Code
+.claude/

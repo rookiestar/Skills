@@ -84,6 +84,21 @@ openclaw skills list
 openclaw skills info eng-lang-tutor
 ```
 
+### 卸载
+
+```bash
+# 卸载 npm 包并清除所有数据（包括状态和媒体文件）
+npm uninstall -g @rookiestar/eng-lang-tutor && rm -rf ~/.openclaw/state/eng-lang-tutor ~/.openclaw/media/eng-lang-tutor
+```
+
+**如需保留学习数据，仅卸载软件：**
+
+```bash
+npm uninstall -g @rookiestar/eng-lang-tutor
+```
+
+> 注意：`~/.openclaw/state/eng-lang-tutor/` 存储学习进度、XP、连胜等数据；`~/.openclaw/media/eng-lang-tutor/` 存储生成的音频文件。
+
 **重启 Gateway：**
 
 ```bash
