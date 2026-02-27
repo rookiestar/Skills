@@ -87,9 +87,9 @@ class AudioComposer:
         lead_in_silence: float = 1.0,   # 引导语后留白
         section_silence: float = 2.0,   # 内容后留白（段落间隔）
         dialogue_silence: float = 0.5,  # 对话行之间留白
-        narrator_voice: str = "henry",  # 旁白音色（男声）
-        voice_a: str = "mary",          # 对话 A 音色（女声）
-        voice_b: str = "henry",         # 对话 B 音色（男声，沉稳）
+        narrator_voice: str = None,     # 旁白音色（None 时使用 TTS provider 默认值）
+        voice_a: str = None,            # 对话 A 音色（None 时使用 TTS provider 默认值）
+        voice_b: str = None,            # 对话 B 音色（None 时使用 TTS provider 默认值）
         speed: float = 0.9              # 语速
     ) -> CompositionResult:
         """
@@ -110,6 +110,11 @@ class AudioComposer:
             CompositionResult: 合成结果
         """
         try:
+            # 使用 TTS provider 的默认音色（自动适配 Edge-TTS 或讯飞）
+            narrator_voice = narrator_voice or self.tts.get_voice_by_role("narrator")
+            voice_a = voice_a or self.tts.get_voice_by_role("dialogue_a")
+            voice_b = voice_b or self.tts.get_voice_by_role("dialogue_b")
+
             output_path = Path(output_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -213,7 +218,7 @@ class AudioComposer:
                             if not text:
                                 continue
 
-                            # A = henry (男声), B = catherine (女声)
+                            # A = EricNeural (男声), B = JennyNeural (女声)
                             voice = voice_a if speaker.upper() == "A" else voice_b
 
                             segment = self._synthesize_segment(
