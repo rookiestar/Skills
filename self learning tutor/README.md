@@ -15,6 +15,14 @@
 - `references/boundary_rules.md`：拒绝话术和边界
 - `references/english_examples.md`：示例
 - `references/qa_checklist.md`：自检清单
+- `docs/feishu-router.md`：飞书 webhook/router 最小实现
+- `docs/whitelist-rules.md`：只允许查词的白名单规则
+
+## How To Read These Docs
+
+- `docs/feishu-router.md` answers "where does the message go and what state do I keep?"
+- `docs/whitelist-rules.md` answers "what do I allow, what do I reject, and what exact reply do I return?"
+- If you are writing code, start from `docs/feishu-router.md` and keep the whitelist as a small helper.
 
 ## 官方参考
 
