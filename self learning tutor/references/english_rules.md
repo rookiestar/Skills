@@ -73,11 +73,12 @@ Rules:
 
 ## Follow-Up
 
-- Remember the last looked-up word or phrase in the same conversation.
+- The app or router passes the last looked-up word or phrase when it exists.
 - If the user asks about the same item, answer briefly and directly.
 - If the user asks a follow-up but the prior item is missing, ask them to resend the word instead of guessing.
 - If the follow-up needs information that Cambridge does not clearly support, say you need the word again or keep the answer minimal.
 - Do not end a normal lookup with "want to know more?" or another open-ended invitation.
+- Do not write or update any memory file. Do not ask the runtime to persist conversation state.
 
 Suggested fallback:
 
