@@ -40,7 +40,7 @@ class PreviewRouterTests(unittest.TestCase):
         self.assertEqual(result.category, "boundary_break")
         self.assertEqual(result.reply_key, "refuse_boundary_break")
 
-    def test_follow_up_uses_memory(self) -> None:
+    def test_follow_up_uses_router_context(self) -> None:
         result = classify_input("这个词还有其他意思吗", last_term="light")
         self.assertEqual(result.category, "english_follow_up")
         self.assertEqual(result.reply_key, "follow_up")
