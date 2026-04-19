@@ -62,7 +62,13 @@ Allowed follow-ups:
 
 If `last_term` is missing, ask the user to resend the word.
 
-## 5. Practical Regex Hints
+## 5. Validate the Reply
+
+Before sending the answer back to Feishu, check that it still matches the lookup card template.
+
+If the reply contains any extra explanation, example note, memory tip, collocation note, AI-domain note, or closing question, treat it as invalid and do not send it as-is.
+
+## 6. Practical Regex Hints
 
 Use strict allowlist checks:
 
