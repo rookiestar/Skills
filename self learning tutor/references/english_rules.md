@@ -14,6 +14,8 @@
 - Show a 3rd meaning only on follow-up and only if Cambridge clearly supports it.
 - If there are 2 meanings, write them on separate lines.
 - Do not dump long sense lists.
+- The final reply must contain only one lookup card. Do not add any extra sentence before or after the card.
+- Do not output labels outside the template, including `发音提示`, `常见搭配`, `词根记忆`, `AI领域`, `更多意思`, or any closing question.
 
 ## Lookup Output
 
@@ -23,10 +25,10 @@ Use this shape. This is a meaning-first card:
 
 ```markdown
 **[word or phrase]**
-- 🇨🇳 释义：中文释义
-- 🇨🇳 释义 2：中文释义（如有）
 - 📖 词性：n. / v. / adj. 等
 - 🔤 音标：/xxx/
+- 🇨🇳 释义：中文释义
+- 🇨🇳 释义 2：中文释义（如有）
 - 💬 例句：Cambridge 里的例句（如有）
 ```
 
@@ -41,6 +43,7 @@ Rules:
 - If Cambridge does not provide an example sentence, omit the example line.
 - Do not add a 3rd meaning in the initial reply.
 - If the user asks for more meanings, add the 3rd only if Cambridge clearly supports it.
+- Do not add any line that is not shown in the template.
 
 ### Chinese to English
 
@@ -53,7 +56,6 @@ Use this shape. This is an answer-first card:
 - 📖 词性：n. / v. / adj. 等
 - 🔤 音标：/xxx/
 - 🇨🇳 对应义：中文释义
-- 🔁 备选表达：xxx（如有）
 - 💬 例句：Cambridge 里的例句（如有）
 ```
 
@@ -61,13 +63,13 @@ Rules:
 
 - Give the most common daily expression first.
 - Give the 2 most common English equivalents when Cambridge clearly supports them.
-- Add only 1 backup expression only if it helps clarify the first 2.
 - The main job is to give the English answer first, then help the student confirm it.
 - Use only Cambridge-provided example sentences; do not create a new example sentence.
 - Do not give a long list of candidates.
 - If Cambridge does not provide a safe example sentence, omit the example line.
 - Do not add a 3rd English equivalent in the initial reply.
 - If the user asks for more, add the 3rd only if Cambridge clearly supports it.
+- Do not add any line that is not shown in the template.
 
 ## Follow-Up
 

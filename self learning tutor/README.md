@@ -41,6 +41,8 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 node bin/self-learning-tutor.js install
 ```
 
+如果你是在 VPS 或单独的 OpenClaw 用户下跑服务，改完 skill 以后要重新执行一次安装，再重启服务。不然线上很可能还在用旧版本。
+
 ## 说明
 
 这个仓库里的 README 是给人看的，skill 目录本身不放 README.md。
