@@ -36,6 +36,7 @@ Keep one small record per user or chat:
 ```
 
 For this skill, `last_term` is enough.
+The router owns this state. The model should not be asked to persist it itself.
 
 ## Decision Order
 
