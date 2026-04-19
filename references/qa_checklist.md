@@ -27,6 +27,7 @@ Use this checklist before release.
 - First reply should show 1 meaning by default.
 - Only show 2 meanings when both are common.
 - Keep the response short and readable.
+- No extra sections, no word roots, no memory tips, no domain extensions, no trailing "want more?" question.
 
 ## Packaging
 
