@@ -6,9 +6,9 @@
 
 ```markdown
 **apple**
-- 🇨🇳 释义 1：苹果
 - 📖 词性：n.
 - 🔤 音标：/ˈæpəl/
+- 🇨🇳 释义：苹果
 - 💬 例句：I eat an apple after lunch.（我午饭后吃一个苹果。）
 ```
 
@@ -16,17 +16,17 @@
 
 ```markdown
 **light**
-- 🇨🇳 释义 1：光
-- 🇨🇳 释义 2：轻的
 - 📖 词性：n. / adj.
 - 🔤 音标：/laɪt/
+- 🇨🇳 释义：光
+- 🇨🇳 释义 2：轻的
 - 💬 例句：The light is bright.（灯光很亮。）
 ```
 
 说明：
 
 - 只保留模板字段
-- 不加词根记忆、领域扩展、总结句或结尾追问
+- 不加词根记忆、领域扩展、总结句、发音提示、常见搭配或结尾追问
 - 默认给 2 个最常见释义；如果 Cambridge 只有 1 个就只给 1 个
 - 第 3 个只在追问时补
 - 没有 Cambridge 明确支持的内容就不写
@@ -38,11 +38,10 @@
 ```markdown
 **重要的**
 - 🔤 最常用英文：important /ɪmˈpɔːrtnt/
-- 🔤 第二常用英文：significant /sɪɡˈnɪfɪkənt/（如有）
+- 🔤 第二常用英文：significant /sɪɡˈnɪfɪkənt/
 - 📖 词性：adj.
 - 🔤 音标：/ɪmˈpɔːrtnt/
 - 🇨🇳 对应义：重要的
-- 🔁 备选表达：significant
 - 💬 例句：It is important to finish your homework on time.（按时完成作业很重要。）
 ```
 

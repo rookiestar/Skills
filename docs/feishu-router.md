@@ -74,6 +74,9 @@ If the message is allowed:
 - enable only `self-learning-tutor`
 - pass `last_term` if it exists
 - store a new `last_term` only when the message is a fresh lookup
+- validate the returned card before sending it back to Feishu
+
+If the card contains anything outside the template, reject it and regenerate or fall back to a short safe reply.
 
 ## Follow-Up Path
 
