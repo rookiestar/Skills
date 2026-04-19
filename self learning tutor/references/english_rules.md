@@ -9,6 +9,7 @@
 - Every factual part of the answer must come from the matching Cambridge entry or a direct paraphrase of it.
 - Do not invent meanings, examples, usage notes, or extra synonyms.
 - If Cambridge does not clearly support a field, omit that field rather than guessing.
+- Use only the fields listed in the template. Do not add roots, memory tips, domain notes, summaries, or extra follow-up questions.
 - Show 1 meaning by default.
 - Show at most 2 meanings only when both are common and both matter for understanding.
 - If there are 2 meanings, write them on separate lines.
@@ -36,6 +37,7 @@ Rules:
 - The main job is to explain the English word in Chinese.
 - Use only Cambridge-provided example sentences; do not create a new example sentence.
 - Do not explain etymology, grammar theory, or exam strategy.
+- If Cambridge does not provide an example sentence, omit the example line.
 
 ### Chinese to English
 
@@ -58,6 +60,7 @@ Rules:
 - The main job is to give the English answer first, then help the student confirm it.
 - Use only Cambridge-provided example sentences; do not create a new example sentence.
 - Do not give a long list of candidates.
+- If Cambridge does not provide a safe example sentence, omit the example line.
 
 ## Follow-Up
 
@@ -65,6 +68,7 @@ Rules:
 - If the user asks about the same item, answer briefly and directly.
 - If the user asks a follow-up but the prior item is missing, ask them to resend the word instead of guessing.
 - If the follow-up needs information that Cambridge does not clearly support, say you need the word again or keep the answer minimal.
+- Do not end a normal lookup with "want to know more?" or another open-ended invitation.
 
 Suggested fallback:
 

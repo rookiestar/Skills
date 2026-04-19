@@ -23,6 +23,12 @@
 - 🔁 常见补充义：轻的
 ```
 
+说明：
+
+- 只保留模板字段
+- 不加词根记忆、领域扩展、总结句或结尾追问
+- 没有 Cambridge 明确支持的内容就不写
+
 ## Chinese to English
 
 ### 重要的
@@ -36,6 +42,11 @@
 - 🔁 备选表达：significant
 - 💬 例句：It is important to finish your homework on time.（按时完成作业很重要。）
 ```
+
+说明：
+
+- 先给英文答案，再给补充信息
+- 不加额外解释或扩写
 
 ## Follow-Up
 
