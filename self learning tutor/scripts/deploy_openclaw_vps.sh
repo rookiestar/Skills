@@ -4,20 +4,18 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  deploy_openclaw_vps.sh [--remote user@host] [--install-dir PATH] [--workspace-dir PATH] [--data-dir PATH] [--data-branch BRANCH]
+  deploy_openclaw_vps.sh [--remote user@host] [--workspace-dir PATH] [--data-dir PATH] [--data-branch BRANCH]
 
 Defaults:
   --remote      rookiestar@34.70.69.58
-  --install-dir /home/rookiestar/.openclaw/skills/self-learning-tutor
   --workspace-dir /home/rookiestar/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor
   --data-branch codex/local-dictionary-branch
 
-Deploys code + data to the OpenClaw install directory and the active workspace copy on VPS, then verifies dict lookup.
+Deploys code + data to the active workspace copy on VPS, then verifies dict lookup.
 EOF
 }
 
 REMOTE="rookiestar@34.70.69.58"
-INSTALL_DIR="/home/rookiestar/.openclaw/skills/self-learning-tutor"
 WORKSPACE_DIR="/home/rookiestar/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor"
 DATA_BRANCH="codex/local-dictionary-branch"
 LOCAL_DATA_DIR=""
@@ -26,10 +24,6 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --remote)
       REMOTE="${2:?missing value for --remote}"
-      shift 2
-      ;;
-    --install-dir)
-      INSTALL_DIR="${2:?missing value for --install-dir}"
       shift 2
       ;;
     --workspace-dir)
@@ -118,22 +112,19 @@ deploy_to_dir() {
   ssh "${REMOTE}" "grep -n 'Default to the local dictionary data' '${target_dir}/SKILL.md' >/dev/null"
 }
 
-# Step 2: scp 代码 + 数据到 VPS（安装目录 + 运行时 workspace）
-deploy_to_dir "${INSTALL_DIR}"
-if [[ -n "${WORKSPACE_DIR}" && "${WORKSPACE_DIR}" != "${INSTALL_DIR}" ]]; then
-  deploy_to_dir "${WORKSPACE_DIR}"
-fi
+# Step 2: scp 代码 + 数据到 VPS（单一工作区目录）
+deploy_to_dir "${WORKSPACE_DIR}"
 
 echo "Deployment complete."
 
 # Step 3: 验证字典查询
 echo ""
 echo "--- Verifying en_to_zh lookup ---"
-ssh "${REMOTE}" "python3 '${INSTALL_DIR}/scripts/dict_lookup.py' --mode en_to_zh important"
+ssh "${REMOTE}" "python3 '${WORKSPACE_DIR}/scripts/dict_lookup.py' --mode en_to_zh important"
 
 echo ""
 echo "--- Verifying zh_to_en lookup ---"
-ssh "${REMOTE}" "python3 '${INSTALL_DIR}/scripts/dict_lookup.py' --mode zh_to_en 重要的"
+ssh "${REMOTE}" "python3 '${WORKSPACE_DIR}/scripts/dict_lookup.py' --mode zh_to_en 重要的"
 
 echo ""
 echo "--- Attempting OpenClaw reload ---"

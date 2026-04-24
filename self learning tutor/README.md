@@ -44,7 +44,8 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 node bin/self-learning-tutor.js install
 ```
 
-如果你是在 VPS 或单独的 OpenClaw 用户下跑服务，改完 skill 以后要重新执行一次安装，再重启服务。不然线上很可能还在用旧版本。
+这是给本机开发环境用的安装命令，会把 skill 放到本机的 OpenClaw 目录里。
+如果要更新 VPS 上正在跑的那份 skill，请用下面的部署脚本同步工作区目录，再重启服务。
 
 ## 部署到 VPS
 
@@ -54,7 +55,7 @@ node bin/self-learning-tutor.js install
 bash "self learning tutor/scripts/deploy_openclaw_vps.sh"
 ```
 
-脚本会先更新 VPS 上的源码，再从 `codex/local-dictionary-branch` 导出词库并同步到安装目录和工作区副本，最后尝试重启 OpenClaw。安装结束后，它还会顺手验证 `important` 和 `重要的` 两个查询。
+脚本会把代码和词库同步到 `~/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor`，然后验证 `important` 和 `重要的` 两个查询。若 OpenClaw 还在跑旧进程，脚本会尝试重启服务。
 
 ## 说明
 
