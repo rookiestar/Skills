@@ -54,7 +54,7 @@ node bin/self-learning-tutor.js install
 bash "self learning tutor/scripts/deploy_openclaw_vps.sh"
 ```
 
-脚本会先更新 VPS 上的源码，再从 `codex/local-dictionary-branch` 导出词库并同步到源码目录，最后重新安装到 OpenClaw 实际读取的目录里。安装结束后，它还会顺手验证 `important` 和 `重要的` 两个查询。
+脚本会先更新 VPS 上的源码，再从 `codex/local-dictionary-branch` 导出词库并同步到安装目录和工作区副本，最后尝试重启 OpenClaw。安装结束后，它还会顺手验证 `important` 和 `重要的` 两个查询。
 
 ## 说明
 
