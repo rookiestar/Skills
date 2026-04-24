@@ -10,21 +10,24 @@
 
 ## 当前结构
 
-- `SKILL.md`：skill 主规则
-- `references/english_rules.md`：英语查词格式和释义规则
-- `references/boundary_rules.md`：拒绝话术和边界
-- `references/english_examples.md`：示例
-- `references/qa_checklist.md`：自检清单
+- `SKILL.md`：skill 主规则，已内联查词流程和输出模板
+- `references/english_rules.md`：历史参考，不是运行时必读
+- `references/boundary_rules.md`：历史参考，不是运行时必读
+- `references/english_examples.md`：历史参考，不是运行时必读
+- `references/qa_checklist.md`：历史参考，不是运行时必读
 - `docs/feishu-router.md`：飞书 webhook/router 最小实现
 - `docs/whitelist-rules.md`：只允许查词的白名单规则
 
 ## How To Read These Docs
 
+- `SKILL.md` answers the runtime lookup flow.
 - `docs/feishu-router.md` answers "where does the message go and what state do I keep?"
 - `docs/whitelist-rules.md` answers "what do I allow, what do I reject, and what exact reply do I return?"
-- If you are writing code, start from `docs/feishu-router.md` and keep the whitelist as a small helper.
+- If you are writing code, start from `SKILL.md` and keep the whitelist as a small helper.
 
-## 官方参考
+## 数据构建参考
+
+下面的链接只用于词库构建和人工校对，不是运行时依赖。
 
 - [Cambridge Learner’s Dictionary](https://dictionary.cambridge.org/us/dictionary/learner-english/)
 - [Cambridge English-Chinese (Simplified) Dictionary](https://dictionary.cambridge.org/us/dictionary/english-chinese-simplified/)

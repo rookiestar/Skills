@@ -24,12 +24,12 @@ Use this checklist before release.
 
 ## Output
 
-- First reply should show 2 meanings by default when Cambridge supports them.
+- First reply should show 2 meanings by default when the local data supports them.
 - Only show a 3rd meaning on follow-up.
 - Keep the response short and readable.
 - No extra sections, no word roots, no memory tips, no domain extensions, no pronunciation tips, no collocations, no AI-domain notes, no trailing "want more?" question.
 - No line outside the template; if extra text appears, treat it as a failure.
-- No memory-file writes or workspace-note updates should happen as part of the answer flow.
+- No memory-file writes, `MEMORY.md` edits, or workspace-note updates should happen as part of the answer flow.
 
 ## Packaging
 
