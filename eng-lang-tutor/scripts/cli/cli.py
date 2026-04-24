@@ -112,8 +112,8 @@ def main():
             config = {
                 "cefr_level": state.get("preferences", {}).get("cefr_level", "B1"),
                 "tutor_style": state.get("preferences", {}).get("tutor_style", "humorous"),
-                "oral_ratio": state.get("preferences", {}).get("oral_ratio", 70),
-                "topic_weights": state.get("preferences", {}).get("topic_weights", {}),
+                "oral_ratio": int(state.get("preferences", {}).get("oral_written_ratio", 0.7) * 100),
+                "topics": state.get("preferences", {}).get("topics", {}),
                 "schedule": state.get("schedule", {})
             }
             print(json.dumps(config, indent=2, ensure_ascii=False))
@@ -137,7 +137,7 @@ def main():
                 if not 0 <= args.oral_ratio <= 100:
                     print("Error: Oral ratio must be between 0 and 100")
                     exit(1)
-                state = sm.update_preferences(state, oral_ratio=args.oral_ratio)
+                state = sm.update_preferences(state, oral_written_ratio=args.oral_ratio/100)
                 print(f"Updated oral ratio to: {args.oral_ratio}%")
 
             sm.save_state(state)
@@ -214,6 +214,13 @@ def main():
             except ValueError:
                 print("Error: Invalid date format. Use YYYY-MM-DD")
                 exit(1)
+
+        # Check if keypoint exists first
+        keypoint = sm.load_daily_content('keypoint', target_date)
+        if not keypoint:
+            date_str = target_date.isoformat() if target_date else datetime.now().strftime('%Y-%m-%d')
+            print(f"Error: No keypoint found for {date_str}")
+            exit(1)
 
         result = sm.generate_keypoint_audio(target_date)
 

@@ -412,8 +412,8 @@ class StateManager:
             from ..audio.composer import AudioComposer
             from ..audio.tts import TTSManager
         except ImportError:
-            from audio.composer import AudioComposer
-            from audio.tts import TTSManager
+            from scripts.audio.composer import AudioComposer
+            from scripts.audio.tts import TTSManager
 
         if target_date is None:
             target_date = date.today()
@@ -443,9 +443,9 @@ class StateManager:
                 from ..audio.tts import TTSManager
                 from ..audio.converter import convert_mp3_to_opus
             except ImportError:
-                from audio.composer import AudioComposer
-                from audio.tts import TTSManager
-                from audio.converter import convert_mp3_to_opus
+                from scripts.audio.composer import AudioComposer
+                from scripts.audio.tts import TTSManager
+                from scripts.audio.converter import convert_mp3_to_opus
 
             tts = TTSManager.from_env()
             composer = AudioComposer(tts)

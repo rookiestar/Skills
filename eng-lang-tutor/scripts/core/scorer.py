@@ -258,7 +258,7 @@ if __name__ == "__main__":
     if args.demo:
         # Demo quiz
         quiz = {
-            "quiz_date": "2026-02-20",
+            "quiz_date": datetime.now().strftime('%Y-%m-%d'),
             "questions": [
                 {"id": 1, "type": "multiple_choice", "correct_answer": "B", "xp_value": 10},
                 {"id": 2, "type": "fill_blank", "correct_answer": "gonna", "xp_value": 12},
