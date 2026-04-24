@@ -55,12 +55,12 @@ metadata:
 ### Lookup Workflow（v2 - 本地词典模式）
 
 1. 收到英语查词请求后，执行以下操作且仅执行以下操作：
-   a. 运行 `python3 /home/rookiestar/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor/scripts/dict_lookup.py --mode en_to_zh <word-or-phrase>`
+   a. 在 skill 根目录下运行 `python3 scripts/dict_lookup.py --mode en_to_zh <word-or-phrase>`
    b. 根据返回的 JSON，按下方模板格式化输出最终回复
    c. 不要执行任何其他 tool call（不要 read 文件、不要 web_fetch、不要 edit 记忆）
 
 2. 收到“英语怎么说”类请求后，执行以下操作且仅执行以下操作：
-   a. 运行 `python3 /home/rookiestar/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor/scripts/dict_lookup.py --mode zh_to_en <中文词组>`
+   a. 在 skill 根目录下运行 `python3 scripts/dict_lookup.py --mode zh_to_en <中文词组>`
    b. 根据返回的 JSON 选择最常用的英文表达，并按下方模板格式化
    c. 不要执行任何其他 tool call
 
