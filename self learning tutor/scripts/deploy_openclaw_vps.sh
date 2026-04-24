@@ -4,24 +4,21 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  deploy_openclaw_vps.sh [--remote user@host] [--workspace PATH] [--install-dir PATH] [--data-dir PATH] [--data-branch BRANCH]
+  deploy_openclaw_vps.sh [--remote user@host] [--install-dir PATH] [--data-dir PATH] [--data-branch BRANCH]
 
 Defaults:
   --remote      rookiestar@34.70.69.58
-  --workspace   /home/rookiestar/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor
   --install-dir /home/rookiestar/.openclaw/skills/self-learning-tutor
   --data-branch codex/local-dictionary-branch
+
+Deploys code + data to a single target directory on VPS via scp, then verifies dict lookup.
 EOF
 }
 
 REMOTE="rookiestar@34.70.69.58"
-REMOTE_WORKSPACE="/home/rookiestar/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor"
-REMOTE_INSTALL_DIR="/home/rookiestar/.openclaw/skills/self-learning-tutor"
+INSTALL_DIR="/home/rookiestar/.openclaw/skills/self-learning-tutor"
 DATA_BRANCH="codex/local-dictionary-branch"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOCAL_DATA_DIR=""
-TEMP_DATA_DIR=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -29,12 +26,8 @@ while [[ $# -gt 0 ]]; do
       REMOTE="${2:?missing value for --remote}"
       shift 2
       ;;
-    --workspace)
-      REMOTE_WORKSPACE="${2:?missing value for --workspace}"
-      shift 2
-      ;;
     --install-dir)
-      REMOTE_INSTALL_DIR="${2:?missing value for --install-dir}"
+      INSTALL_DIR="${2:?missing value for --install-dir}"
       shift 2
       ;;
     --data-dir)
@@ -57,25 +50,76 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-cleanup() {
-  if [[ -n "${TEMP_DATA_DIR}" && -d "${TEMP_DATA_DIR}" ]]; then
-    rm -rf "${TEMP_DATA_DIR}"
-  fi
-}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+GIT_ROOT="$(git -C "${REPO_ROOT}" rev-parse --show-toplevel || echo "${REPO_ROOT}")"
+
+# Step 1: 准备数据（从 git 分支提取或用本地目录）
+TEMP_DIR="$(mktemp -d)"
+cleanup() { rm -rf "${TEMP_DIR}"; }
 trap cleanup EXIT
 
-if [[ -z "${LOCAL_DATA_DIR}" ]]; then
-  TEMP_DATA_DIR="$(mktemp -d)"
-  git -C "${REPO_ROOT}" archive "${DATA_BRANCH}" 'self learning tutor/data' | tar -x -C "${TEMP_DATA_DIR}"
-  LOCAL_DATA_DIR="${TEMP_DATA_DIR}/self learning tutor/data"
+if [[ -n "${LOCAL_DATA_DIR}" ]]; then
+  if [[ ! -d "${LOCAL_DATA_DIR}" ]]; then
+    echo "Local data directory not found: ${LOCAL_DATA_DIR}" >&2
+    exit 1
+  fi
+  cp -r "${LOCAL_DATA_DIR}" "${TEMP_DIR}/data"
+else
+  echo "Extracting data from branch: ${DATA_BRANCH}"
+  git -C "${GIT_ROOT}" archive "${DATA_BRANCH}" 'self learning tutor/data' \
+    | tar -x -C "${TEMP_DIR}"
 fi
 
-if [[ ! -d "${LOCAL_DATA_DIR}" ]]; then
-  echo "Local data directory not found: ${LOCAL_DATA_DIR}" >&2
-  echo "Use --data-dir or ensure ${DATA_BRANCH} contains self learning tutor/data." >&2
+DATA_SRC="${TEMP_DIR}/self learning tutor/data"
+if [[ ! -d "${DATA_SRC}" ]]; then
+  DATA_SRC="${TEMP_DIR}/data"
+fi
+if [[ ! -d "${DATA_SRC}" ]]; then
+  echo "Data directory not found after extraction." >&2
   exit 1
 fi
 
-ssh "${REMOTE}" "set -euo pipefail; mkdir -p '${REMOTE_WORKSPACE}/data' '${REMOTE_INSTALL_DIR}/data' && cd '${REMOTE_WORKSPACE}' && git pull origin main"
-rsync -av --delete "${LOCAL_DATA_DIR}/" "${REMOTE}:${REMOTE_WORKSPACE}/data/"
-ssh "${REMOTE}" "set -euo pipefail; cd '${REMOTE_WORKSPACE}' && node bin/self-learning-tutor.js install && python3 '${REMOTE_INSTALL_DIR}/scripts/dict_lookup.py' --mode en_to_zh important && python3 '${REMOTE_INSTALL_DIR}/scripts/dict_lookup.py' --mode zh_to_en 重要的"
+echo "Data ready: $(ls "${DATA_SRC}")"
+
+# Step 2: scp 代码 + 数据到 VPS（单一目标目录）
+echo "Deploying to ${REMOTE}:${INSTALL_DIR} ..."
+
+ssh "${REMOTE}" "mkdir -p '${INSTALL_DIR}'"
+
+# 传代码文件
+scp -r \
+  "${REPO_ROOT}/SKILL.md" \
+  "${REPO_ROOT}/bin" \
+  "${REPO_ROOT}/scripts" \
+  "${REPO_ROOT}/references" \
+  "${REPO_ROOT}/package.json" \
+  "${REMOTE}:${INSTALL_DIR}/"
+
+# 传数据（跳过已存在且大小一致的文件）
+ssh "${REMOTE}" "mkdir -p '${INSTALL_DIR}/data'"
+for f in "${DATA_SRC}"/*; do
+  name="$(basename "${f}")"
+  local_size=$(stat -f%z "${f}")
+  remote_size=$(ssh "${REMOTE}" "stat -c%s '${INSTALL_DIR}/data/${name}'" 2>/dev/null || echo "0")
+  if [[ "${remote_size}" -eq "${local_size}" ]]; then
+    echo "  skip ${name} (already up to date, ${local_size} bytes)"
+  else
+    echo "  uploading ${name} ..."
+    scp "${f}" "${REMOTE}:${INSTALL_DIR}/data/"
+  fi
+done
+
+echo "Deployment complete."
+
+# Step 3: 验证字典查询
+echo ""
+echo "--- Verifying en_to_zh lookup ---"
+ssh "${REMOTE}" "python3 '${INSTALL_DIR}/scripts/dict_lookup.py' --mode en_to_zh important"
+
+echo ""
+echo "--- Verifying zh_to_en lookup ---"
+ssh "${REMOTE}" "python3 '${INSTALL_DIR}/scripts/dict_lookup.py' --mode zh_to_en 重要的"
+
+echo ""
+echo "All done."
