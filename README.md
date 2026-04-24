@@ -10,9 +10,12 @@
 
 ## 当前结构
 
-- `SKILL.md`：skill 主规则
-- `references/english_rules.md`：英语查词格式和释义规则
-- `references/boundary_rules.md`：拒绝话术和边界
+- `SKILL.md`：skill 主规则，当前查词规则已内联
+- `data/`：本地词典数据和启动样本
+- `scripts/dict_lookup.py`：本地查词入口
+- `scripts/import_ecdict.py`：把 ECDICT 风格数据导入本地 SQLite
+- `references/english_rules.md`：历史参考文档
+- `references/boundary_rules.md`：历史参考文档
 - `references/english_examples.md`：示例
 - `references/qa_checklist.md`：自检清单
 - `docs/feishu-router.md`：飞书 webhook/router 最小实现
@@ -33,6 +36,19 @@
 
 ```bash
 python3 -m unittest discover -s tests -p 'test_*.py'
+```
+
+如果你想重新生成本地词典和 Cambridge 例句，可以直接跑：
+
+```bash
+python3 scripts/sync_dictionary.py --limit 3500 --workers 8
+```
+
+如果你手上已经有 ECDICT 源数据，也可以单独导入：
+
+```bash
+python3 scripts/import_ecdict.py --source <source.csv> --dest data/dictionary.db
+python3 scripts/fetch_cambridge_examples.py --db data/dictionary.db --limit 3500
 ```
 
 ## 安装

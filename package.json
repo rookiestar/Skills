@@ -17,6 +17,7 @@
   "license": "MIT",
   "files": [
     "SKILL.md",
+    "data/**",
     "references/**",
     "scripts/**",
     "bin/**",

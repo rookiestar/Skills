@@ -29,7 +29,7 @@ function install() {
   }
   fs.mkdirSync(TARGET_DIR, { recursive: true });
 
-  const items = ["SKILL.md", "references", "scripts", "package.json"];
+  const items = ["SKILL.md", "data", "references", "scripts", "package.json"];
   for (const item of items) {
     const source = path.join(PACKAGE_ROOT, item);
     if (fs.existsSync(source)) {
