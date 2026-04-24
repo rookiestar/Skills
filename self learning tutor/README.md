@@ -43,6 +43,16 @@ node bin/self-learning-tutor.js install
 
 如果你是在 VPS 或单独的 OpenClaw 用户下跑服务，改完 skill 以后要重新执行一次安装，再重启服务。不然线上很可能还在用旧版本。
 
+## 部署到 VPS
+
+如果你要把本地词典一起同步到 VPS，可以直接用部署脚本：
+
+```bash
+bash "self learning tutor/scripts/deploy_openclaw_vps.sh"
+```
+
+脚本会先更新 VPS 上的源码，再从 `codex/local-dictionary-branch` 导出词库并同步到源码目录，最后重新安装到 OpenClaw 实际读取的目录里。安装结束后，它还会顺手验证 `important` 和 `重要的` 两个查询。
+
 ## 说明
 
 这个仓库里的 README 是给人看的，skill 目录本身不放 README.md。
