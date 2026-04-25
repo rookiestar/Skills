@@ -14,3 +14,9 @@ node_modules/
 
 # Local generated artifacts
 **/tmp_pdf_render/
+
+# Large data files (managed via deploy script)
+data/dictionary.db
+data/dictionary.db-shm
+data/dictionary.db-wal
+data/missing_words.log

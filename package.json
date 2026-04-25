@@ -1,0 +1,33 @@
+{
+  "name": "@bytedance/self-learning-tutor",
+  "version": "0.2.0",
+  "description": "A controlled OpenClaw study skill for middle-school students, currently limited to English lookup with Cambridge-style concise meanings.",
+  "bin": {
+    "self-learning-tutor": "bin/self-learning-tutor.js"
+  },
+  "keywords": [
+    "openclaw",
+    "skill",
+    "education",
+    "english",
+    "middle-school",
+    "study"
+  ],
+  "author": "bytedance",
+  "license": "MIT",
+  "files": [
+    "SKILL.md",
+    "data/**",
+    "references/**",
+    "scripts/**",
+    "bin/**",
+    "tests/**",
+    "package.json"
+  ],
+  "scripts": {
+    "test": "python3 -m unittest discover -s tests -p 'test_*.py'"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
