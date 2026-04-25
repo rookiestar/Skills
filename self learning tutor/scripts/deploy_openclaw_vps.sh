@@ -11,7 +11,7 @@ Defaults:
   --workspace-dir /home/rookiestar/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor
   --data-branch codex/local-dictionary-branch
 
-Deploys code + data to the active workspace copy on VPS, then verifies dict lookup.
+Deploys code + prebuilt data to the active workspace copy on VPS, then verifies dict lookup.
 EOF
 }
 
@@ -115,12 +115,7 @@ deploy_to_dir() {
 # Step 2: scp 代码 + 数据到 VPS（单一工作区目录）
 deploy_to_dir "${WORKSPACE_DIR}"
 
-# Step 3: 回填词性，修正历史空值
-echo ""
-echo "--- Backfilling POS values ---"
-ssh "${REMOTE}" "python3 '${WORKSPACE_DIR}/scripts/backfill_dictionary_pos.py' --db '${WORKSPACE_DIR}/data/dictionary.db'"
-
-# Step 4: 验证字典查询
+# Step 3: 验证字典查询
 echo ""
 echo "--- Verifying en_to_zh lookup ---"
 ssh "${REMOTE}" "python3 '${WORKSPACE_DIR}/scripts/dict_lookup.py' --mode en_to_zh important"
