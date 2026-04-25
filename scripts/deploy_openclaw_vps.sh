@@ -67,14 +67,11 @@ if [[ -n "${LOCAL_DATA_DIR}" ]]; then
   cp -r "${LOCAL_DATA_DIR}" "${TEMP_DIR}/data"
 else
   echo "Extracting data from branch: ${DATA_BRANCH}"
-  git -C "${GIT_ROOT}" archive "${DATA_BRANCH}" 'self learning tutor/data' \
+  git -C "${GIT_ROOT}" archive "${DATA_BRANCH}" -- 'data/*' \
     | tar -x -C "${TEMP_DIR}"
 fi
 
-DATA_SRC="${TEMP_DIR}/self learning tutor/data"
-if [[ ! -d "${DATA_SRC}" ]]; then
-  DATA_SRC="${TEMP_DIR}/data"
-fi
+DATA_SRC="${TEMP_DIR}/data"
 if [[ ! -d "${DATA_SRC}" ]]; then
   echo "Data directory not found after extraction." >&2
   exit 1
