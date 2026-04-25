@@ -8,7 +8,8 @@ import re
 from collections.abc import Mapping
 from typing import Any
 
-POS_PREFIX_RE = re.compile(r"^(?:[a-z]{1,8}\.)+\s*", re.IGNORECASE)
+POS_TOKEN_RE = re.compile(r"^[a-z]{1,12}\.", re.IGNORECASE)
+POS_SEPARATOR_RE = re.compile(r"^\s*(?:[/,，、;；&·\-]|\band\b|\bor\b)?\s*", re.IGNORECASE)
 NUMBER_PREFIX_RE = re.compile(r"^\s*(?:\d+|[一二三四五六七八九十]+)[.)、]\s*")
 BRACKET_PREFIX_RE = re.compile(r"^\[[^\]]+\]\s*")
 EN_LOOKUP_CUES = (
@@ -37,6 +38,15 @@ def normalize_whitespace(text: str) -> str:
 
 def normalize_query(text: str) -> str:
     return normalize_whitespace(text)
+
+
+def coerce_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, list):
+        parts = [normalize_query(str(item).strip()) for item in value]
+        return "；".join(part for part in parts if part)
+    return normalize_query(str(value).strip())
 
 
 def normalize_int(value: Any, default: int = 0) -> int:
@@ -70,10 +80,50 @@ def strip_lookup_cues_zh(text: str) -> str:
 def normalize_zh_term(text: str) -> str:
     text = normalize_query(text)
     text = NUMBER_PREFIX_RE.sub("", text)
-    text = POS_PREFIX_RE.sub("", text)
+    text = strip_pos_prefix(text)
     text = text.strip(" \t\r\n。．.，,；;:：")
     text = re.sub(r"[（(][^()（）]*[)）]$", "", text).strip()
     return text
+
+
+def split_pos_prefix(value: Any) -> tuple[list[str], str]:
+    text = coerce_text(value)
+    if not text:
+        return [], ""
+
+    cursor = text
+    tokens: list[str] = []
+    seen: set[str] = set()
+
+    while cursor:
+        match = POS_TOKEN_RE.match(cursor)
+        if not match:
+            break
+
+        token = match.group(0).lower()
+        if token not in seen:
+            seen.add(token)
+            tokens.append(token)
+
+        cursor = cursor[match.end():]
+        separator = POS_SEPARATOR_RE.match(cursor)
+        if not separator:
+            break
+        cursor = cursor[separator.end():]
+
+    if not tokens:
+        return [], text
+    return tokens, cursor.lstrip()
+
+
+def strip_pos_prefix(value: Any) -> str:
+    _, remainder = split_pos_prefix(value)
+    return remainder
+
+
+def extract_pos_from_text(value: Any) -> str:
+    tokens, _ = split_pos_prefix(value)
+    return " / ".join(tokens)
 
 
 def parse_definitions(value: Any) -> list[str]:
@@ -109,7 +159,7 @@ def parse_definitions(value: Any) -> list[str]:
         if not text:
             continue
         text = NUMBER_PREFIX_RE.sub("", text)
-        text = POS_PREFIX_RE.sub("", text)
+        text = strip_pos_prefix(text)
         text = BRACKET_PREFIX_RE.sub("", text)
         text = text.strip(" \t\r\n。．.，,；;:：")
         text = re.sub(r"[（(][^()（）]*[)）]$", "", text).strip()
@@ -145,20 +195,33 @@ def _record_get(record: Mapping[str, Any] | Any, key: str, default: Any = None) 
 
 def record_to_entry(record: Mapping[str, Any] | Any) -> dict[str, Any]:
     word = normalize_query(str(_record_get(record, "word", "")).strip())
-    pos = normalize_query(str(_record_get(record, "pos", "")).strip())
+    pos = coerce_text(_record_get(record, "pos", ""))
     phonetic = normalize_query(str(_record_get(record, "phonetic", "")).strip())
     phonetic_uk = normalize_query(str(_record_get(record, "phonetic_uk", phonetic)).strip())
     phonetic_us = normalize_query(str(_record_get(record, "phonetic_us", phonetic)).strip())
     definition = str(_record_get(record, "definition", "")).strip()
     translation = str(_record_get(record, "translation", "")).strip()
+    if not pos:
+        pos = extract_pos_from_text(definition) or extract_pos_from_text(translation)
     definitions = parse_definitions(
         _record_get(record, "definitions", translation or definition)
     )
     if not definitions:
         definitions = parse_definitions(definition)
-    example = normalize_query(str(_record_get(record, "example", _record_get(record, "sentence", ""))).strip())
-    example_source = normalize_query(str(_record_get(record, "example_source", "")).strip())
-    example_url = normalize_query(str(_record_get(record, "example_url", "")).strip())
+    example = ""
+    for key in (
+        "example",
+        "sentence",
+        "example_sentence",
+        "sentence_en",
+        "example_en",
+        "sentence_text",
+    ):
+        example = coerce_text(_record_get(record, key, ""))
+        if example:
+            break
+    example_source = coerce_text(_record_get(record, "example_source", ""))
+    example_url = coerce_text(_record_get(record, "example_url", ""))
     source = normalize_query(str(_record_get(record, "source", "ecdict")).strip()) or "ecdict"
     collins = normalize_int(_record_get(record, "collins", 0))
     oxford = normalize_int(_record_get(record, "oxford", 0))
