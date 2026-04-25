@@ -53,30 +53,26 @@ metadata:
 默认只给 1 个最常见释义或对应项；如果确实有 2 个都很常见，再补第 2 个。
 第 3 个只在用户追问时再补。
 
-#### Lookup Workflow（v2 - 本地词典模式）
+#### Lookup Workflow（v3 - 脚本直出模式）
 
-1. 收到英语查词请求后，执行以下操作且仅执行以下操作：
-   a. 运行 `python3 scripts/dict_lookup.py --mode en_to_zh <word-or-phrase>`
-   b. 根据返回的 JSON，按下方模板格式化输出最终回复
+1. 收到英语查词请求后，执行以下操作且**仅**执行以下操作：
+   a. 运行 `python3 scripts/dict_lookup.py --mode en_to_zh --format text <word-or-phrase>`
+   b. **原样转发脚本输出文本给用户**，不要修改、不要重新排版、不要添加任何内容
    c. 不要执行任何其他 tool call
 
-2. 收到“英语怎么说”类请求后，执行以下操作且仅执行以下操作：
-   a. 运行 `python3 scripts/dict_lookup.py --mode zh_to_en <中文词组>`
-   b. 根据返回的 JSON 选择最常用的英文表达，并按下方模板格式化
+2. 收到"英语怎么说"类请求后，执行以下操作且**仅**执行以下操作：
+   a. 运行 `python3 scripts/dict_lookup.py --mode zh_to_en --format text <中文词组>`
+   b. **原样转发脚本输出文本给用户**
    c. 不要执行任何其他 tool call
 
-3. 如果 `dict_lookup.py` 返回 `not_found`：
-   a. 回复：`这个词我还没收录，稍后帮你加上 📚`
-   b. 不要尝试用其他方式查找
-   c. `dict_lookup.py` 已会自动记录缺失词，不要再额外操作
+3. 如果输出是 `这个词我还没收录，稍后帮你加上 📚`，直接转发即可。
 
 4. 严格禁止：
    - 使用 web_fetch 查询在线词典
    - 使用模型内置知识编造释义或例句
-   - 多次调用 `dict_lookup.py`（只调一次）
+   - 多次调用 dict_lookup.py（只调一次）
    - 在查词过程中读取任何文件
-
-#### 1. 英语到中文
+   - 对脚本输出的文本做任何修改或补充#### 1. 英语到中文
 
 Use this shape. This is a meaning-first card:
 

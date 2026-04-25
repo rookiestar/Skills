@@ -206,6 +206,54 @@ def load_sample_matches(sample_indexes: tuple[dict[str, dict[str, Any]], dict[st
     return deduped
 
 
+def format_en_to_zh_text(entry: dict[str, Any]) -> str:
+    word = entry["word"]
+    pos = entry.get("pos") or ""
+    phonetic = entry.get("phonetic") or ""
+    definitions = entry.get("definitions") or []
+    example = entry.get("example") or ""
+
+    lines = [f"**{word}**"]
+    if pos:
+        lines.append(f"- 📖 词性：{pos}")
+    if phonetic:
+        lines.append(f"- 🔤 音标：{phonetic}")
+    for i, d in enumerate(definitions[:2]):
+        label = "🇨🇳 释义：" if i == 0 else "🇨🇳 释义 2："
+        lines.append(f"- {label}{d}")
+    if example:
+        lines.append(f"- 💬 例句：{example}")
+    return "\n".join(lines)
+
+
+def format_zh_to_en_text(result: dict[str, Any]) -> str:
+    query = result.get("query", "")
+    matches = result.get("matches", [])
+    lines = [f"**{query}**"]
+
+    for i, m in enumerate(matches[:2]):
+        w = m["word"]
+        pos = m.get("pos") or ""
+        phonetic = m.get("phonetic") or ""
+        defs = m.get("definitions") or []
+        example = m.get("example") or ""
+
+        label = "🔤 最常用英文：" if i == 0 else "🔤 第二常用英文："
+        line = f"{label}{w}"
+        if phonetic:
+            line += f" {phonetic}"
+        lines.append(f"- {line}")
+        if i == 0 and pos:
+            lines.append(f"- 📖 词性：{pos}")
+        trans = defs[0] if defs else ""
+        if trans:
+            lines.append(f"- 🇨🇳 对应义：{trans}")
+        if i == 0 and example:
+            lines.append(f"- 💬 例句：{example}")
+
+    return "\n".join(lines)
+
+
 def append_missing_word(missing_log: Path, query: str) -> None:
     missing_log.parent.mkdir(parents=True, exist_ok=True)
     with missing_log.open("a", encoding="utf-8") as handle:
@@ -237,6 +285,7 @@ def lookup_zh_to_en(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
 def main() -> int:
     parser = argparse.ArgumentParser(description="Local dictionary lookup")
     parser.add_argument("--mode", required=True, choices=("en_to_zh", "zh_to_en"))
+    parser.add_argument("--format", default="json", choices=("json", "text"), help="Output format (default: json)")
     parser.add_argument("query", help="Word or phrase to look up")
     parser.add_argument("--data-dir", default=None, help="Directory with dictionary assets")
     parser.add_argument("--db", default=None, help="Path to dictionary.db")
@@ -254,10 +303,19 @@ def main() -> int:
         result = lookup_zh_to_en(args.query, db_path, sample_indexes)
 
     if result.get("error") == "not_found":
-        print(json.dumps(result, ensure_ascii=False), file=sys.stderr)
+        if args.format == "text":
+            print(f"这个词我还没收录，稍后帮你加上 📚")
+        else:
+            print(json.dumps(result, ensure_ascii=False), file=sys.stderr)
         return 4
 
-    print(json.dumps(result, ensure_ascii=False))
+    if args.format == "text":
+        if args.mode == "en_to_zh":
+            print(format_en_to_zh_text(result))
+        else:
+            print(format_zh_to_en_text(result))
+    else:
+        print(json.dumps(result, ensure_ascii=False))
     return 0
 
 
