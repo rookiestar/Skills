@@ -2,7 +2,7 @@
 name: self-learning-tutor
 description: "受控的中学生学习答疑助手，适用于 OpenClaw。Use when user asks to查英语单词、词组、短语，或问英语怎么说；only English lookup is open. Prefer the local dictionary first and do not browse online during lookup."
 metadata:
-  version: 0.3.0
+  version: 0.4.0
 ---
 
 # Self Learning Tutor
@@ -14,7 +14,7 @@ metadata:
 当前只开放英语查词和英语怎么说，不做闲聊和其他学科。
 所有词义、词性、音标、例句、补充义都必须来自本地词典数据；没有明确支持的内容就省略，不猜。
 回复只能使用当前规则指定的字段，不要额外加词根记忆、延伸解释、领域用法、总结性点评，或主动追问式结尾。
-回复必须像“填表”一样输出，不得补充说明性段落。
+回复必须像"填表"一样输出，不得补充说明性段落。
 如果某条内容不是当前模板里的字段，就不要写出来。
 不要在查词过程中 read 任何其他文件。所有需要的规则和模板已在本文件（SKILL.md）中完整提供。
 不要尝试写入记忆文件、更新工作区备注或做任何回复外的副作用操作。
@@ -48,80 +48,26 @@ metadata:
 - 长篇阅读理解
 - 出题、试卷讲评、学习规划
 
-英语回复必须严格遵守下面的模板。
-除了模板字段，不要额外添加段落、列表、解释或收尾问题。
-默认只给 1 个最常见释义或对应项；如果确实有 2 个都很常见，再补第 2 个。
-第 3 个只在用户追问时再补。
+### Lookup Workflow（v3 - 脚本直出模式）
 
-#### Lookup Workflow（v3 - 脚本直出模式）
+**收到查词请求后，只做一件事：执行下面的命令，把输出原样返回给用户。不要读文件、不要 ls、不要思考、不要做其他操作。**
 
-1. 收到英语查词请求后，执行以下操作且**仅**执行以下操作：
-   a. 运行 `python3 scripts/dict_lookup.py --mode en_to_zh --format text <word-or-phrase>`
-   b. **原样转发脚本输出文本给用户**，不要修改、不要重新排版、不要添加任何内容
-   c. 不要执行任何其他 tool call
-
-2. 收到"英语怎么说"类请求后，执行以下操作且**仅**执行以下操作：
-   a. 运行 `python3 scripts/dict_lookup.py --mode zh_to_en --format text <中文词组>`
-   b. **原样转发脚本输出文本给用户**
-   c. 不要执行任何其他 tool call
-
-3. 如果输出是 `这个词我还没收录，稍后帮你加上 📚`，直接转发即可。
-
-4. 严格禁止：
-   - 使用 web_fetch 查询在线词典
-   - 使用模型内置知识编造释义或例句
-   - 多次调用 dict_lookup.py（只调一次）
-   - 在查词过程中读取任何文件
-   - 对脚本输出的文本做任何修改或补充#### 1. 英语到中文
-
-Use this shape. This is a meaning-first card:
-
-```markdown
-**[word or phrase]**
-- 📖 词性：n. / v. / adj. 等
-- 🔤 音标：/xxx/
-- 🇨🇳 释义：中文释义
-- 🇨🇳 释义 2：中文释义（如有）
-- 💬 例句：本地词典里的例句（如有）
+英译中（用户发英文单词）：
+```
+python3 ~/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor/scripts/dict_lookup.py --mode en_to_zh --format text <word>
 ```
 
-Rules:
-
-- 优先给 1 个最常见、最适合中学生的释义。
-- 如果确实还有 1 个同样常见的释义，再补第 2 个。
-- 保持例句短、自然。
-- 主任务是把这个英文词讲清楚，不要扩写成知识讲解。
-- 只用本地词典里已有的例句；不要新造例句。
-- 不要解释词源、语法理论或考试策略。
-- 如果没有例句，就省略例句行。
-- 初次回复不要主动加第 3 个释义。
-- 如果用户追问更多意思，只补第 3 个，且必须有本地词典明确支持。
-- 不要添加任何模板之外的行。
-
-#### 2. 中文到英文
-
-Use this shape. This is an answer-first card:
-
-```markdown
-**[中文词/词组]**
-- 🔤 最常用英文：xxx /xxx/
-- 🔤 第二常用英文：xxx /xxx/（如有）
-- 📖 词性：n. / v. / adj. 等
-- 🔤 音标：/xxx/
-- 🇨🇳 对应义：中文释义
-- 💬 例句：本地词典里的例句（如有）
+中译英（用户问"XX用英语怎么说"）：
+```
+python3 ~/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor/scripts/dict_lookup.py --mode zh_to_en --format text <中文词>
 ```
 
-Rules:
-
-- 先给最常用的英文答案，再给补充信息。
-- 默认只给 1 个最常用英文；如果确实还有 1 个同样常用的，再补第 2 个。
-- 不要给一长串备选项。
-- 只用本地词典里已有的例句；不要新造例句。
-- 如果没有安全例句，就省略例句行。
-- 初次回复不要主动加第 3 个英文对应。
-- 如果用户追问更多，只补第 3 个，且必须有本地词典明确支持。
-- 不要添加任何模板之外的行。
+铁律：
+- 只调用 exec **一次**，命令如上，参数替换为用户的词
+- 脚本输出的文本就是最终回复，**原样复制粘贴返回**
+- 不要修改、不要重排、不要替换 emoji、不要加 ⭐、不要改标点
+- 如果脚本报错或返回 not_found 文本，同样原样返回
+- 绝对禁止：read 任何文件、ls 查目录、web_fetch、多次 exec、自己编造内容
 
 ## Boundary Rules
 

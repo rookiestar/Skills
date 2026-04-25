@@ -8,7 +8,7 @@ Usage:
 
 Defaults:
   --remote      rookiestar@34.70.69.58
-  --install-dir /home/rookiestar/.openclaw/skills/self-learning-tutor
+  --install-dir /home/rookiestar/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor
   --data-branch codex/local-dictionary-branch
 
 Deploys code + data to a single target directory on VPS via scp, then verifies dict lookup.
@@ -16,7 +16,7 @@ EOF
 }
 
 REMOTE="rookiestar@34.70.69.58"
-INSTALL_DIR="/home/rookiestar/.openclaw/skills/self-learning-tutor"
+INSTALL_DIR="/home/rookiestar/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor"
 DATA_BRANCH="codex/local-dictionary-branch"
 LOCAL_DATA_DIR=""
 
@@ -106,6 +106,20 @@ for f in "${DATA_SRC}"/*; do
     scp "${f}" "${REMOTE}:${INSTALL_DIR}/data/"
   fi
 done
+
+# 传 dictionary.db（gitignored，不在 archive 里，从本地直接传）
+LOCAL_DB="${REPO_ROOT}/data/dictionary.db"
+if [[ -f "${LOCAL_DB}" ]]; then
+  db_name="$(basename "${LOCAL_DB}")"
+  local_db_size=$(stat -f%z "${LOCAL_DB}")
+  remote_db_size=$(ssh "${REMOTE}" "stat -c%s '${INSTALL_DIR}/data/${db_name}'" 2>/dev/null || echo "0")
+  if [[ "${remote_db_size}" -ne "${local_db_size}" ]]; then
+    echo "  uploading ${db_name} (${local_db_size} bytes) ..."
+    scp "${LOCAL_DB}" "${REMOTE}:${INSTALL_DIR}/data/"
+  else
+    echo "  skip ${db_name} (already up to date, ${local_db_size} bytes)"
+  fi
+fi
 
 echo "Deployment complete."
 

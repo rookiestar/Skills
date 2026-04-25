@@ -111,6 +111,72 @@ def load_sqlite_entry(db_path: Path, word: str) -> dict[str, Any] | None:
         conn.close()
 
 
+def _upgrade_to_cambridge(conn: sqlite3.Connection, db_path: Path, entry: dict[str, Any]) -> dict[str, Any]:
+    """If a matched word has a Cambridge entry in the main table, use that instead.
+
+    Preserves pos and _nuance from the curated zh_en_core entry since those
+    are specifically chosen for the Chinese→English mapping context.
+    """
+    word = entry.get("word", "")
+    if not word or entry.get("source") == "cambridge":
+        return entry
+    cam = load_sqlite_entry(db_path, word)
+    if cam and cam.get("source") == "cambridge":
+        cam_out = entry_for_output(cam)
+        # Preserve curated POS — Cambridge may have a different sense's POS
+        curated_pos = entry.get("pos", "")
+        if curated_pos:
+            cam_out["pos"] = curated_pos
+        # Preserve nuance
+        curated_nuance = entry.get("_nuance", "")
+        if curated_nuance:
+            cam_out["_nuance"] = curated_nuance
+        return cam_out
+    return entry
+
+
+def _load_zh_en_core(conn: sqlite3.Connection, db_path: Path, query: str, limit: int, seen: set[str]) -> list[dict[str, Any]]:
+    """Query the curated zh_en_core table. Pure curated mode — no fallback."""
+    if not table_exists(conn, "zh_en_core"):
+        return []
+    rows = conn.execute(
+        """
+        SELECT en_word, pos, nuance
+        FROM zh_en_core
+        WHERE zh_term = ? AND source = 'curated'
+        ORDER BY frequency DESC, sense_rank ASC
+        LIMIT ?
+        """,
+        (query, limit),
+    ).fetchall()
+    results: list[dict[str, Any]] = []
+    for row in rows:
+        word = row["en_word"]
+        if word in seen:
+            continue
+        seen.add(word)
+        curated_pos = row["pos"] or ""
+        curated_nuance = row["nuance"] or ""
+        entry = load_sqlite_entry(db_path, word)
+        if entry is None:
+            entry = {
+                "word": word,
+                "pos": curated_pos,
+                "phonetic": "",
+                "definitions": [],
+                "example": "",
+                "source": "zh_en_core",
+                "_nuance": curated_nuance,
+            }
+        else:
+            # Preserve curated POS/nuance — Cambridge may have a different sense
+            entry["pos"] = curated_pos
+            entry["_nuance"] = curated_nuance
+        entry = _upgrade_to_cambridge(conn, db_path, entry)
+        results.append(entry_for_output(entry))
+    return results
+
+
 def load_sqlite_matches(db_path: Path, query: str, limit: int = 2) -> list[dict[str, Any]]:
     if not db_path.exists():
         return []
@@ -118,66 +184,8 @@ def load_sqlite_matches(db_path: Path, query: str, limit: int = 2) -> list[dict[
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     try:
-        matches: list[dict[str, Any]] = []
-        if table_exists(conn, "dictionary_reverse"):
-            rows = conn.execute(
-                """
-                SELECT zh_term, word, pos, phonetic, source, frequency, sense_rank
-                FROM dictionary_reverse
-                WHERE zh_term = ?
-                ORDER BY CASE WHEN frequency > 0 THEN 0 ELSE 1 END, sense_rank ASC, frequency ASC, word ASC
-                LIMIT ?
-                """,
-                (query, limit * 4),
-            ).fetchall()
-            if not rows:
-                rows = conn.execute(
-                    """
-                SELECT zh_term, word, pos, phonetic, source, frequency, sense_rank
-                FROM dictionary_reverse
-                WHERE zh_term LIKE ? OR ? LIKE zh_term
-                    ORDER BY CASE WHEN frequency > 0 THEN 0 ELSE 1 END, sense_rank ASC, frequency ASC, word ASC
-                    LIMIT ?
-                    """,
-                    (f"%{query}%", query, limit * 4),
-                ).fetchall()
-
-            seen: set[str] = set()
-            for row in rows:
-                word = row["word"]
-                if word in seen:
-                    continue
-                seen.add(word)
-                entry = load_sqlite_entry(db_path, word)
-                if entry is None:
-                        entry = {
-                            "word": word,
-                            "pos": row["pos"] or "",
-                            "phonetic": row["phonetic"] or "",
-                            "definitions": [],
-                            "example": "",
-                            "source": row["source"] or "ecdict",
-                        }
-                matches.append(entry_for_output(entry))
-                if len(matches) >= limit:
-                    break
-            if matches:
-                return matches
-
-        if table_exists(conn, "dictionary"):
-            rows = conn.execute("SELECT * FROM dictionary").fetchall()
-            seen = set()
-            for row in rows:
-                entry = record_to_entry(row)
-                if not entry["word"] or entry["word"] in seen:
-                    continue
-                candidates = build_reverse_terms(entry["definitions"], None)
-                if any(query == candidate or query in candidate or candidate in query for candidate in candidates):
-                    seen.add(entry["word"])
-                    matches.append(entry_for_output(entry))
-                    if len(matches) >= limit:
-                        break
-        return matches
+        seen: set[str] = set()
+        return _load_zh_en_core(conn, db_path, query, limit, seen)
     finally:
         conn.close()
 
@@ -186,24 +194,6 @@ def load_sample_entry(sample_indexes: tuple[dict[str, dict[str, Any]], dict[str,
     by_word, _ = sample_indexes
     return by_word.get(word.lower())
 
-
-def load_sample_matches(sample_indexes: tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]], query: str, limit: int = 2) -> list[dict[str, Any]]:
-    _, by_zh = sample_indexes
-    matches = list(by_zh.get(query, []))
-    if not matches:
-        for term, entries in by_zh.items():
-            if query in term or term in query:
-                matches.extend(entries)
-    deduped: list[dict[str, Any]] = []
-    seen: set[str] = set()
-    for entry in sorted(matches, key=lambda item: (-item.get("frequency", 0), item["word"])):
-        if entry["word"] in seen:
-            continue
-        seen.add(entry["word"])
-        deduped.append(entry_for_output(entry))
-        if len(deduped) >= limit:
-            break
-    return deduped
 
 
 def format_en_to_zh_text(entry: dict[str, Any]) -> str:
@@ -231,22 +221,30 @@ def format_zh_to_en_text(result: dict[str, Any]) -> str:
     matches = result.get("matches", [])
     lines = [f"**{query}**"]
 
-    for i, m in enumerate(matches[:2]):
+    for i, m in enumerate(matches[:3]):
         w = m["word"]
         pos = m.get("pos") or ""
         phonetic = m.get("phonetic") or ""
         defs = m.get("definitions") or []
         example = m.get("example") or ""
+        nuance = m.get("_nuance", "") or ""
 
-        label = "🔤 最常用英文：" if i == 0 else "🔤 第二常用英文："
+        if i == 0:
+            label = "🔤 最常用英文："
+        elif i == 1:
+            label = "🔤 第二常用英文："
+        else:
+            label = "🔤 其他表达："
         line = f"{label}{w}"
         if phonetic:
             line += f" {phonetic}"
         lines.append(f"- {line}")
         if i == 0 and pos:
             lines.append(f"- 📖 词性：{pos}")
+        if nuance:
+            lines.append(f"- 💡 辨析：{nuance}")
         trans = defs[0] if defs else ""
-        if trans:
+        if trans and not nuance:
             lines.append(f"- 🇨🇳 对应义：{trans}")
         if i == 0 and example:
             lines.append(f"- 💬 例句：{example}")
@@ -274,8 +272,6 @@ def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
 def lookup_zh_to_en(query: str, db_path: Path, sample_indexes: tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]]) -> dict[str, Any]:
     phrase = extract_zh_query(query)
     matches = load_sqlite_matches(db_path, phrase)
-    if not matches:
-        matches = load_sample_matches(sample_indexes, phrase)
     if not matches:
         append_missing_word(db_path.parent / "missing_words.log", phrase)
         return {"error": "not_found", "mode": "zh_to_en", "query": phrase}
