@@ -115,7 +115,13 @@ deploy_to_dir() {
 # Step 2: scp 代码 + 数据到 VPS（单一工作区目录）
 deploy_to_dir "${WORKSPACE_DIR}"
 
-# Step 3: 验证字典查询
+# Step 3: 清除旧 session，确保新 SKILL.md / 脚本立即生效
+echo ""
+echo "--- Clearing xiaodaixing sessions ---"
+SESSIONS_DIR="/home/rookiestar/.openclaw/agents/xiaodaixing/sessions"
+ssh "${REMOTE}" "rm -rf '${SESSIONS_DIR}' && echo 'sessions cleared'"
+
+# Step 4: 验证字典查询
 echo ""
 echo "--- Verifying en_to_zh lookup ---"
 ssh "${REMOTE}" "python3 '${WORKSPACE_DIR}/scripts/dict_lookup.py' --mode en_to_zh important"
