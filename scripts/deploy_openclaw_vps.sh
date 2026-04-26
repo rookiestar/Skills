@@ -84,13 +84,14 @@ echo "Deploying to ${REMOTE}:${INSTALL_DIR} ..."
 
 ssh "${REMOTE}" "mkdir -p '${INSTALL_DIR}'"
 
-# 传代码文件
+# 传代码文件（从 skill 子目录）
+SKILL_DIR="${REPO_ROOT}/self learning tutor"
 scp -r \
-  "${REPO_ROOT}/SKILL.md" \
-  "${REPO_ROOT}/bin" \
-  "${REPO_ROOT}/scripts" \
-  "${REPO_ROOT}/references" \
-  "${REPO_ROOT}/package.json" \
+  "${SKILL_DIR}/SKILL.md" \
+  "${SKILL_DIR}/bin" \
+  "${SKILL_DIR}/scripts" \
+  "${SKILL_DIR}/references" \
+  "${SKILL_DIR}/package.json" \
   "${REMOTE}:${INSTALL_DIR}/"
 
 # 传数据（跳过已存在且大小一致的文件）
