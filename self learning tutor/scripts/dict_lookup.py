@@ -275,26 +275,30 @@ def format_en_to_zh_text(result: dict[str, Any]) -> str:
     if not senses:
         return f"**{word}**"
 
-    lines = [f"**{word}**"]
+    parts = [f"**{word}**"]
 
     phonetic = senses[0].get("phonetic", "") or ""
     if phonetic:
-        lines.append(f"- 🔤 音标：{phonetic}")
+        parts.append(f"\n🔤 {phonetic}\n")
 
     for i, s in enumerate(senses[:5]):
         pos = s.get("pos", "") or ""
         definition = s.get("definition") or ""
         example = s.get("example") or ""
 
+        num = f"{i + 1}. "
         if pos:
-            lines.append(f"- 📖 {pos} {definition}")
+            parts.append(f"{num}**{pos}** {definition}")
         else:
-            lines.append(f"- 📖 {definition}")
+            parts.append(f"{num}{definition}")
 
         if example:
-            lines.append(f"  💬 {example}")
+            parts.append(f"　　💬 {example}")
 
-    return "\n".join(lines)
+        if i < len(senses[:5]) - 1:
+            parts.append("")
+
+    return "\n".join(parts)
 
 
 def main() -> int:
