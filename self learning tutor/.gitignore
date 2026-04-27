@@ -1,5 +1,4 @@
-# Tests (private, branch-only)
-tests/
+# Data & DB binaries (deployed via scp, not git)
 data/
 *.db
 *.db-shm
