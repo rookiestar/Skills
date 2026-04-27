@@ -1,0 +1,7 @@
+# Tests (private, branch-only)
+tests/
+data/
+*.db
+*.db-shm
+*.db-wal
+missing_words.log
