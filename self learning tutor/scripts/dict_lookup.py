@@ -81,8 +81,8 @@ def extract_en_query(query: str) -> str:
     text = strip_lookup_cues_en(query)
     match = re.match(r"[A-Za-z][A-Za-z' -]*", text)
     if match:
-        return normalize_query(match.group(0))
-    return normalize_query(text)
+        return normalize_query(match.group(0)).lower()
+    return normalize_query(text).lower()
 
 
 def extract_zh_query(query: str) -> str:
@@ -292,6 +292,19 @@ def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
         if entry is None:
             append_missing_word(db_path.parent / "missing_words.log", word)
             return {"error": "not_found", "mode": "en_to_zh", "query": word}
+        defs = entry.get("definitions") or []
+        raw_examples = entry.get("example", "")
+        examples: list[str] = []
+        if raw_examples:
+            try:
+                parsed = json.loads(raw_examples)
+                if isinstance(parsed, list):
+                    examples = parsed
+                else:
+                    examples = [str(parsed)] if str(parsed) else []
+            except (json.JSONDecodeError, TypeError):
+                examples = [raw_examples] if raw_examples else []
+        senses = [{"word": entry["word"], "phonetic": entry.get("phonetic", ""), "definition": d, "example": examples[i] if i < len(examples) else ""} for i, d in enumerate(defs[:5]) if d]
         return {"word": word, "senses": senses}
     return {"word": word, "senses": senses}
 
