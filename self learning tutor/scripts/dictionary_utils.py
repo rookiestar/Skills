@@ -74,6 +74,8 @@ def strip_lookup_cues_zh(text: str) -> str:
     for cue in ZH_LOOKUP_CUES:
         if text.endswith(cue):
             text = text[: -len(cue)].strip()
+        elif text.startswith(cue):
+            text = text[len(cue):].strip()
     return text
 
 
@@ -193,14 +195,18 @@ def _record_get(record: Mapping[str, Any] | Any, key: str, default: Any = None) 
     return default
 
 
+def _safe_str(value: Any) -> str:
+    return "" if value is None else str(value).strip()
+
+
 def record_to_entry(record: Mapping[str, Any] | Any) -> dict[str, Any]:
-    word = normalize_query(str(_record_get(record, "word", "")).strip())
-    pos = coerce_text(_record_get(record, "pos", ""))
-    phonetic = normalize_query(str(_record_get(record, "phonetic", "")).strip())
-    phonetic_uk = normalize_query(str(_record_get(record, "phonetic_uk", phonetic)).strip())
-    phonetic_us = normalize_query(str(_record_get(record, "phonetic_us", phonetic)).strip())
-    definition = str(_record_get(record, "definition", "")).strip()
-    translation = str(_record_get(record, "translation", "")).strip()
+    word = normalize_query(_safe_str(_record_get(record, "word")))
+    pos = coerce_text(_record_get(record, "pos"))
+    phonetic = normalize_query(_safe_str(_record_get(record, "phonetic")))
+    phonetic_uk = normalize_query(_safe_str(_record_get(record, "phonetic_uk") or phonetic))
+    phonetic_us = normalize_query(_safe_str(_record_get(record, "phonetic_us") or phonetic))
+    definition = _safe_str(_record_get(record, "definition"))
+    translation = _safe_str(_record_get(record, "translation"))
     if not pos:
         pos = extract_pos_from_text(definition) or extract_pos_from_text(translation)
     definitions = parse_definitions(
