@@ -46,14 +46,14 @@ def validate(text: str, mode: str) -> ValidationResult:
     if mode == "en_to_zh":
         if not re.fullmatch(r"^\*\*.+\*\*$", lines[0]):
             errors.append(f"line 1 does not match the header template: {lines[0]}")
-        if len(lines) < 4:
+        if len(lines) < 3:
             errors.append("en_to_zh card is missing required lines")
             return ValidationResult(False, errors)
-        expected_prefixes = ["- 📖 词性：", "- 🔤 音标：", "- 🇨🇳 释义："]
+        expected_prefixes = ["- 🔤 音标：", "- 🇨🇳 释义："]
         for offset, prefix in enumerate(expected_prefixes, start=1):
             if not lines[offset].startswith(prefix):
                 errors.append(f"line {offset + 1} must start with {prefix}")
-        cursor = 4
+        cursor = 3
         if len(lines) > cursor and lines[cursor].startswith("- 🇨🇳 释义 2："):
             cursor += 1
         if len(lines) > cursor and lines[cursor].startswith("- 💬 例句："):
@@ -63,10 +63,10 @@ def validate(text: str, mode: str) -> ValidationResult:
     else:
         if not re.fullmatch(r"^\*\*.+\*\*$", lines[0]):
             errors.append(f"line 1 does not match the header template: {lines[0]}")
-        if len(lines) < 5:
+        if len(lines) < 4:
             errors.append("zh_to_en card is missing required lines")
             return ValidationResult(False, errors)
-        expected_prefixes = ["- 🔤 最常用英文：", "- 📖 词性：", "- 🔤 音标：", "- 🇨🇳 对应义："]
+        expected_prefixes = ["- 🔤 最常用英文：", "- 🔤 音标：", "- 🇨🇳 对应义："]
         cursor = 1
         if not lines[cursor].startswith(expected_prefixes[0]):
             errors.append(f"line 2 must start with {expected_prefixes[0]}")
