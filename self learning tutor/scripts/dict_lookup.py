@@ -204,6 +204,7 @@ def load_word_senses(db_path: Path, word: str) -> list[dict[str, Any]]:
                     except (json.JSONDecodeError, TypeError):
                         examples = [raw_examples] if raw_examples else []
                 return [{"word": entry["word"], "phonetic": entry.get("phonetic", ""), "definition": d, "example": examples[i] if i < len(examples) else ""} for i, d in enumerate(defs[:5]) if d]
+            return []
         rows = conn.execute(
             "SELECT s.pos,s.definition,s.example,s.sense_rank,d.phonetic,d.phonetic_uk,d.phonetic_us,d.word,d.source FROM word_senses s JOIN dictionary d ON s.word=d.word WHERE lower(d.word)=? ORDER BY s.sense_rank ASC LIMIT 6",
             (word.lower(),),
@@ -292,6 +293,7 @@ def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
             append_missing_word(db_path.parent / "missing_words.log", word)
             return {"error": "not_found", "mode": "en_to_zh", "query": word}
         return {"word": word, "senses": senses}
+    return {"word": word, "senses": senses}
 
 
 def lookup_zh_to_en(query: str, db_path: Path, sample_indexes: tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]]) -> dict[str, Any]:
