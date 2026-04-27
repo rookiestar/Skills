@@ -98,7 +98,7 @@ def normalize(text: str) -> str:
 def is_english_term(text: str) -> bool:
     if not ENGLISH_TERM_RE.fullmatch(text):
         return False
-    return 1 <= len(ENGLISH_WORD_COUNT_RE.findall(text)) <= 3
+    return 1 <= len(ENGLISH_WORD_COUNT_RE.findall(text)) <= 5
 
 
 def looks_like_sentence_translation(text: str) -> bool:

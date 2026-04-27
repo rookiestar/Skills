@@ -46,17 +46,26 @@ def validate(text: str, mode: str) -> ValidationResult:
     if mode == "en_to_zh":
         if not re.fullmatch(r"^\*\*.+\*\*$", lines[0]):
             errors.append(f"line 1 does not match the header template: {lines[0]}")
-        if len(lines) < 3:
+        if len(lines) < 2:
             errors.append("en_to_zh card is missing required lines")
             return ValidationResult(False, errors)
-        expected_prefixes = ["- 🔤 音标：", "- 🇨🇳 释义："]
-        for offset, prefix in enumerate(expected_prefixes, start=1):
-            if not lines[offset].startswith(prefix):
+        # Phrase format (no phonetic line): **word** → 🇨🇳释义 → 💬 例句
+        # Word format (with phonetic): **word** → 🔤 音标 → 🇨🇳释义 → 💬 例句
+        has_phonetic = lines[1].startswith("- 🔤 音标：") if len(lines) > 1 else False
+        if has_phonetic:
+            expected_prefixes = ["- 🔤 音标：", "- 🇨🇳 释义："]
+            start_offset = 1
+        else:
+            expected_prefixes = ["- 🇨🇳 释义："]
+            start_offset = 1
+        for offset, prefix in enumerate(expected_prefixes, start=start_offset):
+            if offset >= len(lines) or not lines[offset].startswith(prefix):
                 errors.append(f"line {offset + 1} must start with {prefix}")
-        cursor = 3
-        if len(lines) > cursor and lines[cursor].startswith("- 🇨🇳 释义 2："):
+                break
+        cursor = offset + 1
+        if cursor < len(lines) and lines[cursor].startswith("- 🇨🇳 释义 2："):
             cursor += 1
-        if len(lines) > cursor and lines[cursor].startswith("- 💬 例句："):
+        if cursor < len(lines) and lines[cursor].startswith("- 💬 例句："):
             cursor += 1
         if len(lines) != cursor:
             errors.append(f"unexpected extra line: {lines[cursor] if cursor < len(lines) else lines[-1]}")
@@ -66,17 +75,23 @@ def validate(text: str, mode: str) -> ValidationResult:
         if len(lines) < 4:
             errors.append("zh_to_en card is missing required lines")
             return ValidationResult(False, errors)
-        expected_prefixes = ["- 🔤 最常用英文：", "- 🔤 音标：", "- 🇨🇳 对应义："]
         cursor = 1
-        if not lines[cursor].startswith(expected_prefixes[0]):
-            errors.append(f"line 2 must start with {expected_prefixes[0]}")
+        if not lines[cursor].startswith("- 🔤 最常用英文："):
+            errors.append(f"line 2 must start with - 🔤 最常用英文：")
         cursor += 1
+        # Detect format: line 2 contains /phonetic/ → word format; otherwise → phrase format
+        has_phonetic = "/" in lines[min(1, len(lines) - 1)]
+        if has_phonetic:
+            required_after_english = ["- 🔤 音标：", "- 🇨🇳 对应义："]
+        else:
+            required_after_english = ["- 🇨🇳 对应义："]
+        # Consume optional second English line
         if cursor < len(lines) and lines[cursor].startswith("- 🔤 第二常用英文："):
             cursor += 1
-        for prefix in expected_prefixes[1:]:
+        for prefix in required_after_english:
             if cursor >= len(lines) or not lines[cursor].startswith(prefix):
                 errors.append(f"line {cursor + 1} must start with {prefix}")
-                return ValidationResult(False, errors)
+                break
             cursor += 1
         if cursor < len(lines) and lines[cursor].startswith("- 💬 例句："):
             cursor += 1

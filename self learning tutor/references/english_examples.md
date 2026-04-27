@@ -68,3 +68,64 @@ Reply:
 Reply:
 
 `你刚才查的是哪个词呀？再发我一次，我接着说 😊`
+
+## English to Chinese (Phrases)
+
+### look forward to
+
+```markdown
+**look forward to**
+- 🇨🇳 释义：phr. 期待；盼望
+- 💬 例句：I look forward to hearing from you.（我期待收到你的来信。）
+```
+
+### give up
+
+```markdown
+**give up**
+- 🇨🇳 释义：phr. 放弃；投降
+- 🇨🇳 释义 2：phr. 戒除（习惯）
+- 💬 例句：Don't give up easily.（不要轻易放弃。）
+```
+
+### as soon as possible
+
+```markdown
+**as soon as possible**
+- 🇨🇳 释义：phr. 尽快
+- 💬 例句：Please reply as soon as possible.（请尽快回复。）
+```
+
+说明：
+
+- 词组输出无音标行，直接 **词组** → **释义** → **例句**
+- 多释义时用 `🇨🇳 释义 2：`
+- 默认给 1-2 个最常用释义；更多在追问时补
+- 词组数据来源：gaokao_phrases.json（手动整理，非爬取）
+
+## Chinese to English (Phrases)
+
+### 期待
+
+```markdown
+**期待**
+- 🔤 最常用英文：look forward to
+- 🇨🇳 对应义：phr. 期待；盼望
+- 💬 例句：I look forward to hearing from you.（我期待收到你的来信。）
+```
+
+### 放弃
+
+```markdown
+**放弃**
+- 🔤 最常用英文：give up
+- 🇨🇳 对应义：phr. 放弃；投降
+- 💬 例句：Don't give up easily.（不要轻易放弃。）
+```
+
+说明：
+
+- 先给英文答案，再给补充信息
+- 不加额外解释或扩写
+- 默认给 1-2 个最常用对应项；如果本地词库只有 1 个就只给 1 个
+- 第 3 个只在追问时补

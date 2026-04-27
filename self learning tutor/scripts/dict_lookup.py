@@ -66,6 +66,88 @@ def load_sample_indexes(sample_path: Path) -> tuple[dict[str, dict[str, Any]], d
     return by_word, by_zh
 
 
+def load_phrase_indexes(phrase_path: Path) -> tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]]:
+    if not phrase_path.exists():
+        return {}, {}
+
+    raw = json.loads(phrase_path.read_text(encoding="utf-8"))
+    by_phrase: dict[str, dict[str, Any]] = {}
+    by_zh: dict[str, list[dict[str, Any]]] = {}
+
+    for item in raw.get("phrases", []):
+        key = item["phrase"].lower()
+        by_phrase[key] = item
+        for zh_term in item.get("zh_terms", []):
+            normalized = normalize_zh_term(zh_term)
+            by_zh.setdefault(normalized, []).append(item)
+
+    return by_phrase, by_zh
+
+
+def is_phrase_query(word: str) -> bool:
+    return len(word.split()) >= 2
+
+
+def entry_for_phrase_output(entry: dict[str, Any]) -> dict[str, Any]:
+    defs = entry.get("definitions") or []
+    definition = defs[0] if defs else ""
+    examples = entry.get("examples") or []
+    example = ""
+    if examples:
+        ex = examples[0]
+        en = ex.get("en", "")
+        zh = ex.get("zh", "")
+        example = f"{en}（{zh}）" if en and zh else en or zh
+
+    return {
+        "word": entry["phrase"],
+        "pos": "phr.",
+        "phonetic": "",
+        "definitions": defs[:2],
+        "example": example,
+        "source": "gaokao_phrases",
+    }
+
+
+def lookup_phrase_en_to_zh(word: str, by_phrase: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
+    entry = by_phrase.get(word.lower())
+    if not entry:
+        return None
+    defs = entry.get("definitions") or []
+    examples = entry.get("examples") or []
+    senses = []
+    for i, d in enumerate(defs[:3]):
+        ex = ""
+        if i < len(examples):
+            ex_item = examples[i]
+            en = ex_item.get("en", "")
+            zh = ex_item.get("zh", "")
+            ex = f"{en}（{zh}）" if en and zh else en or zh
+        senses.append({"word": entry["phrase"], "phonetic": "", "definition": d, "example": ex})
+    return {"word": entry["phrase"], "senses": senses}
+
+
+def lookup_phrase_zh_to_en(query: str, by_zh: dict[str, list[dict[str, Any]]], limit: int = 2) -> list[dict[str, Any]] | None:
+    matches = by_zh.get(query, [])
+    if not matches:
+        for term, entries in by_zh.items():
+            if query in term or term in query:
+                matches.extend(entries)
+    if not matches:
+        return None
+    seen: set[str] = set()
+    results = []
+    for entry in sorted(matches, key=lambda e: -(e.get("frequency", 0))):
+        pk = entry["phrase"].lower()
+        if pk in seen:
+            continue
+        seen.add(pk)
+        results.append(entry_for_phrase_output(entry))
+        if len(results) >= limit:
+            break
+    return results if results else None
+
+
 def entry_for_output(entry: dict[str, Any]) -> dict[str, Any]:
     return {
         "word": entry["word"],
@@ -282,8 +364,13 @@ def format_en_to_zh_text(result: dict[str, Any]) -> str:
     return "\n".join(parts)
 
 
-def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]]) -> dict[str, Any]:
+def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]], phrase_indexes: tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]] = ({}, {})) -> dict[str, Any]:
     word = extract_en_query(query)
+    by_phrase, _ = phrase_indexes
+    if is_phrase_query(word) and by_phrase:
+        phrase_result = lookup_phrase_en_to_zh(word, by_phrase)
+        if phrase_result:
+            return phrase_result
     senses = load_word_senses(db_path, word)
     if not senses:
         entry = load_sqlite_entry(db_path, word)
@@ -309,8 +396,13 @@ def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
     return {"word": word, "senses": senses}
 
 
-def lookup_zh_to_en(query: str, db_path: Path, sample_indexes: tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]]) -> dict[str, Any]:
+def lookup_zh_to_en(query: str, db_path: Path, sample_indexes: tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]], phrase_indexes: tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]] = ({}, {})) -> dict[str, Any]:
     phrase = extract_zh_query(query)
+    _, by_zh_phrase = phrase_indexes
+    if by_zh_phrase:
+        phrase_matches = lookup_phrase_zh_to_en(phrase, by_zh_phrase)
+        if phrase_matches:
+            return {"query": phrase, "matches": phrase_matches}
     matches = load_sqlite_matches(db_path, phrase)
     if not matches:
         matches = load_sample_matches(sample_indexes, phrase)
@@ -320,6 +412,68 @@ def lookup_zh_to_en(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
     return {"query": phrase, "matches": matches}
 
 
+def format_validated_card_en_zh(result: dict[str, Any]) -> str:
+    word = result.get("word", "")
+    senses = result.get("senses", [])
+
+    if not senses and "definitions" in result:
+        senses = [{"pos": result.get("pos", ""), "definition": d} for i, d in enumerate((result.get("definitions") or [])[:3]) if d]
+
+    if not senses:
+        return f"**{word}**"
+
+    lines = [f"**{word}**"]
+
+    for i, s in enumerate(senses[:2]):
+        pos = s.get("pos", "")
+        defn = s.get("definition", "")
+        label = "🇨🇳 释义：" if i == 0 else "🇨🇳 释义 2："
+        if pos and defn:
+            lines.append(f"- {label}{pos} {defn}")
+        elif defn:
+            lines.append(f"- {label}{defn}")
+
+    example = ""
+    if senses:
+        example = senses[0].get("example", "") or ""
+    if example:
+        lines.append(f"- 💬 例句：{example}")
+
+    return "\n".join(lines)
+
+
+def format_validated_card_zh_en(result: dict[str, Any]) -> str:
+    query = result.get("query", "")
+    matches = result.get("matches", [])
+
+    if not matches:
+        return f"**{query}**"
+
+    lines = [f"**{query}**"]
+    first = matches[0]
+    w1 = first.get("word", "")
+    lines.append(f"- 🔤 最常用英文：{w1}")
+
+    if len(matches) > 1:
+        w2 = matches[1].get("word", "")
+        lines.append(f"- 🔤 第二常用英文：{w2}")
+
+    defs = first.get("definitions") or []
+    if defs:
+        pos = first.get("pos", "")
+        defn = defs[0]
+        if pos and defn:
+            lines.append(f"- 🇨🇳 对应义：{pos} {defn}")
+        elif defn:
+            lines.append(f"- 🇨🇳 对应义：{defn}")
+
+    example = first.get("example", "")
+    if example:
+        lines.append(f"- 💬 例句：{example}")
+
+    return "\n".join(lines)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Local dictionary lookup")
     parser.add_argument("--mode", required=True, choices=("en_to_zh", "zh_to_en"))
@@ -327,25 +481,31 @@ def main() -> int:
     parser.add_argument("--data-dir", default=None, help="Directory with dictionary assets")
     parser.add_argument("--db", default=None, help="Path to dictionary.db")
     parser.add_argument("--sample", default=None, help="Path to sample_dictionary.json")
+    parser.add_argument("--phrases", default=None, help="Path to gaokao_phrases.json")
     parser.add_argument("--format", default="json", choices=("json", "text"), help="Output format")
     args = parser.parse_args()
 
     data_dir = resolve_path(args.data_dir, "SELF_LEARNING_TUTOR_DATA_DIR", ROOT / "data")
     db_path = resolve_path(args.db, "SELF_LEARNING_TUTOR_DB", data_dir / "dictionary.db")
     sample_path = resolve_path(args.sample, "SELF_LEARNING_TUTOR_SAMPLE", data_dir / "sample_dictionary.json")
+    phrase_path = resolve_path(args.phrases, "SELF_LEARNING_TUTOR_PHRASES", data_dir / "gaokao_phrases.json")
     sample_indexes = load_sample_indexes(sample_path)
+    phrase_indexes = load_phrase_indexes(phrase_path)
 
     if args.mode == "en_to_zh":
-        result = lookup_en_to_zh(args.query, db_path, sample_indexes)
+        result = lookup_en_to_zh(args.query, db_path, sample_indexes, phrase_indexes)
     else:
-        result = lookup_zh_to_en(args.query, db_path, sample_indexes)
+        result = lookup_zh_to_en(args.query, db_path, sample_indexes, phrase_indexes)
 
     if result.get("error") == "not_found":
         print(json.dumps(result, ensure_ascii=False), file=sys.stderr)
         return 4
 
-    if args.format == "text" and args.mode == "en_to_zh":
-        print(format_en_to_zh_text(result))
+    if args.format == "text":
+        if args.mode == "en_to_zh":
+            print(format_validated_card_en_zh(result))
+        else:
+            print(format_validated_card_zh_en(result))
     else:
         print(json.dumps(result, ensure_ascii=False))
     return 0
