@@ -165,7 +165,7 @@ def load_sqlite_matches(db_path: Path, query: str, limit: int = 2) -> list[dict[
                 return matches
 
         if table_exists(conn, "dictionary"):
-            rows = conn.execute("SELECT * FROM dictionary").fetchall()
+            rows = conn.execute("SELECT word, definitions FROM dictionary LIMIT 500").fetchall()
             seen = set()
             for row in rows:
                 entry = record_to_entry(row)
