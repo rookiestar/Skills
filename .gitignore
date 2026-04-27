@@ -20,3 +20,4 @@ data/dictionary.db
 data/dictionary.db-shm
 data/dictionary.db-wal
 data/missing_words.log
+self learning tutor/data/dictionary.db
