@@ -344,9 +344,284 @@ def lookup_zh_to_en(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
 
 def _clean_def_text(text: str) -> str:
     """Strip noise prefixes from definition text (quotes, embedded POS)."""
-    text = text.strip().lstrip('"').strip()
+    text = text.strip().strip('"').strip()
     text = re.sub(r'^[a-z]{1,5}\.\s*', '', text)
     return text
+
+
+def _bold_word_in_text(word: str, text: str) -> str:
+    """Bold target word (or each part of a phrase) within text.
+
+    Single word: full-word replace (allows 'Guards' → 'guard').
+    Phrase: position-based matching per sentence. Within each sentence,
+    greedy chains parts left-to-right with non-overlapping constraint.
+    Allows small word gaps for phrasal verbs ('put her shirt on'),
+    but applies contiguous-priority filter **per sentence** so that
+    'puts ... on' and 'puts on' in different sentences both get bolded.
+    Supports verb conjugation: 'be good at' matches 'is/are/was good at',
+    'put on' matches 'puts/putting/put ... on'.
+    """
+    def _repl(m):
+        return f"**{m.group(0)}**"
+
+    parts = word.split()
+    if len(parts) == 1:
+        lower = word.lower()
+        if len(lower) > 2 and not lower.endswith("s"):
+            pat = rf"(?<![A-Za-z]){re.escape(word)}(?=s\b|\b)"
+        else:
+            pat = rf"(?<![A-Za-z]){re.escape(word)}(?![A-Za-z])"
+        return re.sub(pat, _repl, text, flags=re.IGNORECASE)
+
+    _PARTICLES = {
+        "about", "after", "along", "around", "away", "back", "by", "down",
+        "for", "in", "into", "off", "on", "out", "over", "through", "to",
+        "up", "with",
+    }
+    _NON_VERB_FIRST_PARTS = {
+        "able", "afraid", "aware", "bad", "busy", "careful", "certain",
+        "different", "due", "familiar", "famous", "fond", "full", "good",
+        "great", "happy", "interested", "keen", "late", "likely", "poor",
+        "proud", "ready", "responsible", "similar", "sorry", "sure",
+        "used", "worth",
+    }
+    max_word_gap = 4 if len(parts) == 2 and parts[-1].lower() in _PARTICLES else 2
+
+    _AUX_CONJ: dict[str, str] = {
+        "be": "(?:am|is|are|was|were|be|been|being)",
+        "have": "(?:have|has|had|having)",
+        "do": "(?:do|does|did|doing)",
+    }
+    _IRREGULAR_VERBS: dict[str, tuple[str, ...]] = {
+        "be": ("am", "is", "are", "was", "were", "be", "been", "being"),
+        "become": ("become", "becomes", "became", "becoming"),
+        "begin": ("begin", "begins", "began", "begun", "beginning"),
+        "break": ("break", "breaks", "broke", "broken", "breaking"),
+        "bring": ("bring", "brings", "brought", "bringing"),
+        "buy": ("buy", "buys", "bought", "buying"),
+        "catch": ("catch", "catches", "caught", "catching"),
+        "come": ("come", "comes", "came", "coming"),
+        "do": ("do", "does", "did", "done", "doing"),
+        "fall": ("fall", "falls", "fell", "fallen", "falling"),
+        "feel": ("feel", "feels", "felt", "feeling"),
+        "find": ("find", "finds", "found", "finding"),
+        "get": ("get", "gets", "got", "gotten", "getting"),
+        "give": ("give", "gives", "gave", "given", "giving"),
+        "go": ("go", "goes", "went", "gone", "going"),
+        "have": ("have", "has", "had", "having"),
+        "hear": ("hear", "hears", "heard", "hearing"),
+        "hold": ("hold", "holds", "held", "holding"),
+        "keep": ("keep", "keeps", "kept", "keeping"),
+        "know": ("know", "knows", "knew", "known", "knowing"),
+        "leave": ("leave", "leaves", "left", "leaving"),
+        "lose": ("lose", "loses", "lost", "losing"),
+        "make": ("make", "makes", "made", "making"),
+        "meet": ("meet", "meets", "met", "meeting"),
+        "pay": ("pay", "pays", "paid", "paying"),
+        "put": ("put", "puts", "putting"),
+        "read": ("read", "reads", "reading"),
+        "run": ("run", "runs", "ran", "running"),
+        "say": ("say", "says", "said", "saying"),
+        "see": ("see", "sees", "saw", "seen", "seeing"),
+        "send": ("send", "sends", "sent", "sending"),
+        "set": ("set", "sets", "setting"),
+        "show": ("show", "shows", "showed", "shown", "showing"),
+        "sit": ("sit", "sits", "sat", "sitting"),
+        "speak": ("speak", "speaks", "spoke", "spoken", "speaking"),
+        "stand": ("stand", "stands", "stood", "standing"),
+        "take": ("take", "takes", "took", "taken", "taking"),
+        "tell": ("tell", "tells", "told", "telling"),
+        "think": ("think", "thinks", "thought", "thinking"),
+        "write": ("write", "writes", "wrote", "written", "writing"),
+    }
+
+    def _verb_forms(base: str) -> list[str]:
+        lower = base.lower()
+        if lower in _IRREGULAR_VERBS:
+            return list(_IRREGULAR_VERBS[lower])
+
+        forms = [lower]
+        if lower.endswith(("s", "x", "z", "ch", "sh", "o")):
+            forms.append(lower + "es")
+        else:
+            forms.append(lower + "s")
+
+        def _cvc_double(stem: str) -> str:
+            if len(stem) >= 3 and stem[-1].isalpha() and not stem[-1] in "aeiouwxy":
+                if stem[-2] in "aeiou" and (len(stem) < 3 or stem[-3] not in "aeiou"):
+                    return stem + stem[-1]
+            return stem
+
+        if lower.endswith("ie"):
+            forms.append(lower[:-2] + "ying")
+        elif lower.endswith("e") and len(lower) > 2:
+            forms.append(lower[:-1] + "ing")
+        else:
+            forms.append(_cvc_double(lower) + "ing")
+        if lower.endswith("e"):
+            forms.append(lower + "d")
+        else:
+            forms.append(_cvc_double(lower) + "ed")
+        return forms
+
+    def _word_boundary_pattern(forms: list[str]) -> str:
+        return r"(?<![A-Za-z])(?:" + "|".join(re.escape(f) for f in forms) + r")(?![A-Za-z])"
+
+    def _pattern_for(part: str, part_index: int) -> str:
+        lower = part.lower()
+        if lower in _AUX_CONJ:
+            return r"(?<![A-Za-z])" + _AUX_CONJ[lower] + r"(?![A-Za-z])"
+        can_inflect_first = (
+            part_index == 0
+            and lower not in _NON_VERB_FIRST_PARTS
+            and parts[-1].lower() in _PARTICLES
+        )
+        forms = _verb_forms(part) if can_inflect_first else [lower]
+        return _word_boundary_pattern(forms)
+
+    def _find_matches_in(segment: str, offset: int) -> set[tuple[int, int]]:
+        """Run position matching on one text segment, return global-offset spans."""
+        part_positions: list[list[tuple[int, int]]] = []
+        for part_index, part in enumerate(parts):
+            pat = _pattern_for(part, part_index)
+            part_positions.append([(m.start(), m.end()) for m in re.finditer(pat, segment, re.IGNORECASE)])
+
+        if not all(part_positions):
+            return set()
+
+        def _words_between(end_a: int, start_b: int) -> int:
+            between = segment[end_a:start_b].strip()
+            return len(between.split()) if between else 0
+
+        _PART_BOUNDARY = re.compile(
+            r'[.!?;:]|,\s*|\b(?:while|and|but|or|although|because|if|when|where|'
+            r'after|before|once|since|unless|until|whether)\b',
+            re.IGNORECASE,
+        )
+
+        def _has_part_boundary(end_a: int, start_b: int) -> bool:
+            return bool(_PART_BOUNDARY.search(segment[end_a:start_b]))
+
+        def _total_gap(chain: list[tuple[int, int]]) -> int:
+            return sum(_words_between(chain[i][1], chain[i + 1][0]) for i in range(len(chain) - 1))
+
+        consumed: set[tuple[int, int]] = set()
+        raw_matches: list[list[tuple[int, int]]] = []
+
+        for first_idx, first_pos in enumerate(part_positions[0]):
+            if (0, first_idx) in consumed:
+                continue
+
+            chain = [first_pos]
+            cursor = first_pos[1]
+            chain_indices = [first_idx]
+            ok = True
+
+            for pi in range(1, len(parts)):
+                best_cand = None
+                best_gap = max_word_gap + 1
+                best_ci = -1
+
+                for ci, cand in enumerate(part_positions[pi]):
+                    if (pi, ci) in consumed:
+                        continue
+                    if cand[0] < cursor:
+                        continue
+                    if _has_part_boundary(cursor, cand[0]):
+                        continue
+                    gap = _words_between(cursor, cand[0])
+                    if gap < best_gap:
+                        best_gap = gap
+                        best_cand = cand
+                        best_ci = ci
+
+                if best_cand is None or best_gap > max_word_gap:
+                    ok = False
+                    break
+
+                chain.append(best_cand)
+                chain_indices.append(best_ci)
+                cursor = best_cand[1]
+
+            if not ok:
+                continue
+
+            raw_matches.append(chain)
+            for pi, ci in enumerate(chain_indices):
+                consumed.add((pi, ci))
+
+        if not raw_matches:
+            return set()
+
+        # Two-level grouping:
+        #   1) Sentence boundary (.?!) is always a hard break
+        #   2) Clause boundary (subordinating conjunctions like while/and/but)
+        #      also breaks groups — independent clause = independent phrase use
+        #   3) Within a group, contiguous-priority filters false positives
+        _SENTENCE_BREAK = re.compile(r'[.!?]+\s+')
+        _CLAUSE_BREAK = re.compile(
+            r'\b(?:while|and|but|or|although|because|if|when|where|'
+            r'after|before|once|since|unless|until|whether)\b\s+',
+            re.IGNORECASE,
+        )
+
+        def _is_group_break(prev_end: int, curr_start: int) -> bool:
+            between = segment[prev_end:curr_start]
+            if _SENTENCE_BREAK.search(between):
+                return True
+            if _CLAUSE_BREAK.search(between):
+                return True
+            return False
+
+        sorted_matches = sorted(raw_matches, key=lambda c: c[0][0])
+        groups: list[list[list[tuple[int, int]]]] = [[sorted_matches[0]]]
+
+        for j in range(1, len(sorted_matches)):
+            prev_end = groups[-1][-1][-1][1]
+            curr_start = sorted_matches[j][0][0]
+            if _is_group_break(prev_end, curr_start):
+                groups.append([sorted_matches[j]])
+            else:
+                groups[-1].append(sorted_matches[j])
+
+        kept: list[list[tuple[int, int]]] = []
+        for grp in groups:
+            has_ctg = any(_total_gap(m) == 0 for m in grp)
+            if has_ctg:
+                kept.extend(m for m in grp if _total_gap(m) == 0)
+            else:
+                kept.extend(grp)
+
+        spans: set[tuple[int, int]] = set()
+        for chain in kept:
+            for s, e in chain:
+                spans.add((s + offset, e + offset))
+        return spans
+
+    all_bold_spans = _find_matches_in(text, 0)
+
+    if not all_bold_spans:
+        return text
+
+    # Build result with ** markers
+    result_chars = []
+    pos = 0
+    while pos < len(text):
+        matched = None
+        for bs, be in sorted(all_bold_spans):
+            if pos == bs:
+                matched = (bs, be)
+                break
+        if matched:
+            result_chars.append("**")
+            result_chars.append(text[matched[0]:matched[1]])
+            result_chars.append("**")
+            pos = matched[1]
+        else:
+            result_chars.append(text[pos])
+            pos += 1
+
+    return "".join(result_chars)
 
 
 def format_validated_card_en_zh(result: dict[str, Any]) -> str:
@@ -361,13 +636,16 @@ def format_validated_card_en_zh(result: dict[str, Any]) -> str:
 
     lines = [f"**{word}**"]
 
-    # Use POS from first sense (all senses share the same word's POS)
+    phonetic = senses[0].get("phonetic", "")
+    if phonetic:
+        lines.append(f"\n🔤 {phonetic}\n")
+
     pos = senses[0].get("pos", "")
 
-    # Clean, deduplicate at granularity level, then merge definitions
+    # Merge definitions, deduplicate at granularity level
     seen_units: set[str] = set()
     def_units: list[str] = []
-    for s in senses[:5]:
+    for s in senses[:8]:
         d = s.get("definition", "")
         if not d:
             continue
@@ -379,27 +657,28 @@ def format_validated_card_en_zh(result: dict[str, Any]) -> str:
             if unit and unit not in seen_units:
                 seen_units.add(unit)
                 def_units.append(unit)
-    defs_merged = "；".join(def_units)
+    defs_merged = "；".join(def_units[:6])
     if defs_merged:
         if pos:
             lines.append(f"- 🇨🇳 释义：{pos} {defs_merged}")
         else:
             lines.append(f"- 🇨🇳 释义：{defs_merged}")
 
-    # Collect all non-empty examples, deduplicate
+    # Collect examples, deduplicate, bold target word
     examples_seen: set[str] = set()
     all_examples: list[str] = []
-    for s in senses[:5]:
+    for s in senses[:8]:
         ex = s.get("example", "") or ""
         if isinstance(ex, dict):
             en = ex.get("en", "")
             zh = ex.get("zh", "")
             ex = f"{en}（{zh}）" if en and zh else en or zh or ""
         if ex and ex not in examples_seen:
+            ex_bolded = _bold_word_in_text(word, ex)
             examples_seen.add(ex)
-            all_examples.append(ex)
+            all_examples.append(ex_bolded)
     if all_examples:
-        lines.append(f"- 💬 例句：{' '.join(all_examples)}")
+        lines.append(f"- 💬 例句：{' '.join(all_examples[:3])}")
 
     return "\n".join(lines)
 
