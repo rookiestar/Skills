@@ -99,13 +99,19 @@ deploy_to_dir() {
   ssh "${REMOTE}" "mkdir -p '${target_dir}/data'"
   for f in "${DATA_SRC}"/*; do
     name="$(basename "${f}")"
-    local_size=$(stat -f%z "${f}")
-    remote_size=$(ssh "${REMOTE}" "stat -c%s '${target_dir}/data/${name}'" 2>/dev/null || echo "0")
-    if [[ "${remote_size}" -eq "${local_size}" ]]; then
-      echo "  skip ${name} (already up to date, ${local_size} bytes)"
-    else
-      echo "  uploading ${name} ..."
+    # dictionary.db is binary — size comparison is unreliable, always upload
+    if [[ "${name}" == "dictionary.db" ]]; then
+      echo "  force upload ${name} ..."
       scp "${f}" "${REMOTE}:${target_dir}/data/"
+    else
+      local_size=$(stat -f%z "${f}")
+      remote_size=$(ssh "${REMOTE}" "stat -c%s '${target_dir}/data/${name}'" 2>/dev/null || echo "0")
+      if [[ "${remote_size}" -eq "${local_size}" ]]; then
+        echo "  skip ${name} (already up to date, ${local_size} bytes)"
+      else
+        echo "  uploading ${name} ..."
+        scp "${f}" "${REMOTE}:${target_dir}/data/"
+      fi
     fi
   done
 
