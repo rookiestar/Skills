@@ -282,6 +282,30 @@ def format_en_to_zh_text(result: dict[str, Any]) -> str:
     return "\n".join(parts)
 
 
+def _extract_pos_from_raw_defs(db_path: Path, word: str) -> str:
+    """Recover POS prefix from raw definitions JSON (before parse_definitions strips it)."""
+    conn = sqlite3.connect(str(db_path))
+    conn.row_factory = sqlite3.Row
+    try:
+        row = conn.execute(
+            "SELECT definitions FROM dictionary WHERE lower(word) = ? LIMIT 1",
+            (word.lower(),),
+        ).fetchone()
+        if not row:
+            return ""
+        raw_text = row["definitions"] or ""
+        try:
+            raw_defs = json.loads(raw_text) if isinstance(raw_text, str) else raw_text
+        except (json.JSONDecodeError, TypeError):
+            return ""
+        if not isinstance(raw_defs, list) or not raw_defs:
+            return ""
+        m = re.match(r"^([a-z]{1,5}\.)\s*", str(raw_defs[0]))
+        return m.group(1) if m else ""
+    finally:
+        conn.close()
+
+
 def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]]) -> dict[str, Any]:
     word = extract_en_query(query)
     entry = load_sqlite_entry(db_path, word)
@@ -291,6 +315,7 @@ def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
         append_missing_word(db_path.parent / "missing_words.log", word)
         return {"error": "not_found", "mode": "en_to_zh", "query": word}
     defs = entry.get("definitions") or []
+    entry_pos = entry.get("pos", "") or _extract_pos_from_raw_defs(db_path, word)
     raw_examples = entry.get("example", "")
     examples: list[str] = []
     if raw_examples:
@@ -302,7 +327,7 @@ def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
                 examples = [str(parsed)] if str(parsed) else []
         except (json.JSONDecodeError, TypeError):
             examples = [raw_examples] if raw_examples else []
-    senses = [{"word": entry["word"], "phonetic": entry.get("phonetic", ""), "definition": d, "example": examples[i] if i < len(examples) else ""} for i, d in enumerate(defs[:5]) if d]
+    senses = [{"word": entry["word"], "phonetic": entry.get("phonetic", ""), "pos": entry_pos, "definition": d, "example": examples[i] if i < len(examples) else ""} for i, d in enumerate(defs[:5]) if d]
     return {"word": word, "senses": senses}
 
 
@@ -317,6 +342,13 @@ def lookup_zh_to_en(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
     return {"query": phrase, "matches": matches}
 
 
+def _clean_def_text(text: str) -> str:
+    """Strip noise prefixes from definition text (quotes, embedded POS)."""
+    text = text.strip().lstrip('"').strip()
+    text = re.sub(r'^[a-z]{1,5}\.\s*', '', text)
+    return text
+
+
 def format_validated_card_en_zh(result: dict[str, Any]) -> str:
     word = result.get("word", "")
     senses = result.get("senses", [])
@@ -329,20 +361,45 @@ def format_validated_card_en_zh(result: dict[str, Any]) -> str:
 
     lines = [f"**{word}**"]
 
-    for i, s in enumerate(senses[:2]):
-        pos = s.get("pos", "")
-        defn = s.get("definition", "")
-        label = "🇨🇳 释义：" if i == 0 else "🇨🇳 释义 2："
-        if pos and defn:
-            lines.append(f"- {label}{pos} {defn}")
-        elif defn:
-            lines.append(f"- {label}{defn}")
+    # Use POS from first sense (all senses share the same word's POS)
+    pos = senses[0].get("pos", "")
 
-    example = ""
-    if senses:
-        example = senses[0].get("example", "") or ""
-    if example:
-        lines.append(f"- 💬 例句：{example}")
+    # Clean, deduplicate at granularity level, then merge definitions
+    seen_units: set[str] = set()
+    def_units: list[str] = []
+    for s in senses[:5]:
+        d = s.get("definition", "")
+        if not d:
+            continue
+        cleaned = _clean_def_text(d)
+        if not cleaned:
+            continue
+        for unit in re.split(r'[；;]', cleaned):
+            unit = unit.strip()
+            if unit and unit not in seen_units:
+                seen_units.add(unit)
+                def_units.append(unit)
+    defs_merged = "；".join(def_units)
+    if defs_merged:
+        if pos:
+            lines.append(f"- 🇨🇳 释义：{pos} {defs_merged}")
+        else:
+            lines.append(f"- 🇨🇳 释义：{defs_merged}")
+
+    # Collect all non-empty examples, deduplicate
+    examples_seen: set[str] = set()
+    all_examples: list[str] = []
+    for s in senses[:5]:
+        ex = s.get("example", "") or ""
+        if isinstance(ex, dict):
+            en = ex.get("en", "")
+            zh = ex.get("zh", "")
+            ex = f"{en}（{zh}）" if en and zh else en or zh or ""
+        if ex and ex not in examples_seen:
+            examples_seen.add(ex)
+            all_examples.append(ex)
+    if all_examples:
+        lines.append(f"- 💬 例句：{' '.join(all_examples)}")
 
     return "\n".join(lines)
 
