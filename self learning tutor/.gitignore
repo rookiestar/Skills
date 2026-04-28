@@ -1,6 +1,4 @@
-# Data & DB binaries (deployed via scp, not git)
-data/
+# SQLite binaries (deployed via scp, not git)
 *.db
 *.db-shm
 *.db-wal
-missing_words.log
