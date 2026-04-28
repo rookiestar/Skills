@@ -22,12 +22,12 @@ metadata:
 
 英译中：
 ```
-python3 ~/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor/scripts/dict_lookup.py --mode en_to_zh --format text <word>
+python3 scripts/dict_lookup.py --mode en_to_zh --format text --db data/dictionary.db <word>
 ```
 
 中译英：
 ```
-python3 ~/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor/scripts/dict_lookup.py --mode zh_to_en --format text <中文词>
+python3 scripts/dict_lookup.py --mode zh_to_en --format text --db data/dictionary.db <中文词>
 ```
 
 铁律：
