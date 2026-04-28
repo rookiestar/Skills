@@ -247,7 +247,7 @@ def load_sqlite_matches(db_path: Path, query: str, limit: int = 2) -> list[dict[
                 return matches
 
         if table_exists(conn, "dictionary"):
-            rows = conn.execute("SELECT word, definitions FROM dictionary LIMIT 500").fetchall()
+            rows = conn.execute("SELECT word, definitions FROM dictionary LIMIT 100").fetchall()
             seen = set()
             for row in rows:
                 entry = record_to_entry(row)
@@ -371,6 +371,9 @@ def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
         phrase_result = lookup_phrase_en_to_zh(word, by_phrase)
         if phrase_result:
             return phrase_result
+        # Phrase index loaded but no match — skip heavy SQLite/sample fallback
+        append_missing_word(db_path.parent / "missing_words.log", word)
+        return {"error": "not_found", "mode": "en_to_zh", "query": word}
     senses = load_word_senses(db_path, word)
     if not senses:
         entry = load_sqlite_entry(db_path, word)
@@ -489,8 +492,13 @@ def main() -> int:
     db_path = resolve_path(args.db, "SELF_LEARNING_TUTOR_DB", data_dir / "dictionary.db")
     sample_path = resolve_path(args.sample, "SELF_LEARNING_TUTOR_SAMPLE", data_dir / "sample_dictionary.json")
     phrase_path = resolve_path(args.phrases, "SELF_LEARNING_TUTOR_PHRASES", data_dir / "gaokao_phrases.json")
-    sample_indexes = load_sample_indexes(sample_path)
-    phrase_indexes = load_phrase_indexes(phrase_path)
+
+    # Lazy-load: only parse what the query type needs
+    _query_raw = args.query.strip()
+    _is_phrase = len(_query_raw.split()) >= 2
+
+    phrase_indexes = load_phrase_indexes(phrase_path) if _is_phrase else ({}, {})
+    sample_indexes = load_sample_indexes(sample_path) if not _is_phrase else ({}, {})
 
     if args.mode == "en_to_zh":
         result = lookup_en_to_zh(args.query, db_path, sample_indexes, phrase_indexes)
