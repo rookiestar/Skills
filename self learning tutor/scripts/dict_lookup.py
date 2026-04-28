@@ -371,9 +371,27 @@ def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
         phrase_result = lookup_phrase_en_to_zh(word, by_phrase)
         if phrase_result:
             return phrase_result
-        # Phrase index loaded but no match — skip heavy SQLite/sample fallback
+    # Fallback: phrases now also live in dictionary.db (migrated from gaokao_phrases.json)
+    entry = load_sqlite_entry(db_path, word)
+    if entry is None:
+        entry = load_sample_entry(sample_indexes, word)
+    if entry is None:
         append_missing_word(db_path.parent / "missing_words.log", word)
         return {"error": "not_found", "mode": "en_to_zh", "query": word}
+    defs = entry.get("definitions") or []
+    raw_examples = entry.get("example", "")
+    examples: list[str] = []
+    if raw_examples:
+        try:
+            parsed = json.loads(raw_examples)
+            if isinstance(parsed, list):
+                examples = parsed
+            else:
+                examples = [str(parsed)] if str(parsed) else []
+        except (json.JSONDecodeError, TypeError):
+            examples = [raw_examples] if raw_examples else []
+    senses = [{"word": entry["word"], "phonetic": entry.get("phonetic", ""), "definition": d, "example": examples[i] if i < len(examples) else ""} for i, d in enumerate(defs[:5]) if d]
+    return {"word": word, "senses": senses}
     senses = load_word_senses(db_path, word)
     if not senses:
         entry = load_sqlite_entry(db_path, word)
@@ -406,6 +424,7 @@ def lookup_zh_to_en(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
         phrase_matches = lookup_phrase_zh_to_en(phrase, by_zh_phrase)
         if phrase_matches:
             return {"query": phrase, "matches": phrase_matches}
+    # Phrases now also in dictionary.db via migration
     matches = load_sqlite_matches(db_path, phrase)
     if not matches:
         matches = load_sample_matches(sample_indexes, phrase)
