@@ -6,17 +6,20 @@ usage() {
 Usage:
   deploy_openclaw_vps.sh [--remote user@host] [--workspace-dir PATH] [--data-dir PATH] [--data-branch BRANCH]
 
-Defaults:
-  --remote      rookiestar@34.70.69.58
-  --workspace-dir /home/rookiestar/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor
-  --data-branch codex/local-dictionary-branch
+Required:
+  --remote      SSH user@host (or set DEPLOY_REMOTE env var)
+  --workspace-dir Target dir on remote host (or set DEPLOY_WORKSPACE env var)
+
+Optional:
+  --data-dir       Local data directory (skip git extract)
+  --data-branch    Git branch for data (default: codex/local-dictionary-branch)
 
 Deploys code + prebuilt data to the active workspace copy on VPS, then verifies dict lookup.
 EOF
 }
 
-REMOTE="rookiestar@34.70.69.58"
-WORKSPACE_DIR="/home/rookiestar/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor"
+REMOTE="${DEPLOY_REMOTE:-}"
+WORKSPACE_DIR="${DEPLOY_WORKSPACE:-}"
 DATA_BRANCH="codex/local-dictionary-branch"
 LOCAL_DATA_DIR=""
 
@@ -53,6 +56,12 @@ done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 GIT_ROOT="$(git -C "${REPO_ROOT}" rev-parse --show-toplevel || echo "${REPO_ROOT}")"
+
+if [[ -z "${REMOTE}" ]] || [[ -z "${WORKSPACE_DIR}" ]]; then
+  echo "Error: --remote and --workspace-dir are required (or set DEPLOY_REMOTE / DEPLOY_WORKSPACE env vars)." >&2
+  usage
+  exit 1
+fi
 
 # Step 1: 准备数据（从 git 分支提取或用本地目录）
 TEMP_DIR="$(mktemp -d)"
@@ -124,7 +133,8 @@ deploy_to_dir "${WORKSPACE_DIR}"
 # Step 3: 清除旧 session，确保新 SKILL.md / 脚本立即生效
 echo ""
 echo "--- Clearing xiaodaixing sessions ---"
-SESSIONS_DIR="/home/rookiestar/.openclaw/agents/xiaodaixing/sessions"
+# Derive sessions dir from workspace_dir: .../skills/self-learning-tutor → .../agents/xiaodaixing/sessions
+SESSIONS_DIR="$(dirname "$(dirname "${WORKSPACE_DIR}")")/sessions"
 ssh "${REMOTE}" "rm -rf '${SESSIONS_DIR}' && echo 'sessions cleared'"
 
 # Step 4: 验证字典查询
