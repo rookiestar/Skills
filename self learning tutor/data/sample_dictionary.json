@@ -1,0 +1,68 @@
+[
+  {
+    "word": "apple",
+    "pos": "n.",
+    "phonetic_uk": "/ˈæpəl/",
+    "phonetic_us": "/ˈæpəl/",
+    "definitions": ["苹果"],
+    "example": "I eat an apple after lunch.",
+    "source": "sample",
+    "frequency": 1200,
+    "zh_terms": ["苹果"]
+  },
+  {
+    "word": "light",
+    "pos": "n. / adj.",
+    "phonetic_uk": "/laɪt/",
+    "phonetic_us": "/laɪt/",
+    "definitions": ["光", "轻的"],
+    "example": "The light is bright.",
+    "source": "sample",
+    "frequency": 1100,
+    "zh_terms": ["光", "灯光", "轻的"]
+  },
+  {
+    "word": "important",
+    "pos": "adj.",
+    "phonetic_uk": "/ɪmˈpɔːrtnt/",
+    "phonetic_us": "/ɪmˈpɔːrtnt/",
+    "definitions": ["重要的"],
+    "example": "It is important to finish your homework on time.",
+    "source": "sample",
+    "frequency": 1300,
+    "zh_terms": ["重要的", "重要"]
+  },
+  {
+    "word": "architecture",
+    "pos": "n.",
+    "phonetic_uk": "/ˈɑːkɪtektʃər/",
+    "phonetic_us": "/ˈɑːrkɪtektʃər/",
+    "definitions": ["建筑学", "建筑术", "建筑风格", "建筑设计"],
+    "example": "Almost every visitor to Edinburgh is seduced by its splendid architecture.",
+    "source": "sample",
+    "frequency": 700,
+    "zh_terms": ["建筑学", "建筑术", "建筑风格", "建筑设计"]
+  },
+  {
+    "word": "hallucination",
+    "pos": "n.",
+    "phonetic_uk": "/həˌluːsɪˈneɪʃən/",
+    "phonetic_us": "/həˌluːsɪˈneɪʃən/",
+    "definitions": ["幻觉", "妄想"],
+    "example": "He suffered from hallucinations.",
+    "source": "sample",
+    "frequency": 300,
+    "zh_terms": ["幻觉", "妄想"]
+  },
+  {
+    "word": "significant",
+    "pos": "adj.",
+    "phonetic_uk": "/sɪɡˈnɪfɪkənt/",
+    "phonetic_us": "/sɪɡˈnɪfɪkənt/",
+    "definitions": ["重要的", "显著的"],
+    "example": "The results were statistically significant.",
+    "source": "sample",
+    "frequency": 900,
+    "zh_terms": ["重要的", "显著的", "重大的"]
+  }
+]
