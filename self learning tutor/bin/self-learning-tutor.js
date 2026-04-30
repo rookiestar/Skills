@@ -8,14 +8,6 @@ const SKILL_NAME = "self-learning-tutor";
 const PACKAGE_ROOT = path.resolve(__dirname, "..");
 const WORKSPACE_SKILLS_DIR = path.join(os.homedir(), ".openclaw", "workspace", "skills");
 const LEGACY_OPENCLAW_TARGET = path.join(os.homedir(), ".openclaw", "skills", SKILL_NAME);
-const LEGACY_WORKSPACE_TARGET = path.join(
-  os.homedir(),
-  ".openclaw",
-  "workspace",
-  "agent-xiaodaixing",
-  "skills",
-  SKILL_NAME,
-);
 const WORKSPACE_TARGET = path.join(WORKSPACE_SKILLS_DIR, SKILL_NAME);
 
 function copyRecursive(src, dest) {
@@ -33,7 +25,7 @@ function copyRecursive(src, dest) {
 
 function install() {
   const items = ["SKILL.md", "references", "scripts", "data", "package.json"];
-  for (const legacyTarget of [LEGACY_OPENCLAW_TARGET, LEGACY_WORKSPACE_TARGET]) {
+  for (const legacyTarget of [LEGACY_OPENCLAW_TARGET]) {
     if (fs.existsSync(legacyTarget)) {
       fs.rmSync(legacyTarget, { recursive: true, force: true });
     }
@@ -55,7 +47,7 @@ function install() {
 
 function uninstall() {
   let removed = false;
-  for (const targetDir of [LEGACY_OPENCLAW_TARGET, LEGACY_WORKSPACE_TARGET, WORKSPACE_TARGET]) {
+  for (const targetDir of [LEGACY_OPENCLAW_TARGET, WORKSPACE_TARGET]) {
     if (!fs.existsSync(targetDir)) {
       continue;
     }
