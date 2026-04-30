@@ -24,6 +24,7 @@ EOF
 
 REMOTE="rookiestar@8.210.29.222"
 ACTIVE_DIR="/home/rookiestar/.openclaw/workspace/skills/self-learning-tutor"
+LEGACY_ACTIVE_DIR="/home/rookiestar/.openclaw/workspace/skills/self learning tutor"
 RELEASE_ROOT="/home/rookiestar/.openclaw/workspace/releases/self-learning-tutor"
 CODE_BRANCH="main"
 LOCAL_DATA_DIR=""
@@ -169,7 +170,7 @@ REMOTE_RELEASE_DIR="${RELEASE_ROOT}/${RELEASE_ID}"
 
 echo ""
 echo "Deploying to ${REMOTE_RELEASE_DIR} ..."
-ssh "${REMOTE}" "mkdir -p '${REMOTE_RELEASE_DIR}' '${ACTIVE_DIR}' '${RELEASE_ROOT}'"
+ssh "${REMOTE}" "mkdir -p '${REMOTE_RELEASE_DIR}' '${ACTIVE_DIR}' '${LEGACY_ACTIVE_DIR}' '${RELEASE_ROOT}'"
 
 scp -r \
   "${DEPLOY_SRC}/SKILL.md" \
@@ -377,6 +378,31 @@ if src_data.exists():
 print(f'promoted {release.name} to {active}')
 PY"
 
+if [[ "${LEGACY_ACTIVE_DIR}" != "${ACTIVE_DIR}" ]]; then
+  echo ""
+  echo "--- Mirroring active workspace to legacy compatibility path ---"
+  ssh "${REMOTE}" "ACTIVE_DIR='${ACTIVE_DIR}' LEGACY_ACTIVE_DIR='${LEGACY_ACTIVE_DIR}' python3 - <<'PY'
+import os
+import shutil
+from pathlib import Path
+
+active = Path(os.environ['ACTIVE_DIR'])
+legacy = Path(os.environ['LEGACY_ACTIVE_DIR'])
+
+if legacy == active:
+    print(f'skipped mirror for identical paths: {active}')
+    raise SystemExit(0)
+
+if legacy.is_symlink() or legacy.is_file():
+    legacy.unlink()
+elif legacy.is_dir():
+    shutil.rmtree(legacy)
+
+shutil.copytree(active, legacy, dirs_exist_ok=True)
+print(f'mirrored {active} to {legacy}')
+PY"
+fi
+
 restart_service_if_present() {
   if ssh "${REMOTE}" "systemctl --user show -p LoadState --value '${SERVICE_NAME}' 2>/dev/null | grep -qx loaded"; then
     echo ""
@@ -394,6 +420,12 @@ restart_service_if_present
 echo ""
 echo "--- Smoke testing active workspace copy ---"
 smoke_release "${ACTIVE_DIR}"
+
+if [[ "${LEGACY_ACTIVE_DIR}" != "${ACTIVE_DIR}" ]]; then
+  echo ""
+  echo "--- Smoke testing legacy compatibility copy ---"
+  smoke_release "${LEGACY_ACTIVE_DIR}"
+fi
 
 echo ""
 echo "Deployment complete."
