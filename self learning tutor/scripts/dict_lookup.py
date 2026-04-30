@@ -594,8 +594,11 @@ def _bold_word_in_text(word: str, text: str) -> str:
 
         spans: set[tuple[int, int]] = set()
         for chain in kept:
-            for s, e in chain:
-                spans.add((s + offset, e + offset))
+            if _total_gap(chain) == 0:
+                spans.add((chain[0][0] + offset, chain[-1][1] + offset))
+            else:
+                for s, e in chain:
+                    spans.add((s + offset, e + offset))
         return spans
 
     all_bold_spans = _find_matches_in(text, 0)
@@ -603,20 +606,12 @@ def _bold_word_in_text(word: str, text: str) -> str:
     if not all_bold_spans:
         return text
 
-    # Merge adjacent spans (separated only by whitespace) into one continuous bold
-    merged = []
-    for bs, be in sorted(all_bold_spans):
-        if merged and bs <= merged[-1][1] + (be - bs) and text[merged[-1][1]:bs].strip() == "":
-            merged[-1] = (merged[-1][0], be)
-        else:
-            merged.append((bs, be))
-
     # Build result with ** markers
     result_chars = []
     pos = 0
     while pos < len(text):
         matched = None
-        for bs, be in merged:
+        for bs, be in sorted(all_bold_spans):
             if pos == bs:
                 matched = (bs, be)
                 break
