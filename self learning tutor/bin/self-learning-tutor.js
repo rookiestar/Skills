@@ -6,8 +6,17 @@ const path = require("path");
 
 const SKILL_NAME = "self-learning-tutor";
 const PACKAGE_ROOT = path.resolve(__dirname, "..");
-const SKILLS_DIR = path.join(os.homedir(), ".openclaw", "skills");
-const TARGET_DIR = path.join(SKILLS_DIR, SKILL_NAME);
+const WORKSPACE_SKILLS_DIR = path.join(os.homedir(), ".openclaw", "workspace", "skills");
+const LEGACY_OPENCLAW_TARGET = path.join(os.homedir(), ".openclaw", "skills", SKILL_NAME);
+const LEGACY_WORKSPACE_TARGET = path.join(
+  os.homedir(),
+  ".openclaw",
+  "workspace",
+  "agent-xiaodaixing",
+  "skills",
+  SKILL_NAME,
+);
+const WORKSPACE_TARGET = path.join(WORKSPACE_SKILLS_DIR, SKILL_NAME);
 
 function copyRecursive(src, dest) {
   const stat = fs.statSync(src);
@@ -23,30 +32,37 @@ function copyRecursive(src, dest) {
 }
 
 function install() {
-  fs.mkdirSync(SKILLS_DIR, { recursive: true });
-  if (fs.existsSync(TARGET_DIR)) {
-    fs.rmSync(TARGET_DIR, { recursive: true, force: true });
-  }
-  fs.mkdirSync(TARGET_DIR, { recursive: true });
-
   const items = ["SKILL.md", "references", "scripts", "data", "package.json"];
+  for (const legacyTarget of [LEGACY_OPENCLAW_TARGET, LEGACY_WORKSPACE_TARGET]) {
+    if (fs.existsSync(legacyTarget)) {
+      fs.rmSync(legacyTarget, { recursive: true, force: true });
+    }
+  }
+  if (fs.existsSync(WORKSPACE_TARGET)) {
+    fs.rmSync(WORKSPACE_TARGET, { recursive: true, force: true });
+  }
+  fs.mkdirSync(WORKSPACE_TARGET, { recursive: true });
   for (const item of items) {
     const source = path.join(PACKAGE_ROOT, item);
     if (fs.existsSync(source)) {
-      copyRecursive(source, path.join(TARGET_DIR, item));
+      copyRecursive(source, path.join(WORKSPACE_TARGET, item));
     }
   }
 
-  console.log(`Installed ${SKILL_NAME} to ${TARGET_DIR}`);
+  console.log(`Installed ${SKILL_NAME} to:`);
+  console.log(`  - ${WORKSPACE_TARGET}`);
 }
 
 function uninstall() {
-  if (!fs.existsSync(TARGET_DIR)) {
-    console.log(`${SKILL_NAME} is not installed.`);
-    return;
+  let removed = false;
+  for (const targetDir of [LEGACY_OPENCLAW_TARGET, LEGACY_WORKSPACE_TARGET, WORKSPACE_TARGET]) {
+    if (!fs.existsSync(targetDir)) {
+      continue;
+    }
+    fs.rmSync(targetDir, { recursive: true, force: true });
+    removed = true;
   }
-  fs.rmSync(TARGET_DIR, { recursive: true, force: true });
-  console.log(`Removed ${TARGET_DIR}`);
+  console.log(removed ? `Removed ${SKILL_NAME} from all known install locations.` : `${SKILL_NAME} is not installed.`);
 }
 
 function help() {

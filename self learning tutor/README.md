@@ -44,7 +44,7 @@ python3 -m unittest discover -s tests -p 'test_*.py'
 node bin/self-learning-tutor.js install
 ```
 
-这是给本机开发环境用的安装命令，会把 skill 放到本机的 OpenClaw 目录里。
+这是给本机开发环境用的安装命令，会把 skill 同步到本机的 workspace 副本里。
 如果要更新 VPS 上正在跑的那份 skill，请用下面的部署脚本同步工作区目录，再重启服务。
 
 ## 部署到 VPS
