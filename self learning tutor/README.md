@@ -52,18 +52,22 @@ node bin/self-learning-tutor.js install
 如果你要把本地词典一起同步到 VPS，可以直接用部署脚本：
 
 ```bash
-bash "self learning tutor/scripts/deploy_openclaw_vps.sh"
+bash scripts/deploy_openclaw_vps.sh
 ```
 
-脚本会把代码和词库同步到 `~/.openclaw/workspace/agent-xiaodaixing/skills/self-learning-tutor`，然后验证 `important` 和 `重要的` 两个查询。若 OpenClaw 还在跑旧进程，脚本会尝试重启服务。
+脚本会先把当前提交打成一个版本目录，放到 `~/.openclaw/workspace/releases/self-learning-tutor/<版本号>` 里做验证，再把通过验证的内容覆盖到 `~/.openclaw/workspace/skills/self-learning-tutor`。最后它会重启 `openclaw-gateway.service`，然后再跑一轮加粗回归。
 
-在部署前，先在本地把 `data/dictionary.db` 回填好，再提交到本地专用分支。推荐命令是：
+烟雾测试会检查 `important`、`in the future`、`sit down` 和 `put on` 这几类典型场景。
+
+如果本地已经有 `data/dictionary.db`，脚本会直接带上；如果没有，它会先从当前线上工作区借一个种子，避免在 VPS 上现场构建。你如果改了词库来源，还是应该先把本地 `data/dictionary.db` 刷新好，再部署。
+
+在部署前，如果你要主动刷新本地词库，推荐先跑：
 
 ```bash
 python3 scripts/backfill_dictionary_pos.py --db data/dictionary.db
 ```
 
-这样部署脚本只负责搬运已经固化好的数据库，不再做批量修复。
+这样可以让后续部署尽量只做搬运和验证，不再依赖线上临时修库。
 
 ## 说明
 
