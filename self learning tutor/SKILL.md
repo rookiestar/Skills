@@ -35,6 +35,7 @@ python3 scripts/dict_lookup.py --mode zh_to_en --format text --db data/dictionar
 - 脚本输出 = 最终回复，**原样复制粘贴返回**，不修改、不重排、不加 emoji
 - 脚本报错或 not_found 同样原样返回
 - 绝对禁止：read 文件、ls 目录、web_fetch、多次 exec、自己编造内容
+- **禁止在输出中添加任何 markdown 格式**（加粗 `**text**`、斜体、链接等），尤其是不要在例句中把查询词加粗
 
 ## 拒绝规则
 
