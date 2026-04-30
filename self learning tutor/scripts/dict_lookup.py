@@ -603,12 +603,20 @@ def _bold_word_in_text(word: str, text: str) -> str:
     if not all_bold_spans:
         return text
 
+    # Merge adjacent spans (separated only by whitespace) into one continuous bold
+    merged = []
+    for bs, be in sorted(all_bold_spans):
+        if merged and bs <= merged[-1][1] + (be - bs) and text[merged[-1][1]:bs].strip() == "":
+            merged[-1] = (merged[-1][0], be)
+        else:
+            merged.append((bs, be))
+
     # Build result with ** markers
     result_chars = []
     pos = 0
     while pos < len(text):
         matched = None
-        for bs, be in sorted(all_bold_spans):
+        for bs, be in merged:
             if pos == bs:
                 matched = (bs, be)
                 break
