@@ -11,19 +11,21 @@ Defaults:
   --install-dir /home/rookiestar/.openclaw/workspace/skills/self-learning-tutor
 
 Branch strategy (file互斥):
-  main  = source code + JSON data (wordlist, phrases, curated .json)
-  codex = prebuilt dictionary.db only (gitignored on main)
+  main  = source code + JSON data + deploy script + tests
+  codex = prebuilt dictionary.db + test data
 
 Flow:
   1. scp code+JSON from main branch → server
-  2. Build dictionary.db on server (from wordlist + JSON data)
-  3. Verify lookup
+  2. Try scp prebuilt .db from codex (skip if size matches remote)
+  3. Fallback: build dictionary.db on server (slow, needs internet)
+  4. Verify lookup
 EOF
 }
 
 REMOTE="rookiestar@8.210.29.222"
 INSTALL_DIR="/home/rookiestar/.openclaw/workspace/skills/self-learning-tutor"
 CODE_BRANCH="main"
+CODEX_BRANCH="codex/local-dictionary-branch"
 LOCAL_DATA_DIR=""
 
 while [[ $# -gt 0 ]]; do
@@ -63,7 +65,8 @@ if [[ ! -d "${DEPLOY_SRC}" ]]; then
 fi
 echo "Deploy source ready: $(ls "${DEPLOY_SRC}")"
 
-# ── Step 2: scp 到服务器 ────────────────────────────────────────────────
+# ── Step 2: scp 到服务器（代码 + JSON 数据）────────────────────────────
+echo ""
 echo "Deploying to ${REMOTE}:${INSTALL_DIR} ..."
 
 ssh "${REMOTE}" "mkdir -p '${INSTALL_DIR}' '{'${INSTALL_DIR}/data''}'"
@@ -92,22 +95,62 @@ for f in "${DEPLOY_SRC}/data/"*; do
   fi
 done
 
-# ── Step 3: 在服务器上构建 dictionary.db ────────────────────────────────────
-echo ""
-echo "--- Building dictionary.db on server ---"
-ssh "${REMOTE}" "
-  cd '${INSTALL_DIR}'
-  python3 scripts/migrate_phrases_to_db.py --db data/dictionary.db --phrases data/gaokao_phrases.json 2>&1 || true
-  python3 scripts/enrich_cambridge_phrases.py --db data/dictionary.db --phrases data/gaokao_phrases.json 2>&1 || true
-  # 如果 db 不存在或为空，从 wordlist 构建（需要网络，较慢）
-  if [ ! -s data/dictionary.db ] || [ \$(sqlite3 data/dictionary.db 'SELECT count(*) FROM dictionary;' 2>/dev/null || echo 0) -lt 100 ]; then
-    echo '  wordlist build needed (slow, requires internet)...'
-    python3 scripts/build_cambridge_dict.py --wordlist data/cambridge_wordlist.txt --db data/dictionary.db 2>&1 || true
-  fi
-  ls -lh data/dictionary.db
-"
+# ── Step 3: 从 codex 分支获取预构建 dictionary.db ──────────────────────
+DB_UPLOADED=false
+CODEX_DB="${TEMP_DIR}/dictionary.db"
 
-# ── Step 4: 验证 ────────────────────────────────────────────────────────
+echo ""
+echo "--- Checking codex branch for prebuilt dictionary.db ---"
+if git -C "${GIT_ROOT}" rev-parse --verify "${CODEX_BRANCH}" >/dev/null 2>&1; then
+  # 尝试从 codex 提取 .db 文件
+  if git -C "${GIT_ROOT}" archive "${CODEX_BRANCH}" \
+    'self learning tutor/data/*.db' ':!**/*.db-*' 2>/dev/null | tar -x -C "${TEMP_DIR}" 2>/dev/null; then
+    # archive 输出带目录前缀，找实际的 .db
+    FOUND_DB=$(find "${TEMP_DIR}" -maxdepth 2 -name 'dictionary.db' -type f 2>/dev/null | head -1 || true)
+    if [[ -n "${FOUND_DB}" && -s "${FOUND_DB}" ]]; then
+      cp "${FOUND_DB}" "${CODEX_DB}"
+      local_db_size=$(stat -f%z "${CODEX_DB}")
+      remote_db_size=$(ssh "${REMOTE}" "stat -c%s '${INSTALL_DIR}/data/dictionary.db'" 2>/dev/null || echo "0")
+
+      if [[ "${remote_db_size}" -eq "${local_db_size}" ]] && [[ "${remote_db_size}" -gt 0 ]]; then
+        echo "  skip dictionary.db (${local_db_size}B up-to-date on server)"
+        DB_UPLOADED=true   # 远端已有相同版本，视为已就绪
+      else
+        echo "  uploading dictionary.db (${local_db_size}B, remote was ${remote_db_size}B) ..."
+        scp "${CODEX_DB}" "${REMOTE}:${INSTALL_DIR}/data/dictionary.db"
+        DB_UPLOADED=true
+      fi
+    else
+      echo "  no dictionary.db found in codex branch"
+    fi
+  else
+    echo "  codex branch has no .db files (or archive failed)"
+  fi
+else
+  echo "  codex branch '${CODEX_BRANCH}' not found"
+fi
+
+# ─ Step 4: 兜底 — 在服务器上构建 dictionary.db ────────────────────────
+if [[ "${DB_UPLOADED}" == false ]]; then
+  echo ""
+  echo "--- No prebuilt .db available, building on server (slow) ---"
+  ssh "${REMOTE}" "
+    cd '${INSTALL_DIR}'
+    python3 scripts/migrate_phrases_to_db.py --db data/dictionary.db --phrases data/gaokao_phrases.json 2>&1 || true
+    python3 scripts/enrich_cambridge_phrases.py --db data/dictionary.db --phrases data/gaokao_phrases.json 2>&1 || true
+    if [ ! -s data/dictionary.db ] || [ \$(sqlite3 data/dictionary.db 'SELECT count(*) FROM dictionary;' 2>/dev/null || echo 0) -lt 100 ]; then
+      echo '  wordlist build needed (requires internet)...'
+      python3 scripts/build_cambridge_dict.py --wordlist data/cambridge_wordlist.txt --db data/dictionary.db 2>&1 || true
+    fi
+    ls -lh data/dictionary.db
+  "
+else
+  echo ""
+  echo "--- dictionary.db ready (from codex branch) ---"
+  ssh "${REMOTE}" "ls -lh '${INSTALL_DIR}/data/dictionary.db'"
+fi
+
+# ── Step 5: 验证 ────────────────────────────────────────────────────────
 echo ""
 echo "--- Verifying en_to_zh lookup ---"
 ssh "${REMOTE}" "python3 '${INSTALL_DIR}/scripts/dict_lookup.py' --mode en_to_zh important"
