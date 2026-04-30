@@ -69,7 +69,7 @@ echo "Deploy source ready: $(ls "${DEPLOY_SRC}")"
 echo ""
 echo "Deploying to ${REMOTE}:${INSTALL_DIR} ..."
 
-ssh "${REMOTE}" "mkdir -p '${INSTALL_DIR}' '{'${INSTALL_DIR}/data''}'"
+ssh "${REMOTE}" "mkdir -p '${INSTALL_DIR}' '${INSTALL_DIR}/data'"
 
 # 代码文件
 scp -r \
