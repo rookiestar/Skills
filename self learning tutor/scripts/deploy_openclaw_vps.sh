@@ -18,7 +18,7 @@ Flow:
   4. Smoke test the release directly
   5. Promote the release into the active workspace dir
   6. Remove stale self-learning-tutor.bak.* workspace snapshots
-  7. Patch the openclaw-lark inbound handler to run lookup directly
+  7. Patch the openclaw-lark inbound handler and dispatch router to run lookup directly
   8. Restart openclaw-gateway.service when it is available
   9. Smoke test the active workspace copy
 EOF
@@ -460,7 +460,7 @@ async function runDirectLookup(query) {
         if (stdout) {
             return stdout;
         }
-        logger.error('lookup failed for "' + query + '": ' + String(err) + (stderr ? ' stderr=' + String(stderr).trim() : ''));
+        logger.error('lookup failed for ' + query + ': ' + String(err) + (stderr ? ' stderr=' + String(stderr).trim() : ''));
         return '词典查询暂时失败了，你稍后再试一下。';
     }
 }
@@ -647,7 +647,7 @@ new_router = '''    const routerResult = classifyLookupMessage(ctx.content ?? ''
     if (routerResult.command) {
         const lookupQuery = extractLookupQuery(ctx.content ?? '');
         if (!lookupQuery) {
-            logger.error('lookup routing failed: could not extract query from "' + (ctx.content ?? '') + '"');
+            logger.error('lookup routing failed: could not extract query from ' + (ctx.content ?? ''));
             await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, '词典查询暂时失败了，你稍后再试一下。');
             return;
         }
@@ -675,6 +675,14 @@ PY"
 }
 
 patch_remote_lark_handler
+
+patch_remote_lark_dispatch_router() {
+  echo ""
+  echo "--- Patching openclaw-lark dispatch router ---"
+  ssh "${REMOTE}" 'python3 -' < "${SCRIPT_DIR}/patch_openclaw_dispatch_router.py"
+}
+
+patch_remote_lark_dispatch_router
 
 restart_service_if_present() {
   if ssh "${REMOTE}" "systemctl --user show -p LoadState --value '${SERVICE_NAME}' 2>/dev/null | grep -qx loaded"; then
