@@ -71,14 +71,13 @@ Use the fixed reply from `references/boundary_rules.md`.
 
 If the message is allowed:
 
-- send only the cleaned text to OpenClaw
-- enable only `self-learning-tutor`
+- rewrite the text into the deterministic `self-learning-tutor` skill command
+- send the command through `exec` only; do not let the model rewrite the result
 - expose only the minimum tool set needed for lookup
-- pass `last_term` if it exists
-- store a new `last_term` only when the message is a fresh lookup
 - validate the returned card before sending it back to Feishu
+- do not add any extra prose around the lookup card
 
-If the card contains anything outside the template, reject it and regenerate or fall back to a short safe reply.
+If the card contains anything outside the template, reject it and fall back to a short safe reply.
 
 Minimum OpenClaw tool policy for this skill:
 
@@ -89,16 +88,8 @@ Minimum OpenClaw tool policy for this skill:
 
 ## Follow-Up Path
 
-Allow follow-up only when `last_term` already exists.
-
-Examples:
-
-- `这个词还有其他意思吗`
-- `刚才那个词怎么用`
-- `它还有别的词性吗`
-
-If `last_term` is missing, do not guess.
-Ask the user to resend the word.
+If you do not keep reliable `last_term` state yet, do not guess.
+Ask the user to resend the word instead of inventing a follow-up answer.
 
 Suggested reply:
 

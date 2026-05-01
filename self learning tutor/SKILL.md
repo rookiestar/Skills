@@ -1,8 +1,12 @@
 ---
 name: self-learning-tutor
 description: "英语词典查询。Use when user asks to 查英语单词、词组、短语，或问英语怎么说；only English lookup is open."
+disable-model-invocation: true
+command-dispatch: tool
+command-tool: exec
+command-arg-mode: raw
 metadata:
-  version: 0.5.0
+  version: 0.6.0
 ---
 
 # Self Learning Tutor
@@ -20,17 +24,12 @@ metadata:
 
 **只做一件事：执行命令，原样返回输出。不要读文件、不要 ls、不要思考、不要做其他操作。**
 
-英译中：
+统一命令：
 ```
-python3 scripts/dict_lookup.py --mode en_to_zh --format text --style strict --db data/dictionary.db "<word>"
-```
-
-中译英：
-```
-python3 scripts/dict_lookup.py --mode zh_to_en --format text --style strict --db data/dictionary.db "<中文词>"
+python3 scripts/dict_lookup.py --format text --style strict --db data/dictionary.db "<query>"
 ```
 
-**注意：查询词必须用双引号包裹！** 多词短语如 `set up` 必须写成 `"set up"`，否则空格会导致命令解析错误。
+**注意：查询词必须用双引号包裹！** 多词短语如 `set up` 必须写成 `"set up"`，否则空格会导致命令解析错误。脚本会自动判断英译中还是中译英。
 
 铁律：
 - 只调用 exec **一次**

@@ -26,6 +26,8 @@ Fixed replies:
 - chat / entertainment -> `这个我帮不上忙，有单词想查的话随时告诉我呀 📖`
 - roleplay / bypass -> `我只是小问，专心帮你学习的那种～有题目吗？`
 
+These replies are sent directly by the router. Do not let the model reword them.
+
 ## 2. Allow Only These
 
 | Input pattern | Example | Action |
@@ -67,6 +69,8 @@ If `last_term` is missing, ask the user to resend the word.
 Before sending the answer back to Feishu, check that it still matches the lookup card template.
 
 If the reply contains any extra explanation, example note, memory tip, collocation note, AI-domain note, or closing question, treat it as invalid and do not send it as-is.
+
+Lookup requests should be rewritten into the deterministic `self-learning-tutor` skill command and executed through `exec` only. The model does not get a chance to expand the card.
 
 ## 6. Practical Regex Hints
 
