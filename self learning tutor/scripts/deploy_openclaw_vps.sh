@@ -513,6 +513,7 @@ async function sendDirectLookupCardReply(replyCtx, replyToMessageId, query, look
         const completeCard = builder_1.buildCardContent('complete', {
             text: String(lookupText),
             elapsedMs: Date.now() - startedAt,
+            showToolUse: false,
             footer: { status: true, elapsed: true, model: true },
             footerMetrics: { model: '本地查词' },
         });
@@ -586,6 +587,7 @@ card_helper_block = '''async function sendDirectLookupCardReply(replyCtx, replyT
         const completeCard = builder_1.buildCardContent('complete', {
             text: String(lookupText),
             elapsedMs: Date.now() - startedAt,
+            showToolUse: false,
             footer: { status: true, elapsed: true, model: true },
             footerMetrics: { model: '本地查词' },
         });

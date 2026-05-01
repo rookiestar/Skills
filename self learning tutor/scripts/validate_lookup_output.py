@@ -28,7 +28,7 @@ FORBIDDEN_SNIPPETS = (
 )
 
 NOT_FOUND_RE = re.compile(r"^📖 '.+' 这个词/短语暂时不在我的词典库中呢$")
-NEW_SENSE_RE = re.compile(r"^- \d+\.\s+.+$")
+NEW_SENSE_RE = re.compile(r"^(?:- )?\d+\.\s+.+$")
 OLD_SENSE_RE = re.compile(r"^- 🇨🇳 释义(?: 2)?:")
 
 
@@ -68,7 +68,7 @@ def _validate_new_en_to_zh(lines: list[str], start: int) -> list[str]:
     while cursor < len(lines):
         line = lines[cursor]
         if not NEW_SENSE_RE.fullmatch(line):
-            errors.append(f"line {cursor + 1} must start with - 1. / - 2. / ... : {line}")
+            errors.append(f"line {cursor + 1} must start with 1. / 2. / ... or - 1. / - 2. / ... : {line}")
             return errors
         sense_count += 1
         cursor += 1

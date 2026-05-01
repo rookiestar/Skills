@@ -380,6 +380,10 @@ def _format_block_lines(prefix: str, text: str, continuation_prefix: str = "  ")
     return formatted
 
 
+def _format_example_block(example: str) -> list[str]:
+    return _format_block_lines("> 💬 ", example, ">   ")
+
+
 def _collect_sense_examples(sense: dict[str, Any], word: str) -> list[str]:
     raw_example = sense.get("example", "")
     examples = _parse_example_values(raw_example)
@@ -701,10 +705,16 @@ def format_validated_card_en_zh(result: dict[str, Any]) -> str:
         definition_count += 1
         pos = sense.get("pos", "")
         body = f"{definition_count}. {pos} {cleaned}".strip()
-        lines.append(f"- {body}")
+        lines.append(body)
 
-        for example in _collect_sense_examples(sense, word):
-            lines.extend(_format_block_lines("  💬 ", example, "    "))
+        examples = _collect_sense_examples(sense, word)
+        if examples:
+            lines.append("")
+            for idx, example in enumerate(examples):
+                if idx > 0:
+                    lines.append("")
+                lines.extend(_format_example_block(example))
+            lines.append("")
 
         if definition_count >= 5:
             break
