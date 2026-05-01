@@ -1,14 +1,17 @@
 ---
 name: self-learning-tutor
 description: "英语词典查询。Use when user asks to 查英语单词、词组、短语，或问英语怎么说；only English lookup is open."
-disable-model-invocation: true
+disable-model-invocation: false
 metadata:
-  version: 0.7.0
+  version: 0.8.0
 ---
 
 # Self Learning Tutor
 
-英语词典查询技能。只处理以下类型的输入：
+英语词典查询与学习指导技能。分两种模式：
+
+- `STRICT_LOOKUP`：只做确定性查词，脚本输出就是最终回复。
+- `LEARNING_GUIDE`：基于已经查到的结构化词典结果，生成适合初中生的学习指导。
 
 ## 触发条件
 
@@ -17,7 +20,7 @@ metadata:
 - 中译英："重要的英语怎么说"
 - 发音请求："apple怎么读"
 
-## 查询工作流
+## STRICT_LOOKUP 查询工作流
 
 **只做一件事：把查询词交给路由器和脚本，原样返回脚本输出。不要读文件、不要 ls、不要思考、不要做其他操作。**
 
@@ -34,6 +37,41 @@ python3 scripts/dict_lookup.py --format text --style strict --db data/dictionary
 - 绝对禁止：read 文件、ls 目录、web_fetch、自己编造内容
 - **禁止在输出中添加任何 markdown 格式**（加粗 `**text**`、斜体、链接等），尤其是不要在例句中把查询词加粗
 - 严格模式只允许脚本输出的查词卡片。任何记忆技巧、常见搭配、易混词辨析、结尾追问，都必须由脚本明确输出；不要临场补写。
+
+## LEARNING_GUIDE 学习指导工作流
+
+当输入明确包含 `mode: LEARNING_GUIDE`，并提供 `lookup_result` JSON 时，才进入学习指导模式。
+
+你不会再查词，也不要调用工具。`lookup_result` 是唯一事实来源。
+
+输出目标：给初中生一张短小、好记、实用的学习指导卡。
+
+允许输出的区块：
+
+1. `记忆方法`
+   - 可以结合词形、读音、词根词缀、生活场景做联想。
+   - 必须围绕 `lookup_result` 里的词义，不要跑题。
+
+2. `常见搭配`
+   - 只有 `lookup_result.collocations` 非空时才输出。
+   - 只能解释输入里已有的搭配，不能新增搭配。
+
+3. `习语解读`
+   - 只有 `lookup_result.idioms` 非空时才输出。
+   - 只能解释输入里已有的习语，不能新增习语。
+
+4. `易混词辨析`
+   - 只有确实存在高频、常见、对初中生有价值的易混词时才输出。
+   - 例如 `quiet / quite`、`setup / set up` 这种可以写；没有把握就跳过。
+
+硬性限制：
+
+- 不要改写或纠正第一阶段词典释义。
+- 不要编造 collocation、idiom、例句或来源。
+- 不要输出“收到”“我来帮你”等开场白。
+- 不要结尾追问。
+- 不要提到 JSON、工具、数据库、脚本、模型。
+- 总长度控制在 200-350 中文字左右。
 
 ## 拒绝规则
 

@@ -7,6 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 import re
+import json
 
 import pytest
 
@@ -56,6 +57,27 @@ def _lookup_result(mode: str, query: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def _lookup_json(mode: str, query: str) -> dict:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS_DIR / "dict_lookup.py"),
+            "--mode",
+            mode,
+            "--format",
+            "json",
+            "--db",
+            str(DB_PATH),
+            query,
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=20,
+    )
+    return json.loads(result.stdout)
+
+
 def _validate(text: str, mode: str) -> tuple[int, str]:
     result = subprocess.run(
         [
@@ -99,6 +121,23 @@ def test_en_to_zh_examples_stay_bound_to_each_sense() -> None:
     assert rc == 0, f"validator failed for trace:\n{output}\nstderr: {stderr}"
     assert re.search(r"(?ms)^\*\*1\.\*\*\s+.+\n\n>\s+💬 ", output)
     assert re.search(r"(?m)^\*\*2\.\*\*\s+", output)
+
+
+def test_json_lookup_includes_learning_material_fields() -> None:
+    output = _lookup_json("en_to_zh", "quiet")
+    assert output["word"] == "quiet"
+    assert output["senses"]
+    assert "collocations" in output
+    assert "idioms" in output
+    assert output["collocations"]
+    assert all(item.get("phrase") for item in output["collocations"])
+
+
+def test_json_lookup_filters_empty_idiom_fragments() -> None:
+    output = _lookup_json("en_to_zh", "setup")
+    assert output["word"] == "setup"
+    assert output["senses"]
+    assert output["idioms"] == []
 
 
 @pytest.mark.parametrize(

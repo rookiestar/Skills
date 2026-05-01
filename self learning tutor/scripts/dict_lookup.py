@@ -113,6 +113,8 @@ def entry_for_output(entry: dict[str, Any]) -> dict[str, Any]:
         "phonetic": entry["phonetic"],
         "definitions": entry["definitions"],
         "example": entry["example"],
+        "idioms": entry.get("idioms", []),
+        "collocations": entry.get("collocations", []),
         "source": entry["source"],
     }
 
@@ -347,7 +349,12 @@ def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
     raw_examples = entry.get("example", "")
     examples = _parse_example_values(raw_examples)
     senses = [{"word": entry["word"], "phonetic": entry.get("phonetic", ""), "pos": entry_pos, "definition": d, "example": examples[i] if i < len(examples) else ""} for i, d in enumerate(defs[:5]) if d]
-    return {"word": word, "senses": senses}
+    return {
+        "word": word,
+        "senses": senses,
+        "collocations": _clean_collocations(entry.get("collocations", [])),
+        "idioms": _clean_idioms(entry.get("idioms", [])),
+    }
 
 
 def lookup_zh_to_en(query: str, db_path: Path, sample_indexes: tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]]) -> dict[str, Any]:
@@ -359,6 +366,55 @@ def lookup_zh_to_en(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
         append_missing_word(db_path.parent / "missing_words.log", phrase)
         return {"error": "not_found", "mode": "zh_to_en", "query": phrase}
     return {"query": phrase, "matches": matches}
+
+
+def _clean_collocations(items: Any, limit: int = 8) -> list[dict[str, str]]:
+    results: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for item in items if isinstance(items, list) else []:
+        if isinstance(item, dict):
+            phrase = str(item.get("phrase") or item.get("collocation") or item.get("text") or "").strip()
+            trans = str(item.get("trans") or item.get("meaning") or item.get("definition") or "").strip()
+        else:
+            phrase = str(item).strip()
+            trans = ""
+        if not phrase:
+            continue
+        key = phrase.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        payload = {"phrase": phrase}
+        if trans:
+            payload["meaning"] = trans
+        results.append(payload)
+        if len(results) >= limit:
+            break
+    return results
+
+
+def _clean_idioms(items: Any, limit: int = 6) -> list[dict[str, str]]:
+    results: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for item in items if isinstance(items, list) else []:
+        if isinstance(item, dict):
+            phrase = str(item.get("idiom") or item.get("phrase") or item.get("text") or "").strip()
+            meaning = str(item.get("meaning") or item.get("trans") or "").strip()
+        else:
+            phrase = str(item).strip()
+            meaning = ""
+        # Empty-meaning Cambridge fragments are usually section headings,
+        # not usable idioms. Keep them out of the model's fact payload.
+        if not phrase or not meaning:
+            continue
+        key = phrase.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        results.append({"idiom": phrase, "meaning": meaning})
+        if len(results) >= limit:
+            break
+    return results
 
 
 def _clean_def_text(text: str) -> str:

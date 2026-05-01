@@ -199,6 +199,29 @@ def _safe_str(value: Any) -> str:
     return "" if value is None else str(value).strip()
 
 
+def parse_json_list_field(value: Any) -> list[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, dict):
+        return [value]
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return []
+        try:
+            loaded = json.loads(text)
+        except json.JSONDecodeError:
+            return [text]
+        if isinstance(loaded, list):
+            return loaded
+        if isinstance(loaded, dict):
+            return [loaded]
+        return []
+    return []
+
+
 def record_to_entry(record: Mapping[str, Any] | Any) -> dict[str, Any]:
     word = normalize_query(_safe_str(_record_get(record, "word")))
     pos = coerce_text(_record_get(record, "pos"))
@@ -259,6 +282,8 @@ def record_to_entry(record: Mapping[str, Any] | Any) -> dict[str, Any]:
         "example": example,
         "example_source": example_source,
         "example_url": example_url,
+        "idioms": parse_json_list_field(_record_get(record, "idioms")),
+        "collocations": parse_json_list_field(_record_get(record, "collocations")),
         "source": source,
         "collins": collins,
         "oxford": oxford,
