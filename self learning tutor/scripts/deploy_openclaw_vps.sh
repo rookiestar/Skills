@@ -397,7 +397,7 @@ from pathlib import Path
 
 path = Path.home() / '.openclaw' / 'extensions' / 'openclaw-lark' / 'src' / 'messaging' / 'inbound' / 'handler.js'
 text = path.read_text(encoding='utf-8')
-if 'LOOKUP_WORKSPACE_DIR' in text and 'sendDirectLookupCardReply' in text:
+if 'LOOKUP_WORKSPACE_DIR' in text and 'async function sendDirectLookupCardReply' in text:
     print(f'already patched: {path}')
     raise SystemExit(0)
 
