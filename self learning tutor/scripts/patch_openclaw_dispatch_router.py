@@ -47,36 +47,32 @@ def patch_complete_card(text: str) -> tuple[str, bool]:
 
 
 def patch_dispatch_text(text: str) -> tuple[str, bool]:
-    changed = False
+    lookup_changed = False
     comment_start = text.index(COMMENT_START)
     normal_start = text.index(NORMAL_START)
 
     comment_block = text[comment_start:normal_start]
-    if LOOKUP_ANCHOR not in comment_block:
-        if LOOKUP_ANCHOR in text[normal_start:]:
-            return text, False
-        raise RuntimeError("lookup anchor not found in comment function")
+    if LOOKUP_ANCHOR in comment_block:
+        lookup_idx = text.find(LOOKUP_ANCHOR, comment_start, normal_start)
+        if lookup_idx == -1:
+            raise RuntimeError("misplaced lookup anchor not found")
 
-    lookup_idx = text.find(LOOKUP_ANCHOR, comment_start, normal_start)
-    if lookup_idx == -1:
-        raise RuntimeError("misplaced lookup anchor not found")
+        end_idx = text.index(END_MARKER, lookup_idx, normal_start)
+        misplaced_block = text[lookup_idx:end_idx]
+        text = text[:lookup_idx] + text[end_idx:]
 
-    end_idx = text.index(END_MARKER, lookup_idx, normal_start)
-    misplaced_block = text[lookup_idx:end_idx]
-    text = text[:lookup_idx] + text[end_idx:]
+        normal_start = text.index(NORMAL_START)
+        insert_idx = text.index(END_MARKER, normal_start)
+        lookup_block = textwrap.indent(textwrap.dedent(misplaced_block).rstrip("\n"), "    ") + "\n"
 
-    normal_start = text.index(NORMAL_START)
-    insert_idx = text.index(END_MARKER, normal_start)
-    lookup_block = textwrap.indent(textwrap.dedent(misplaced_block).rstrip("\n"), "    ") + "\n"
-
-    if LOOKUP_ANCHOR in text[normal_start:insert_idx]:
-        changed = False
-    else:
-        text = text[:insert_idx] + lookup_block + text[insert_idx:]
-        changed = True
+        if LOOKUP_ANCHOR not in text[normal_start:insert_idx]:
+            text = text[:insert_idx] + lookup_block + text[insert_idx:]
+            lookup_changed = True
+    elif LOOKUP_ANCHOR not in text[normal_start:]:
+        raise RuntimeError("lookup anchor not found in normal function")
 
     text, card_changed = patch_complete_card(text)
-    return text, changed or card_changed
+    return text, lookup_changed or card_changed
 
 
 def main() -> int:
