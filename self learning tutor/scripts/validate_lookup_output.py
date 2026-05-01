@@ -27,6 +27,8 @@ FORBIDDEN_SNIPPETS = (
     "追问",
 )
 
+NOT_FOUND_RE = re.compile(r"^📖 '.+' 这个词/短语暂时不在我的词典库中呢$")
+
 
 @dataclass(frozen=True)
 class ValidationResult:
@@ -47,6 +49,9 @@ def validate(text: str, mode: str) -> ValidationResult:
     for snippet in FORBIDDEN_SNIPPETS:
         if snippet in text:
             errors.append(f"contains forbidden snippet: {snippet}")
+
+    if len(lines) == 1 and NOT_FOUND_RE.fullmatch(lines[0]):
+        return ValidationResult(not errors, errors)
 
     if mode == "en_to_zh":
         if not re.fullmatch(r"^\*\*.+\*\*$", lines[0]):

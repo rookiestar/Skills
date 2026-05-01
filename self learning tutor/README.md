@@ -60,6 +60,8 @@ bash scripts/deploy_openclaw_vps.sh
 
 部署时会清理 `~/.openclaw/workspace/skills/self-learning-tutor.bak.*` 这类旧快照，避免新会话继续命中过期 skill。
 
+线上 OpenClaw agent 需要收窄工具权限：保留 `exec`，禁用 `memory_search`、`memory_get`、`read`、`write`、`edit`、`apply_patch`、`process` 和跨会话工具。否则单词如 `memory` 可能被模型误判成“保存记忆”请求。
+
 烟雾测试会检查 `important`、`in the future`、`sit down` 和 `put on` 这几类典型场景。
 
 如果本地已经有 `data/dictionary.db`，脚本会先在本机把词条和短语刷新好，再把完整结果上传到 VPS。若本地库不完整，脚本会继续在本机重建发布包，不再去 VPS 上抓取。

@@ -34,6 +34,27 @@ def _lookup(mode: str, query: str) -> str:
     return result.stdout
 
 
+def _lookup_result(mode: str, query: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS_DIR / "dict_lookup.py"),
+            "--mode",
+            mode,
+            "--format",
+            "text",
+            "--style",
+            "strict",
+            "--db",
+            str(DB_PATH),
+            query,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+
+
 def _validate(text: str, mode: str) -> tuple[int, str]:
     result = subprocess.run(
         [
@@ -106,3 +127,26 @@ def test_validator_rejects_model_written_expansion(forbidden: str) -> None:
     rc, stderr = _validate(output, "en_to_zh")
     assert rc != 0
     assert stderr
+
+
+@pytest.mark.parametrize(
+    ("mode", "query"),
+    [
+        ("en_to_zh", "zzzznotaword"),
+        ("zh_to_en", "不存在的中文词"),
+    ],
+)
+def test_not_found_is_script_controlled_friendly_output(mode: str, query: str) -> None:
+    result = _lookup_result(mode, query)
+    assert result.returncode == 0
+    assert result.stderr == ""
+    assert result.stdout.strip() == f"📖 '{query}' 这个词/短语暂时不在我的词典库中呢"
+    rc, stderr = _validate(result.stdout, mode)
+    assert rc == 0, stderr
+
+
+def test_zh_to_en_does_not_match_substrings_inside_unknown_query() -> None:
+    result = _lookup_result("zh_to_en", "火星词条不存在")
+    assert result.returncode == 0
+    assert result.stdout.strip() == "📖 '火星词条不存在' 这个词/短语暂时不在我的词典库中呢"
+    assert "absence" not in result.stdout

@@ -19,6 +19,12 @@ Allowed sections:
 - Optional second meaning line
 - Optional example line
 
+Allowed not-found output:
+
+- `📖 '<query>' 这个词/短语暂时不在我的词典库中呢`
+
+Not-found output must come from the script. The model must not guess a nearby word, explain possible meanings, write memory, or ask a follow-up question.
+
 Forbidden in strict output:
 
 - Greeting or acknowledgement

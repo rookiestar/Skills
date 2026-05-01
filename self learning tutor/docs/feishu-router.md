@@ -73,11 +73,19 @@ If the message is allowed:
 
 - send only the cleaned text to OpenClaw
 - enable only `self-learning-tutor`
+- expose only the minimum tool set needed for lookup
 - pass `last_term` if it exists
 - store a new `last_term` only when the message is a fresh lookup
 - validate the returned card before sending it back to Feishu
 
 If the card contains anything outside the template, reject it and regenerate or fall back to a short safe reply.
+
+Minimum OpenClaw tool policy for this skill:
+
+- Allow: `exec`
+- Deny: `memory_search`, `memory_get`, `read`, `write`, `edit`, `apply_patch`, `process`, `sessions_send`, `sessions_spawn`, `sessions_history`, web search/fetch tools, image/video tools
+
+`exec` is still needed because `SKILL.md` calls `scripts/dict_lookup.py`. The model must not receive memory or file-editing tools for lookup requests.
 
 ## Follow-Up Path
 

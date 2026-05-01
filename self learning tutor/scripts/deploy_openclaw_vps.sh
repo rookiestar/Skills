@@ -282,8 +282,10 @@ lookup_cases = [
     ('en_to_zh', 'setup'),
     ('en_to_zh', 'important'),
     ('en_to_zh', 'in the future'),
+    ('en_to_zh', 'zzzznotaword'),
     ('zh_to_en', '期待'),
     ('zh_to_en', '重要的'),
+    ('zh_to_en', '不存在的中文词'),
 ]
 
 for mode, query in lookup_cases:

@@ -170,18 +170,6 @@ def load_sqlite_matches(db_path: Path, query: str, limit: int = 2) -> list[dict[
                 """,
                 (query, limit * 4),
             ).fetchall()
-            if not rows:
-                rows = conn.execute(
-                    """
-                SELECT zh_term, word, pos, phonetic, source, frequency, sense_rank
-                FROM dictionary_reverse
-                WHERE zh_term LIKE ? OR ? LIKE zh_term
-                    ORDER BY CASE WHEN frequency > 0 THEN 0 ELSE 1 END, sense_rank ASC, frequency ASC, word ASC
-                    LIMIT ?
-                    """,
-                    (f"%{query}%", query, limit * 4),
-                ).fetchall()
-
             seen: set[str] = set()
             for row in rows:
                 word = row["word"]
@@ -212,7 +200,7 @@ def load_sqlite_matches(db_path: Path, query: str, limit: int = 2) -> list[dict[
                 if not entry["word"] or entry["word"] in seen:
                     continue
                 candidates = build_reverse_terms(entry["definitions"], None)
-                if any(query == candidate or query in candidate or candidate in query for candidate in candidates):
+                if any(query == candidate for candidate in candidates):
                     seen.add(entry["word"])
                     matches.append(entry_for_output(entry))
                     if len(matches) >= limit:
@@ -749,6 +737,13 @@ def format_validated_card_zh_en(result: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def format_not_found_text(result: dict[str, Any]) -> str:
+    query = str(result.get("query", "")).strip()
+    if query:
+        return f"📖 '{query}' 这个词/短语暂时不在我的词典库中呢"
+    return "📖 这个词/短语暂时不在我的词典库中呢"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Local dictionary lookup")
     parser.add_argument("--mode", required=True, choices=("en_to_zh", "zh_to_en"))
@@ -773,6 +768,9 @@ def main() -> int:
         result = lookup_zh_to_en(args.query, db_path, sample_indexes)
 
     if result.get("error") == "not_found":
+        if args.format == "text":
+            print(format_not_found_text(result))
+            return 0
         print(json.dumps(result, ensure_ascii=False), file=sys.stderr)
         return 4
 
