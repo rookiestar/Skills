@@ -31,3 +31,10 @@ def test_single_word_does_not_match_inside_longer_word():
     text = "The safeguard was removed."
     result = _bold_word_in_text("guard", text)
     assert result == text
+
+
+def test_single_word_bolds_plural_tail_together():
+    text = "neck /back /leg / stomach muscles"
+    result = _bold_word_in_text("muscle", text)
+    assert "**muscles**" in result
+    assert "**muscle**s" not in result

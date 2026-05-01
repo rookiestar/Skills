@@ -460,7 +460,8 @@ def _collect_sense_examples(sense: dict[str, Any], word: str) -> list[str]:
 def _bold_word_in_text(word: str, text: str) -> str:
     """Bold target word (or each part of a phrase) within text.
 
-    Single word: full-word replace (allows 'Guards' → 'guard').
+    Single word: full-word replace, including a trailing plural 's'
+    when the example uses the plural form.
     Phrase: position-based matching per sentence. Within each sentence,
     greedy chains parts left-to-right with non-overlapping constraint.
     Allows small word gaps for phrasal verbs ('put her shirt on'),
@@ -476,7 +477,7 @@ def _bold_word_in_text(word: str, text: str) -> str:
     if len(parts) == 1:
         lower = word.lower()
         if len(lower) > 2 and not lower.endswith("s"):
-            pat = rf"(?<![A-Za-z]){re.escape(word)}(?=s\b|\b)"
+            pat = rf"(?<![A-Za-z]){re.escape(word)}(?:s\b|\b)"
         else:
             pat = rf"(?<![A-Za-z]){re.escape(word)}(?![A-Za-z])"
         return re.sub(pat, _repl, text, flags=re.IGNORECASE)
