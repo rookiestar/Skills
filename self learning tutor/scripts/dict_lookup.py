@@ -368,6 +368,35 @@ def _clean_def_text(text: str) -> str:
     return text
 
 
+def _format_block_lines(prefix: str, text: str, continuation_prefix: str = "  ") -> list[str]:
+    stripped = text.rstrip()
+    if not stripped:
+        return []
+    lines = stripped.splitlines()
+    if not lines:
+        return []
+    formatted = [f"{prefix}{lines[0]}"]
+    formatted.extend(f"{continuation_prefix}{line}" for line in lines[1:])
+    return formatted
+
+
+def _collect_sense_examples(sense: dict[str, Any], word: str) -> list[str]:
+    raw_example = sense.get("example", "")
+    examples = _parse_example_values(raw_example)
+    if not examples and isinstance(raw_example, str) and raw_example.strip():
+        examples = [raw_example.strip()]
+
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for example in examples:
+        bolded = _bold_word_in_text(word, example)
+        if bolded in seen:
+            continue
+        seen.add(bolded)
+        deduped.append(bolded)
+    return deduped
+
+
 def _bold_word_in_text(word: str, text: str) -> str:
     """Bold target word (or each part of a phrase) within text.
 
@@ -651,7 +680,7 @@ def format_validated_card_en_zh(result: dict[str, Any]) -> str:
     senses = result.get("senses", [])
 
     if not senses and "definitions" in result:
-        senses = [{"pos": result.get("pos", ""), "definition": d} for i, d in enumerate((result.get("definitions") or [])[:3]) if d]
+        senses = [{"pos": result.get("pos", ""), "definition": d} for i, d in enumerate((result.get("definitions") or [])[:5]) if d]
 
     lines = [f"**{word}**"]
 
@@ -662,40 +691,23 @@ def format_validated_card_en_zh(result: dict[str, Any]) -> str:
     if phonetic:
         lines.append(f"- 🔤 音标：{phonetic}")
 
-    definitions: list[str] = []
+    definition_count = 0
     seen_defs: set[str] = set()
     for sense in senses:
         cleaned = _clean_def_text(sense.get("definition", ""))
         if not cleaned or cleaned in seen_defs:
             continue
         seen_defs.add(cleaned)
+        definition_count += 1
         pos = sense.get("pos", "")
-        body = f"{pos} {cleaned}".strip()
-        definitions.append(body)
-        if len(definitions) >= 2:
+        body = f"{definition_count}. {pos} {cleaned}".strip()
+        lines.append(f"- {body}")
+
+        for example in _collect_sense_examples(sense, word):
+            lines.extend(_format_block_lines("  💬 ", example, "    "))
+
+        if definition_count >= 5:
             break
-
-    for index, definition in enumerate(definitions, 1):
-        label = "- 🇨🇳 释义：" if index == 1 else "- 🇨🇳 释义 2："
-        lines.append(f"{label}{definition}")
-
-    # Collect examples, deduplicate, bold target word
-    examples_seen: set[str] = set()
-    all_examples: list[str] = []
-    for s in senses[:8]:
-        ex = s.get("example", "") or ""
-        if not isinstance(ex, str):
-            parsed_examples = _parse_example_values(ex)
-            ex = parsed_examples[0] if parsed_examples else ""
-        elif ex:
-            parsed_examples = _parse_example_values(ex)
-            ex = parsed_examples[0] if parsed_examples else ex
-        if ex and ex not in examples_seen:
-            ex_bolded = _bold_word_in_text(word, ex)
-            examples_seen.add(ex)
-            all_examples.append(ex_bolded)
-    if all_examples:
-        lines.append(f"- 💬 例句：{' '.join(all_examples[:3])}")
 
     return "\n".join(lines)
 

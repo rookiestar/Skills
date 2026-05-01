@@ -397,7 +397,7 @@ from pathlib import Path
 
 path = Path.home() / '.openclaw' / 'extensions' / 'openclaw-lark' / 'src' / 'messaging' / 'inbound' / 'handler.js'
 text = path.read_text(encoding='utf-8')
-if 'LOOKUP_WORKSPACE_DIR' in text and 'runDirectLookup' in text:
+if 'LOOKUP_WORKSPACE_DIR' in text and 'sendDirectLookupCardReply' in text:
     print(f'already patched: {path}')
     raise SystemExit(0)
 
@@ -409,6 +409,8 @@ new_import = (
     'const path_1 = require(\"path\");\\n'
     'const util_1 = require(\"util\");\\n'
     'const execFileAsync = (0, util_1.promisify)(child_process_1.execFile);\\n'
+    'const cardkit_1 = require(\"../../card/cardkit.js\");\\n'
+    'const builder_1 = require(\"../../card/builder.js\");\\n'
 )
 if old_import not in text:
     raise SystemExit('import anchor not found')
@@ -462,6 +464,73 @@ async function runDirectLookup(query) {
         return '词典查询暂时失败了，你稍后再试一下。';
     }
 }
+
+async function sendDirectLookupCardReply(replyCtx, replyToMessageId, query, lookupPromise, startedAt) {
+    try {
+        const cardId = await cardkit_1.createCardEntity({
+            cfg: replyCtx.cfg,
+            card: builder_1.buildStreamingThinkingCard(false),
+            accountId: replyCtx.accountId,
+        });
+        const sent = await cardkit_1.sendCardByCardId({
+            cfg: replyCtx.cfg,
+            to: replyCtx.chatId,
+            cardId,
+            replyToMessageId: replyToMessageId ?? replyCtx.messageId,
+            replyInThread: replyCtx.replyInThread,
+            accountId: replyCtx.accountId,
+        });
+        let sequence = 1;
+        await cardkit_1.streamCardContent({
+            cfg: replyCtx.cfg,
+            cardId,
+            elementId: builder_1.STREAMING_ELEMENT_ID,
+            content: '**' + query + '**\\n\\n🔍 正在整理词条…',
+            sequence: ++sequence,
+            accountId: replyCtx.accountId,
+        });
+        const lookupText = await lookupPromise;
+        const lines = String(lookupText).split(/\\r?\\n/);
+        let rendered = '';
+        for (const line of lines) {
+            rendered = rendered ? rendered + '\\n' + line : line;
+            await cardkit_1.streamCardContent({
+                cfg: replyCtx.cfg,
+                cardId,
+                elementId: builder_1.STREAMING_ELEMENT_ID,
+                content: rendered,
+                sequence: ++sequence,
+                accountId: replyCtx.accountId,
+            });
+        }
+        await cardkit_1.setCardStreamingMode({
+            cfg: replyCtx.cfg,
+            cardId,
+            streamingMode: false,
+            sequence: ++sequence,
+            accountId: replyCtx.accountId,
+        });
+        const completeCard = builder_1.buildCardContent('complete', {
+            text: String(lookupText),
+            elapsedMs: Date.now() - startedAt,
+            footer: { status: true, elapsed: true, model: true },
+            footerMetrics: { model: '本地查词' },
+        });
+        await cardkit_1.updateCardKitCard({
+            cfg: replyCtx.cfg,
+            cardId,
+            card: builder_1.toCardKit2(completeCard),
+            sequence: ++sequence,
+            accountId: replyCtx.accountId,
+        });
+        logger.info('lookup card sent', { messageId: sent.messageId, cardId, query });
+        return true;
+    }
+    catch (err) {
+        logger.warn('lookup card flow failed, falling back to text', { error: String(err), query });
+        return false;
+    }
+}
 '''
 if 'LOOKUP_WORKSPACE_DIR' not in text or 'runDirectLookup' not in text:
     marker = 'function classifyLookupMessage(text, lastTerm) {'
@@ -469,7 +538,8 @@ if 'LOOKUP_WORKSPACE_DIR' not in text or 'runDirectLookup' not in text:
         raise SystemExit('classifyLookupMessage anchor not found')
     text = text.replace(marker, helper_block + '\n' + marker, 1)
 
-old_router = '''    const routerResult = classifyLookupMessage(ctx.content ?? '', undefined);
+old_router_candidates = [
+    '''    const routerResult = classifyLookupMessage(ctx.content ?? '', undefined);
     if (routerResult.replyText && !routerResult.command) {
         await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, routerResult.replyText);
         return;
@@ -477,7 +547,25 @@ old_router = '''    const routerResult = classifyLookupMessage(ctx.content ?? ''
     if (routerResult.command) {
         ctx = { ...ctx, content: routerResult.command };
     }
-'''
+''',
+    '''    const routerResult = classifyLookupMessage(ctx.content ?? '', undefined);
+    if (routerResult.replyText && !routerResult.command) {
+        await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, routerResult.replyText);
+        return;
+    }
+    if (routerResult.command) {
+        const lookupQuery = extractLookupQuery(ctx.content ?? '');
+        if (!lookupQuery) {
+            logger.error('lookup routing failed: could not extract query from  + (ctx.content ?? ) + ');
+            await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, '词典查询暂时失败了，你稍后再试一下。');
+            return;
+        }
+        const lookupText = await runDirectLookup(lookupQuery);
+        await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, lookupText);
+        return;
+    }
+''',
+]
 new_router = '''    const routerResult = classifyLookupMessage(ctx.content ?? '', undefined);
     if (routerResult.replyText && !routerResult.command) {
         await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, routerResult.replyText);
@@ -490,14 +578,22 @@ new_router = '''    const routerResult = classifyLookupMessage(ctx.content ?? ''
             await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, '词典查询暂时失败了，你稍后再试一下。');
             return;
         }
-        const lookupText = await runDirectLookup(lookupQuery);
-        await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, lookupText);
+        const lookupStart = Date.now();
+        const lookupPromise = runDirectLookup(lookupQuery);
+        const cardSent = await sendDirectLookupCardReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, lookupQuery, lookupPromise, lookupStart);
+        if (!cardSent) {
+            const lookupText = await lookupPromise;
+            await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, lookupText);
+        }
         return;
     }
 '''
-if old_router not in text:
+for candidate in old_router_candidates:
+    if candidate in text:
+        text = text.replace(candidate, new_router, 1)
+        break
+else:
     raise SystemExit('router block anchor not found')
-text = text.replace(old_router, new_router, 1)
 
 path.write_text(text, encoding='utf-8')
 print(f'patched {path}')

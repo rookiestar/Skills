@@ -6,6 +6,7 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
+import re
 
 import pytest
 
@@ -72,20 +73,31 @@ def _validate(text: str, mode: str) -> tuple[int, str]:
 
 
 @pytest.mark.parametrize(
-    ("query", "expect_phonetic", "expect_second_def"),
+    ("query", "expect_phonetic"),
     [
-        ("setup", True, True),
-        ("important", True, True),
-        ("in the future", True, True),
+        ("setup", True),
+        ("important", True),
+        ("in the future", True),
     ],
 )
-def test_en_to_zh_cards_match_validator(query: str, expect_phonetic: bool, expect_second_def: bool) -> None:
+def test_en_to_zh_cards_match_validator(query: str, expect_phonetic: bool) -> None:
     output = _lookup("en_to_zh", query)
     rc, stderr = _validate(output, "en_to_zh")
     assert rc == 0, f"validator failed for {query}:\n{output}\nstderr: {stderr}"
     assert output.startswith(f"**{query}**")
     assert ("- 🔤 音标：" in output) is expect_phonetic
-    assert ("- 🇨🇳 释义 2：" in output) is expect_second_def
+    assert re.search(r"(?m)^- 1\.\s+", output)
+    assert re.search(r"(?m)^\s+💬 ", output)
+    assert "- 🇨🇳 释义：" not in output
+    assert "- 💬 例句：" not in output
+
+
+def test_en_to_zh_examples_stay_bound_to_each_sense() -> None:
+    output = _lookup("en_to_zh", "trace")
+    rc, stderr = _validate(output, "en_to_zh")
+    assert rc == 0, f"validator failed for trace:\n{output}\nstderr: {stderr}"
+    assert re.search(r"(?ms)^- 1\.\s+.+\n\s+💬 ", output)
+    assert re.search(r"(?m)^- 2\.\s+", output)
 
 
 @pytest.mark.parametrize(

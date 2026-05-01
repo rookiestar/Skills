@@ -28,6 +28,8 @@ FORBIDDEN_SNIPPETS = (
 )
 
 NOT_FOUND_RE = re.compile(r"^📖 '.+' 这个词/短语暂时不在我的词典库中呢$")
+NEW_SENSE_RE = re.compile(r"^- \d+\.\s+.+$")
+OLD_SENSE_RE = re.compile(r"^- 🇨🇳 释义(?: 2)?:")
 
 
 @dataclass(frozen=True)
@@ -38,6 +40,49 @@ class ValidationResult:
 
 def _normalize(text: str) -> list[str]:
     return [line.rstrip() for line in text.strip().splitlines() if line.strip()]
+
+
+def _validate_old_en_to_zh(lines: list[str], start: int) -> list[str]:
+    errors: list[str] = []
+    cursor = start
+    # Legacy format: optional phonetic handled by caller, then definition lines,
+    # followed by one pooled example line.
+    if cursor < len(lines) and OLD_SENSE_RE.fullmatch(lines[cursor]):
+        cursor += 1
+    else:
+        errors.append(f"line {cursor + 1} must start with - 🇨🇳 释义：")
+        return errors
+    if cursor < len(lines) and OLD_SENSE_RE.fullmatch(lines[cursor]):
+        cursor += 1
+    if cursor < len(lines) and lines[cursor].startswith("- 💬 例句："):
+        cursor += 1
+    if len(lines) != cursor:
+        errors.append(f"unexpected extra line: {lines[cursor] if cursor < len(lines) else lines[-1]}")
+    return errors
+
+
+def _validate_new_en_to_zh(lines: list[str], start: int) -> list[str]:
+    errors: list[str] = []
+    cursor = start
+    sense_count = 0
+    while cursor < len(lines):
+        line = lines[cursor]
+        if not NEW_SENSE_RE.fullmatch(line):
+            errors.append(f"line {cursor + 1} must start with - 1. / - 2. / ... : {line}")
+            return errors
+        sense_count += 1
+        cursor += 1
+        while cursor < len(lines):
+            next_line = lines[cursor]
+            if NEW_SENSE_RE.fullmatch(next_line):
+                break
+            if next_line.startswith("- "):
+                errors.append(f"line {cursor + 1} must not start with a new bullet outside a sense block: {next_line}")
+                return errors
+            cursor += 1
+    if sense_count == 0:
+        errors.append("en_to_zh card is missing required sense blocks")
+    return errors
 
 
 def validate(text: str, mode: str) -> ValidationResult:
@@ -66,20 +111,15 @@ def validate(text: str, mode: str) -> ValidationResult:
         # Word format (with phonetic): **word** → 🔤 音标 → 🇨🇳释义 → 💬 例句
         has_phonetic = cursor < len(lines) and lines[cursor].startswith("- 🔤 音标：")
         if has_phonetic:
-            expected_prefixes = ["- 🔤 音标：", "- 🇨🇳 释义："]
+            cursor += 1
+        if cursor >= len(lines):
+            errors.append("en_to_zh card is missing required sense blocks")
+            return ValidationResult(False, errors)
+        if NEW_SENSE_RE.fullmatch(lines[cursor]):
+            errors.extend(_validate_new_en_to_zh(lines, cursor))
         else:
-            expected_prefixes = ["- 🇨🇳 释义："]
-        for prefix in expected_prefixes:
-            if cursor >= len(lines) or not lines[cursor].startswith(prefix):
-                errors.append(f"line {cursor + 1} must start with {prefix}")
-                break
-            cursor += 1
-        if cursor < len(lines) and lines[cursor].startswith("- 🇨🇳 释义 2："):
-            cursor += 1
-        if cursor < len(lines) and lines[cursor].startswith("- 💬 例句："):
-            cursor += 1
-        if len(lines) != cursor:
-            errors.append(f"unexpected extra line: {lines[cursor] if cursor < len(lines) else lines[-1]}")
+            errors.extend(_validate_old_en_to_zh(lines, cursor))
+        return ValidationResult(not errors, errors)
     else:
         if not re.fullmatch(r"^\*\*.+\*\*$", lines[0]):
             errors.append(f"line 1 does not match the header template: {lines[0]}")
