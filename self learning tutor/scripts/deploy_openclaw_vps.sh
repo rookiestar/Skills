@@ -456,7 +456,7 @@ async function runDirectLookup(query) {
             maxBuffer: 1024 * 1024,
         });
         if (stderr) {
-            logger.info(`lookup stderr: ${String(stderr).trim()}`);
+            logger.info('lookup stderr: ' + String(stderr).trim());
         }
         return stdout;
     }
@@ -466,7 +466,7 @@ async function runDirectLookup(query) {
         if (stdout) {
             return stdout;
         }
-        logger.error(`lookup failed for "${query}": ${String(err)}${stderr ? ` stderr=${String(stderr).trim()}` : ''}`);
+        logger.error('lookup failed for "' + query + '": ' + String(err) + (stderr ? ' stderr=' + String(stderr).trim() : ''));
         return '词典查询暂时失败了，你稍后再试一下。';
     }
 }
@@ -492,7 +492,7 @@ new_router = '''    const routerResult = classifyLookupMessage(ctx.content ?? ''
     if (routerResult.command) {
         const lookupQuery = extractLookupQuery(ctx.content ?? '');
         if (!lookupQuery) {
-            logger.error(`lookup routing failed: could not extract query from "${ctx.content ?? ''}"`);
+            logger.error('lookup routing failed: could not extract query from "' + (ctx.content ?? '') + '"');
             await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, '词典查询暂时失败了，你稍后再试一下。');
             return;
         }
