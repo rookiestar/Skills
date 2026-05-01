@@ -414,11 +414,7 @@ if old_import not in text:
     raise SystemExit('import anchor not found')
 text = text.replace(old_import, new_import, 1)
 
-old_block = '''function buildLookupCommand(text) {
-    return LOOKUP_COMMAND_PREFIX + " " + shellQuote(normalizeLookupText(text));
-}
-'''
-new_block = '''function buildLookupCommand(text) {
+helper_block = '''function buildLookupCommand(text) {
     return LOOKUP_COMMAND_PREFIX + " " + shellQuote(normalizeLookupText(text));
 }
 
@@ -471,9 +467,11 @@ async function runDirectLookup(query) {
     }
 }
 '''
-if old_block not in text:
-    raise SystemExit('lookup helper anchor not found')
-text = text.replace(old_block, new_block, 1)
+if 'LOOKUP_WORKSPACE_DIR' not in text or 'runDirectLookup' not in text:
+    marker = 'function classifyLookupMessage(text, lastTerm) {'
+    if marker not in text:
+        raise SystemExit('classifyLookupMessage anchor not found')
+    text = text.replace(marker, helper_block + '\n' + marker, 1)
 
 old_router = '''    const routerResult = classifyLookupMessage(ctx.content ?? '', undefined);
     if (routerResult.replyText && !routerResult.command) {
