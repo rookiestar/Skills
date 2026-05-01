@@ -82,3 +82,27 @@ def test_zh_to_en_cards_match_validator(query: str, expect_phonetic: bool, expec
     assert output.startswith(f"**{query}**")
     assert ("- 🔤 音标：" in output) is expect_phonetic
     assert ("- 🔤 第二常用英文：" in output) is expect_second_english
+
+
+@pytest.mark.parametrize(
+    "forbidden",
+    [
+        "收到！看起来你想了解 setup 这个词",
+        "生活化秒记：",
+        "常见搭配（考试常考）：",
+        "易混词辨析：",
+        "絮音记忆锚点：",
+    ],
+)
+def test_validator_rejects_model_written_expansion(forbidden: str) -> None:
+    output = "\n".join(
+        [
+            "**setup**",
+            "- 🔤 音标：/ˈsetʌp/",
+            "- 🇨🇳 释义：n. 设置；安排；装置",
+            forbidden,
+        ]
+    )
+    rc, stderr = _validate(output, "en_to_zh")
+    assert rc != 0
+    assert stderr

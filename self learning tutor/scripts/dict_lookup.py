@@ -757,6 +757,7 @@ def main() -> int:
     parser.add_argument("--db", default=None, help="Path to dictionary.db")
     parser.add_argument("--sample", default=None, help="Path to sample_dictionary.json")
     parser.add_argument("--format", default="json", choices=("json", "text"), help="Output format")
+    parser.add_argument("--style", default="strict", choices=("strict",), help="Text output contract")
     args = parser.parse_args()
     args.query = " ".join(args.query) if isinstance(args.query, list) else args.query
 

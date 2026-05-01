@@ -16,6 +16,7 @@
 - `references/english_examples.md`：历史参考，不是运行时必读
 - `references/qa_checklist.md`：历史参考，不是运行时必读
 - `docs/feishu-router.md`：飞书 webhook/router 最小实现
+- `docs/output-contract.md`：严格查词输出和未来扩展输出的边界
 - `docs/whitelist-rules.md`：只允许查词的白名单规则
 
 ## How To Read These Docs
@@ -56,6 +57,8 @@ bash scripts/deploy_openclaw_vps.sh
 ```
 
 脚本会先把当前提交打成一个版本目录，放到 `~/.openclaw/workspace/releases/self-learning-tutor/<版本号>` 里做验证，再把通过验证的内容覆盖到 `~/.openclaw/workspace/skills/self-learning-tutor`。最后它会重启 `openclaw-gateway.service`，然后再跑一轮加粗回归。
+
+部署时会清理 `~/.openclaw/workspace/skills/self-learning-tutor.bak.*` 这类旧快照，避免新会话继续命中过期 skill。
 
 烟雾测试会检查 `important`、`in the future`、`sit down` 和 `put on` 这几类典型场景。
 

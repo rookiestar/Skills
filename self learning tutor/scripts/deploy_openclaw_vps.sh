@@ -17,8 +17,9 @@ Flow:
   3. Rebuild dictionary data locally if the cached DB is stale or missing
   4. Smoke test the release directly
   5. Promote the release into the active workspace dir
-  6. Restart openclaw-gateway.service when it is available
-  7. Smoke test the active workspace copy
+  6. Remove stale self-learning-tutor.bak.* workspace snapshots
+  7. Restart openclaw-gateway.service when it is available
+  8. Smoke test the active workspace copy
 EOF
 }
 
@@ -380,6 +381,10 @@ if src_data.exists():
 
 print(f'promoted {release.name} to {active}')
 PY"
+
+echo ""
+echo "--- Removing stale skill backup snapshots ---"
+ssh "${REMOTE}" "find '$(dirname "${ACTIVE_DIR}")' -maxdepth 1 -type d -name 'self-learning-tutor.bak.*' -exec rm -rf {} +"
 
 restart_service_if_present() {
   if ssh "${REMOTE}" "systemctl --user show -p LoadState --value '${SERVICE_NAME}' 2>/dev/null | grep -qx loaded"; then
