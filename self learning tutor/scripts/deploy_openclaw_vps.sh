@@ -127,7 +127,7 @@ if [[ -n "${LOCAL_DATA_DIR}" ]]; then
   cp -R "${LOCAL_DATA_DIR}" "${DEPLOY_SRC}/data"
   DATA_DB_SOURCE="local data override"
 else
-  LOCAL_DB_CACHE="${GIT_ROOT}/data/dictionary.db"
+  LOCAL_DB_CACHE="${REPO_ROOT}/data/dictionary.db"
   if [[ -s "${LOCAL_DB_CACHE}" ]]; then
     if local_db_is_acceptable "${LOCAL_DB_CACHE}"; then
       mkdir -p "${DEPLOY_SRC}/data"
