@@ -43,6 +43,46 @@ def table_exists(conn: sqlite3.Connection, table_name: str) -> bool:
     return row is not None
 
 
+def _parse_example_values(value: Any) -> list[str]:
+    if value is None:
+        return []
+
+    items: list[Any]
+    if isinstance(value, list):
+        items = value
+    elif isinstance(value, dict):
+        items = [value]
+    elif isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return []
+        try:
+            parsed = json.loads(text)
+        except (json.JSONDecodeError, TypeError):
+            return [text]
+        if isinstance(parsed, list):
+            items = parsed
+        elif isinstance(parsed, dict):
+            items = [parsed]
+        else:
+            parsed_text = str(parsed).strip()
+            return [parsed_text] if parsed_text else []
+    else:
+        text = str(value).strip()
+        return [text] if text else []
+
+    results: list[str] = []
+    for item in items:
+        if isinstance(item, dict):
+            text = item.get("en") or item.get("zh") or ""
+        else:
+            text = str(item)
+        text = text.strip()
+        if text:
+            results.append(text)
+    return results
+
+
 def load_sample_indexes(sample_path: Path) -> tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]]:
     if not sample_path.exists():
         return {}, {}
@@ -317,16 +357,7 @@ def lookup_en_to_zh(query: str, db_path: Path, sample_indexes: tuple[dict[str, d
     defs = entry.get("definitions") or []
     entry_pos = entry.get("pos", "") or _extract_pos_from_raw_defs(db_path, word)
     raw_examples = entry.get("example", "")
-    examples: list[str] = []
-    if raw_examples:
-        try:
-            parsed = json.loads(raw_examples)
-            if isinstance(parsed, list):
-                examples = parsed
-            else:
-                examples = [str(parsed)] if str(parsed) else []
-        except (json.JSONDecodeError, TypeError):
-            examples = [raw_examples] if raw_examples else []
+    examples = _parse_example_values(raw_examples)
     senses = [{"word": entry["word"], "phonetic": entry.get("phonetic", ""), "pos": entry_pos, "definition": d, "example": examples[i] if i < len(examples) else ""} for i, d in enumerate(defs[:5]) if d]
     return {"word": word, "senses": senses}
 
@@ -634,48 +665,43 @@ def format_validated_card_en_zh(result: dict[str, Any]) -> str:
     if not senses and "definitions" in result:
         senses = [{"pos": result.get("pos", ""), "definition": d} for i, d in enumerate((result.get("definitions") or [])[:3]) if d]
 
-    if not senses:
-        return f"**{word}**"
-
     lines = [f"**{word}**"]
+
+    if not senses:
+        return "\n".join(lines)
 
     phonetic = senses[0].get("phonetic", "")
     if phonetic:
-        lines.append(f"\n🔤 {phonetic}\n")
+        lines.append(f"- 🔤 音标：{phonetic}")
 
-    pos = senses[0].get("pos", "")
+    definitions: list[str] = []
+    seen_defs: set[str] = set()
+    for sense in senses:
+        cleaned = _clean_def_text(sense.get("definition", ""))
+        if not cleaned or cleaned in seen_defs:
+            continue
+        seen_defs.add(cleaned)
+        pos = sense.get("pos", "")
+        body = f"{pos} {cleaned}".strip()
+        definitions.append(body)
+        if len(definitions) >= 2:
+            break
 
-    # Merge definitions, deduplicate at granularity level
-    seen_units: set[str] = set()
-    def_units: list[str] = []
-    for s in senses[:8]:
-        d = s.get("definition", "")
-        if not d:
-            continue
-        cleaned = _clean_def_text(d)
-        if not cleaned:
-            continue
-        for unit in re.split(r'[；;]', cleaned):
-            unit = unit.strip()
-            if unit and unit not in seen_units:
-                seen_units.add(unit)
-                def_units.append(unit)
-    defs_merged = "；".join(def_units[:6])
-    if defs_merged:
-        if pos:
-            lines.append(f"- 🇨🇳 释义：{pos} {defs_merged}")
-        else:
-            lines.append(f"- 🇨🇳 释义：{defs_merged}")
+    for index, definition in enumerate(definitions, 1):
+        label = "- 🇨🇳 释义：" if index == 1 else "- 🇨🇳 释义 2："
+        lines.append(f"{label}{definition}")
 
     # Collect examples, deduplicate, bold target word
     examples_seen: set[str] = set()
     all_examples: list[str] = []
     for s in senses[:8]:
         ex = s.get("example", "") or ""
-        if isinstance(ex, dict):
-            en = ex.get("en", "")
-            zh = ex.get("zh", "")
-            ex = f"{en}（{zh}）" if en and zh else en or zh or ""
+        if not isinstance(ex, str):
+            parsed_examples = _parse_example_values(ex)
+            ex = parsed_examples[0] if parsed_examples else ""
+        elif ex:
+            parsed_examples = _parse_example_values(ex)
+            ex = parsed_examples[0] if parsed_examples else ex
         if ex and ex not in examples_seen:
             ex_bolded = _bold_word_in_text(word, ex)
             examples_seen.add(ex)
@@ -696,11 +722,16 @@ def format_validated_card_zh_en(result: dict[str, Any]) -> str:
     lines = [f"**{query}**"]
     first = matches[0]
     w1 = first.get("word", "")
-    lines.append(f"- 🔤 最常用英文：{w1}")
+    phonetic = first.get("phonetic", "") or ""
+    lines.append(f"- 🔤 最常用英文：{w1}" + (f" {phonetic}" if phonetic else ""))
 
     if len(matches) > 1:
         w2 = matches[1].get("word", "")
-        lines.append(f"- 🔤 第二常用英文：{w2}")
+        w2_phonetic = matches[1].get("phonetic", "") or ""
+        lines.append(f"- 🔤 第二常用英文：{w2}" + (f" {w2_phonetic}" if w2_phonetic else ""))
+
+    if phonetic:
+        lines.append(f"- 🔤 音标：{phonetic}")
 
     defs = first.get("definitions") or []
     if defs:
@@ -711,9 +742,9 @@ def format_validated_card_zh_en(result: dict[str, Any]) -> str:
         elif defn:
             lines.append(f"- 🇨🇳 对应义：{defn}")
 
-    example = first.get("example", "")
-    if example:
-        lines.append(f"- 💬 例句：{example}")
+    example_values = _parse_example_values(first.get("example", ""))
+    if example_values:
+        lines.append(f"- 💬 例句：{example_values[0]}")
 
     return "\n".join(lines)
 

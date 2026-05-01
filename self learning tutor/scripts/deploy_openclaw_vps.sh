@@ -274,85 +274,35 @@ echo "--- dictionary.db ready from ${DATA_DB_SOURCE} ---"
 smoke_release() {
   local target_dir="$1"
   ssh "${REMOTE}" "cd '${target_dir}' && python3 - <<'PY'
-from scripts.dict_lookup import format_validated_card_en_zh
 import subprocess
-
-cases = [
-    (
-        {
-            'word': 'important',
-            'senses': [{
-                'word': 'important',
-                'phonetic': '',
-                'pos': '',
-                'definition': 'important',
-                'example': {'en': 'This is an important lesson.', 'zh': 'x'},
-            }],
-        },
-        '**important**',
-    ),
-    (
-        {
-            'word': 'in the future',
-            'senses': [{
-                'word': 'in the future',
-                'phonetic': '',
-                'pos': '',
-                'definition': 'future',
-                'example': {'en': \"I'm sure at some point in the future I'll want a baby.\", 'zh': 'x'},
-            }],
-        },
-        '**in the future**',
-    ),
-    (
-        {
-            'word': 'sit down',
-            'senses': [{
-                'word': 'sit down',
-                'phonetic': '',
-                'pos': '',
-                'definition': 'sit',
-                'example': {'en': 'Please sit down before we start.', 'zh': 'x'},
-            }],
-        },
-        '**sit down**',
-    ),
-    (
-        {
-            'word': 'put on',
-            'senses': [{
-                'word': 'put on',
-                'phonetic': '',
-                'pos': '',
-                'definition': 'wear',
-                'example': {'en': 'She put her shirt on quickly.', 'zh': 'x'},
-            }],
-        },
-        '**put** her shirt **on**',
-    ),
-]
-
-for result, expected in cases:
-    output = format_validated_card_en_zh(result)
-    if expected not in output:
-        raise SystemExit(output)
+import sys
 
 lookup_cases = [
-    ('important', '**important**'),
-    ('in the future', '**in the future**'),
+    ('en_to_zh', 'setup'),
+    ('en_to_zh', 'important'),
+    ('en_to_zh', 'in the future'),
+    ('zh_to_en', '期待'),
+    ('zh_to_en', '重要的'),
 ]
 
-for query, expected in lookup_cases:
+for mode, query in lookup_cases:
     output = subprocess.check_output([
         'python3',
         'scripts/dict_lookup.py',
-        '--mode', 'en_to_zh',
+        '--mode', mode,
         '--format', 'text',
         '--db', 'data/dictionary.db',
         query,
     ], text=True)
-    if expected not in output:
-        raise SystemExit(output)
+    proc = subprocess.run([
+        'python3',
+        'scripts/validate_lookup_output.py',
+        '--mode', mode,
+    ], input=output, text=True, capture_output=True)
+    if proc.returncode != 0:
+        sys.stderr.write(output)
+        sys.stderr.write(proc.stderr)
+        raise SystemExit(proc.returncode)
 
 print('smoke ok')
 PY"
