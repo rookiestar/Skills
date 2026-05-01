@@ -507,7 +507,7 @@ text = text.replace(old_router, new_router, 1)
 
 path.write_text(text, encoding='utf-8')
 print(f'patched {path}')
-  PY"
+PY"
 }
 
 patch_remote_lark_handler
