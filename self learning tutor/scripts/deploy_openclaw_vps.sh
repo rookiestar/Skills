@@ -661,12 +661,13 @@ new_router = '''    const routerResult = classifyLookupMessage(ctx.content ?? ''
         return;
     }
 '''
-for candidate in old_router_candidates:
-    if candidate in text:
-        text = text.replace(candidate, new_router, 1)
-        break
-else:
-    raise SystemExit('router block anchor not found')
+if 'const cardSent = await sendDirectLookupCardReply' not in text:
+    for candidate in old_router_candidates:
+        if candidate in text:
+            text = text.replace(candidate, new_router, 1)
+            break
+    else:
+        raise SystemExit('router block anchor not found')
 
 path.write_text(text, encoding='utf-8')
 print(f'patched {path}')
