@@ -28,7 +28,7 @@ FORBIDDEN_SNIPPETS = (
 )
 
 NOT_FOUND_RE = re.compile(r"^📖 '.+' 这个词/短语暂时不在我的词典库中呢$")
-NEW_SENSE_RE = re.compile(r"^(?:- )?\d+\.\s+.+$")
+NEW_SENSE_RE = re.compile(r"^(?:- )?(?:\*\*\d+\.\*\*|\d+\.)\s+.+$")
 OLD_SENSE_RE = re.compile(r"^- 🇨🇳 释义(?: 2)?:")
 
 
@@ -68,7 +68,9 @@ def _validate_new_en_to_zh(lines: list[str], start: int) -> list[str]:
     while cursor < len(lines):
         line = lines[cursor]
         if not NEW_SENSE_RE.fullmatch(line):
-            errors.append(f"line {cursor + 1} must start with 1. / 2. / ... or - 1. / - 2. / ... : {line}")
+            errors.append(
+                f"line {cursor + 1} must start with **1.** / **2.** / ... or 1. / 2. / ... : {line}"
+            )
             return errors
         sense_count += 1
         cursor += 1
@@ -109,7 +111,9 @@ def validate(text: str, mode: str) -> ValidationResult:
             cursor += 1
         # Phrase format (no phonetic line): **word** → 🇨🇳释义 → 💬 例句
         # Word format (with phonetic): **word** → 🔤 音标 → 🇨🇳释义 → 💬 例句
-        has_phonetic = cursor < len(lines) and lines[cursor].startswith("- 🔤 音标：")
+        has_phonetic = cursor < len(lines) and (
+            lines[cursor].startswith("🔤 音标：") or lines[cursor].startswith("- 🔤 音标：")
+        )
         if has_phonetic:
             cursor += 1
         if cursor >= len(lines):

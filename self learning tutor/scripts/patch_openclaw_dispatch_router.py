@@ -24,9 +24,30 @@ NORMAL_START = (
 )
 LOOKUP_ANCHOR = "const lookupRoute = await classifyLookupMessage(dc.ctx.content ?? '', undefined);"
 END_MARKER = "    const effectiveSessionKey = dc.threadSessionKey ?? dc.route.sessionKey;"
+COMPLETE_CARD_START = "        const completeCard = builder_1.buildCardContent('complete', {"
+COMPLETE_CARD_ELAPSED = "            elapsedMs: Date.now() - startedAt,"
+
+
+def patch_complete_card(text: str) -> tuple[str, bool]:
+    start = text.find(COMPLETE_CARD_START)
+    if start == -1:
+        raise RuntimeError("complete card block not found")
+    end = text.index("        });", start)
+    block = text[start:end]
+    if "showToolUse:" in block:
+        return text, False
+    if COMPLETE_CARD_ELAPSED not in block:
+        raise RuntimeError("complete card elapsed line not found")
+    block = block.replace(
+        COMPLETE_CARD_ELAPSED,
+        COMPLETE_CARD_ELAPSED + "\n            showToolUse: false,",
+        1,
+    )
+    return text[:start] + block + text[end:], True
 
 
 def patch_dispatch_text(text: str) -> tuple[str, bool]:
+    changed = False
     comment_start = text.index(COMMENT_START)
     normal_start = text.index(NORMAL_START)
 
@@ -49,14 +70,17 @@ def patch_dispatch_text(text: str) -> tuple[str, bool]:
     lookup_block = textwrap.indent(textwrap.dedent(misplaced_block).rstrip("\n"), "    ") + "\n"
 
     if LOOKUP_ANCHOR in text[normal_start:insert_idx]:
-        return text, False
+        changed = False
+    else:
+        text = text[:insert_idx] + lookup_block + text[insert_idx:]
+        changed = True
 
-    text = text[:insert_idx] + lookup_block + text[insert_idx:]
-    return text, True
+    text, card_changed = patch_complete_card(text)
+    return text, changed or card_changed
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Patch the openclaw-lark lookup router")
+    parser = argparse.ArgumentParser(description="Patch the openclaw-lark lookup router and card chrome")
     parser.add_argument("--path", type=Path, default=DEFAULT_PATH)
     args = parser.parse_args()
 

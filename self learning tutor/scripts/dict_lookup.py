@@ -693,7 +693,8 @@ def format_validated_card_en_zh(result: dict[str, Any]) -> str:
 
     phonetic = senses[0].get("phonetic", "")
     if phonetic:
-        lines.append(f"- 🔤 音标：{phonetic}")
+        lines.append(f"🔤 音标：{phonetic}")
+        lines.append("")
 
     definition_count = 0
     seen_defs: set[str] = set()
@@ -704,12 +705,12 @@ def format_validated_card_en_zh(result: dict[str, Any]) -> str:
         seen_defs.add(cleaned)
         definition_count += 1
         pos = sense.get("pos", "")
-        body = f"{definition_count}. {pos} {cleaned}".strip()
+        body = f"**{definition_count}.** {pos} {cleaned}".strip()
         lines.append(body)
+        lines.append("")
 
         examples = _collect_sense_examples(sense, word)
         if examples:
-            lines.append("")
             for idx, example in enumerate(examples):
                 if idx > 0:
                     lines.append("")
@@ -718,6 +719,9 @@ def format_validated_card_en_zh(result: dict[str, Any]) -> str:
 
         if definition_count >= 5:
             break
+
+    while lines and lines[-1] == "":
+        lines.pop()
 
     return "\n".join(lines)
 
