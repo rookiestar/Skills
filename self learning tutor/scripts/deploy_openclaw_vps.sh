@@ -414,11 +414,7 @@ if old_import not in text:
     raise SystemExit('import anchor not found')
 text = text.replace(old_import, new_import, 1)
 
-helper_block = '''function buildLookupCommand(text) {
-    return LOOKUP_COMMAND_PREFIX + " " + shellQuote(normalizeLookupText(text));
-}
-
-const LOOKUP_WORKSPACE_DIR = (0, path_1.join)((0, os_1.homedir)(), '.openclaw', 'workspace', 'skills', 'self-learning-tutor');
+helper_block = '''const LOOKUP_WORKSPACE_DIR = (0, path_1.join)((0, os_1.homedir)(), '.openclaw', 'workspace', 'skills', 'self-learning-tutor');
 const LOOKUP_SCRIPT_PATH = (0, path_1.join)(LOOKUP_WORKSPACE_DIR, 'scripts', 'dict_lookup.py');
 const LOOKUP_DB_PATH = (0, path_1.join)(LOOKUP_WORKSPACE_DIR, 'data', 'dictionary.db');
 const LOOKUP_PYTHON = process.env.SELF_LEARNING_TUTOR_PYTHON || 'python3';
