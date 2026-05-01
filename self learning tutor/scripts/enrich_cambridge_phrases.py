@@ -18,6 +18,7 @@ import random
 import re
 import sys
 import time
+import threading
 from dataclasses import dataclass, field
 from html import unescape
 from pathlib import Path
@@ -82,7 +83,7 @@ def phrase_to_slug(phrase: str) -> str:
 def find_no_def_phrases(json_path: str | Path) -> list[dict]:
     """Return entries from gaokao_phrases.json that have empty definitions[]."""
     data = json.loads(Path(json_path).read_text("utf-8"))
-    return [p for p in data.get("phrases", []) if not p.get("definitions")]
+    return [p for p in data.get("phrases", []) if not any(str(d).strip() for d in p.get("definitions", []))]
 
 
 # ---------------------------------------------------------------------------
@@ -95,6 +96,19 @@ def clean_text(text: str) -> str:
     text = re.sub(r"\s+", " ", text)
     text = re.sub(r"\s+([,.;:!?%])", r"\1", text)
     return text.strip()
+
+
+def _nonempty_json_list(value: object) -> bool:
+    if value is None:
+        return False
+    text = str(value).strip()
+    if not text or text == "[]":
+        return False
+    try:
+        parsed = json.loads(text)
+    except Exception:
+        return True
+    return isinstance(parsed, list) and len(parsed) > 0
 
 
 def extract_entry(html: str, word: str, url: str) -> CambridgeEntry | None:
@@ -136,6 +150,9 @@ def extract_entry(html: str, word: str, url: str) -> CambridgeEntry | None:
             result.translation = clean_text(trans_node.get_text())
         if ex_node:
             result.examples.append(clean_text(ex_node.get_text(" ", strip=True)))
+        fallback_def = result.translation or result.definition
+        if fallback_def and fallback_def not in result.definitions:
+            result.definitions.append(fallback_def)
         return result
 
     for block in all_blocks[:10]:
@@ -173,6 +190,11 @@ def extract_entry(html: str, word: str, url: str) -> CambridgeEntry | None:
         if len(result.definitions) >= 5:
             break
 
+    if not result.definitions:
+        fallback_def = result.translation or result.definition
+        if fallback_def:
+            result.definitions.append(fallback_def)
+
     return result
 
 
@@ -181,15 +203,36 @@ def extract_entry(html: str, word: str, url: str) -> CambridgeEntry | None:
 # ---------------------------------------------------------------------------
 
 
+class RequestThrottle:
+    def __init__(self, min_interval_s: float) -> None:
+        self.min_interval_s = max(0.0, min_interval_s)
+        self._lock = threading.Lock()
+        self._next_allowed = 0.0
+
+    def wait(self) -> None:
+        if self.min_interval_s <= 0:
+            return
+        with self._lock:
+            now = time.monotonic()
+            wait_for = self._next_allowed - now
+            if wait_for > 0:
+                time.sleep(wait_for)
+                now = time.monotonic()
+            self._next_allowed = now + self.min_interval_s + random.uniform(0, self.min_interval_s * 0.25)
+
+
 def fetch_with_retry(
     session: requests.Session,
     url: str,
     max_retries: int = 3,
     timeout: int = 20,
+    throttle: RequestThrottle | None = None,
 ) -> str | None:
     for attempt in range(max_retries + 1):
         session.headers["User-Agent"] = random.choice(USER_AGENTS)
         try:
+            if throttle is not None:
+                throttle.wait()
             resp = session.get(url, timeout=timeout)
             if resp.status_code == 200:
                 return resp.text
@@ -307,19 +350,14 @@ def run_enrich(
     total_phrases = len(phrases)
 
     # Identify targets
-    no_defs = [p for p in phrases if not p.get("definitions")]
+    no_defs = [p for p in phrases if not any(str(d).strip() for d in p.get("definitions", []))]
     print(f"[Input] {total_phrases} total phrases, {len(no_defs)} without definitions ({len(no_defs)*100//max(total_phrases,1)}%)")
 
     if not no_defs:
         print("[Enrich] All phrases already have definitions — nothing to do.")
         return {"total": total_phrases, "targeted": 0, "enriched": 0, "missing": 0}
 
-    # Fetch from Cambridge
-    session = requests.Session()
-    session.headers.update({
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept": "text/html,application/xhtml+xml",
-    })
+    throttle = RequestThrottle(delay)
 
     enriched_count = 0
     missing_count = 0
@@ -329,35 +367,36 @@ def run_enrich(
     start_time = time.time()
 
     def worker(entry: dict) -> tuple[dict, CambridgeEntry | None] | None:
+        session = requests.Session()
+        session.headers.update({
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept": "text/html,application/xhtml+xml",
+        })
         phrase = entry["phrase"]
         slug = phrase_to_slug(phrase)
         url = URL_TEMPLATE.format(slug=slug)
-        html = fetch_with_retry(session, url, timeout=timeout)
+        html = fetch_with_retry(session, url, timeout=timeout, throttle=throttle)
         if not html:
             return None
         cam = extract_entry(html, phrase, url)
-        if cam is None:
+        if cam is None or not cam.definitions:
             return None
         return (entry, cam)
 
     import concurrent.futures
 
-    # Sequential mode with delay: avoids rate limiting
-    if workers <= 1:
-        for entry in no_defs:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+        future_map = {pool.submit(worker, e): e for e in no_defs}
+        for future in concurrent.futures.as_completed(future_map):
             processed += 1
             try:
-                result = worker(entry)
+                result = future.result()
             except Exception:
                 missing_count += 1
-                if delay > 0:
-                    time.sleep(delay)
                 continue
 
             if result is None:
                 missing_count += 1
-                if delay > 0:
-                    time.sleep(delay)
                 continue
 
             original_entry, cam_entry = result
@@ -379,44 +418,6 @@ def run_enrich(
                     f"({rate:.1f}/s ETA:{eta:.0f}s)",
                     flush=True,
                 )
-
-            if delay > 0 and processed < target_count:
-                time.sleep(delay + random.uniform(0, 1))
-    else:
-        # Parallel mode (original)
-        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
-            future_map = {pool.submit(worker, e): e for e in no_defs}
-            for future in concurrent.futures.as_completed(future_map):
-                processed += 1
-                try:
-                    result = future.result()
-                except Exception:
-                    missing_count += 1
-                    continue
-
-                if result is None:
-                    missing_count += 1
-                    continue
-
-                original_entry, cam_entry = result
-                for i, p in enumerate(phrases):
-                    if p["phrase"] == original_entry["phrase"]:
-                        phrases[i] = enrich_phrase(p, cam_entry)
-                        break
-                enriched_count += 1
-
-                elapsed = time.time() - start_time
-                rate = processed / elapsed if elapsed > 0 else 0
-                eta = (target_count - processed) / rate if rate > 0 else 0
-
-                if progress_every > 0 and processed % progress_every == 0:
-                    mode = "dry-run" if dry_run else "enriched"
-                    print(
-                        f"[{mode}] {processed}/{target_count} "
-                        f"enriched={enriched_count} missing={missing_count} "
-                        f"({rate:.1f}/s ETA:{eta:.0f}s)",
-                        flush=True,
-                    )
 
     # Recompute stats
     with_def = sum(1 for p in phrases if p.get("definitions"))
@@ -449,11 +450,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Enrich phrases from Cambridge Dictionary")
     parser.add_argument("--input", required=True, help="Path to gaokao_phrases.json")
     parser.add_argument("--output", default=None, help="Output path (default: same as input)")
-    parser.add_argument("--workers", type=int, default=4, help="Concurrent workers (default 4)")
+    parser.add_argument("--workers", type=int, default=1, help="Concurrent workers (default 1)")
     parser.add_argument("--timeout", type=int, default=20, help="HTTP timeout per request (default 20s)")
     parser.add_argument("--dry-run", action="store_true", help="Preview only, don't write")
     parser.add_argument("--progress-every", type=int, default=20, help="Print progress every N phrases")
-    parser.add_argument("--delay", type=float, default=2.0, help="Seconds between requests (default 2.0, for sequential mode)")
+    parser.add_argument("--delay", type=float, default=2.0, help="Minimum seconds between HTTP requests (default 2.0)")
     args = parser.parse_args()
 
     stats = run_enrich(

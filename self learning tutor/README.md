@@ -61,13 +61,7 @@ bash scripts/deploy_openclaw_vps.sh
 
 如果本地已经有 `data/dictionary.db`，脚本会直接带上；如果没有，它会先从当前线上工作区借一个种子，避免在 VPS 上现场构建。你如果改了词库来源，还是应该先把本地 `data/dictionary.db` 刷新好，再部署。
 
-在部署前，如果你要主动刷新本地词库，推荐先跑：
-
-```bash
-python3 scripts/backfill_dictionary_pos.py --db data/dictionary.db
-```
-
-这样可以让后续部署尽量只做搬运和验证，不再依赖线上临时修库。
+如果你要主动刷新本地词库，直接重新走抓取和重建流程，不再需要单独的 POS 回填步骤。
 
 ## 说明
 

@@ -254,7 +254,6 @@ def record_to_entry(record: Mapping[str, Any] | Any) -> dict[str, Any]:
         "phonetic_uk": phonetic_uk,
         "phonetic_us": phonetic_us,
         "phonetic": phonetic or phonetic_us or phonetic_uk,
-        "definition": definition,
         "translation": translation,
         "definitions": definitions,
         "example": example,

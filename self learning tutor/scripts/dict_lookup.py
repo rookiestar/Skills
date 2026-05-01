@@ -721,12 +721,13 @@ def format_validated_card_zh_en(result: dict[str, Any]) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Local dictionary lookup")
     parser.add_argument("--mode", required=True, choices=("en_to_zh", "zh_to_en"))
-    parser.add_argument("query", help="Word or phrase to look up")
+    parser.add_argument("query", nargs="*", help="Word or phrase to look up (auto-joins if unquoted)")
     parser.add_argument("--data-dir", default=None, help="Directory with dictionary assets")
     parser.add_argument("--db", default=None, help="Path to dictionary.db")
     parser.add_argument("--sample", default=None, help="Path to sample_dictionary.json")
     parser.add_argument("--format", default="json", choices=("json", "text"), help="Output format")
     args = parser.parse_args()
+    args.query = " ".join(args.query) if isinstance(args.query, list) else args.query
 
     data_dir = resolve_path(args.data_dir, "SELF_LEARNING_TUTOR_DATA_DIR", ROOT / "data")
     db_path = resolve_path(args.db, "SELF_LEARNING_TUTOR_DB", data_dir / "dictionary.db")

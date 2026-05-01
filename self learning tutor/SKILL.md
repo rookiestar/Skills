@@ -22,13 +22,15 @@ metadata:
 
 英译中：
 ```
-python3 scripts/dict_lookup.py --mode en_to_zh --format text --db data/dictionary.db <word>
+python3 scripts/dict_lookup.py --mode en_to_zh --format text --db data/dictionary.db "<word>"
 ```
 
 中译英：
 ```
-python3 scripts/dict_lookup.py --mode zh_to_en --format text --db data/dictionary.db <中文词>
+python3 scripts/dict_lookup.py --mode zh_to_en --format text --db data/dictionary.db "<中文词>"
 ```
+
+**注意：查询词必须用双引号包裹！** 多词短语如 `set up` 必须写成 `"set up"`，否则空格会导致命令解析错误。
 
 铁律：
 - 只调用 exec **一次**

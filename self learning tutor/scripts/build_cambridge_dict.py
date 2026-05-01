@@ -19,6 +19,7 @@ import re
 import sqlite3
 import sys
 import time
+import threading
 from dataclasses import dataclass, field
 from html import unescape
 from pathlib import Path
@@ -82,6 +83,19 @@ def clean_text(text: str) -> str:
     return text.strip()
 
 
+def _nonempty_json_list(value: object) -> bool:
+    if value is None:
+        return False
+    text = str(value).strip()
+    if not text or text == "[]":
+        return False
+    try:
+        parsed = json.loads(text)
+    except Exception:
+        return True
+    return isinstance(parsed, list) and any(str(item).strip() for item in parsed)
+
+
 def extract_cefr(block) -> str | None:
     for sel in ("[class*='epp-xref']", "[class*='epp']", ".cc"):
         node = block.select_one(sel)
@@ -143,6 +157,9 @@ def extract_entry(html: str, word: str, url: str) -> CambridgeEntry | None:
             result.translation = clean_text(trans_node.get_text())
         if ex_node:
             result.examples.append(clean_text(ex_node.get_text(" ", strip=True)))
+        fallback_def = result.translation or result.definition
+        if fallback_def and fallback_def not in result.definitions:
+            result.definitions.append(fallback_def)
         if not result.cefr_level:
             cefr = extract_cefr(entry)
             if cefr:
@@ -202,6 +219,11 @@ def extract_entry(html: str, word: str, url: str) -> CambridgeEntry | None:
         if len(result.definitions) >= 15:
             break
 
+    if not result.definitions:
+        fallback_def = result.translation or result.definition
+        if fallback_def:
+            result.definitions.append(fallback_def)
+
     return result
 
 
@@ -230,9 +252,10 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
             phonetic TEXT,
             phonetic_uk TEXT,
             phonetic_us TEXT,
-            definition TEXT,
             translation TEXT,
             definitions TEXT,
+            idioms TEXT DEFAULT '[]',
+            collocations TEXT DEFAULT '[]',
             collins INTEGER DEFAULT 0,
             oxford INTEGER DEFAULT 0,
             tag TEXT,
@@ -273,10 +296,10 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
 
 def already_fetched(conn: sqlite3.Connection, word: str) -> bool:
     row = conn.execute(
-        "SELECT 1 FROM dictionary WHERE word = ? AND source = 'cambridge'",
+        "SELECT definitions FROM dictionary WHERE word = ? AND source = 'cambridge'",
         (word,),
     ).fetchone()
-    return row is not None
+    return bool(row and _nonempty_json_list(row["definitions"]))
 
 
 def build_reverse_terms(definitions: list[str]) -> list[str]:
@@ -297,29 +320,68 @@ def build_reverse_terms(definitions: list[str]) -> list[str]:
 def write_entry(conn: sqlite3.Connection, entry: CambridgeEntry) -> None:
     definitions_json = json.dumps(entry.definitions, ensure_ascii=False) if entry.definitions else "[]"
     examples_json = json.dumps(entry.examples, ensure_ascii=False) if entry.examples else "[]"
+    existing = conn.execute(
+        "SELECT 1 FROM dictionary WHERE word = ? LIMIT 1",
+        (entry.word,),
+    ).fetchone()
 
     conn.execute(
-        """
-        INSERT OR REPLACE INTO dictionary
-            (word, phonetic, phonetic_uk, phonetic_us, definition, translation,
+        "DELETE FROM dictionary_reverse WHERE word = ? AND source = 'cambridge'",
+        (entry.word,),
+    )
+    if existing:
+        conn.execute(
+            """
+            UPDATE dictionary
+               SET phonetic = ?,
+                   phonetic_uk = ?,
+                   phonetic_us = ?,
+                   translation = ?,
+                   definitions = ?,
+                   example = ?,
+                   example_source = ?,
+                   example_url = ?,
+                   source = ?,
+                   updated_at = datetime('now'),
+                   cefr_level = ?
+             WHERE word = ?
+            """,
+            (
+                entry.phonetic_us or entry.phonetic_uk,
+                entry.phonetic_uk,
+                entry.phonetic_us,
+                entry.translation,
+                definitions_json,
+                examples_json,
+                "cambridge",
+                entry.source_url,
+                "cambridge",
+                entry.cefr_level,
+                entry.word,
+            ),
+        )
+    else:
+        conn.execute(
+            """
+        INSERT INTO dictionary
+            (word, phonetic, phonetic_uk, phonetic_us, translation,
              definitions, example, example_source, example_url, source, updated_at, cefr_level)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?)
         """,
-        (
-            entry.word,
-            entry.phonetic_us or entry.phonetic_uk,
-            entry.phonetic_uk,
-            entry.phonetic_us,
-            entry.definition,
-            entry.translation,
-            definitions_json,
-            examples_json,
-            "cambridge",
-            entry.source_url,
-            "cambridge",
-            entry.cefr_level,
-        ),
-    )
+            (
+                entry.word,
+                entry.phonetic_us or entry.phonetic_uk,
+                entry.phonetic_uk,
+                entry.phonetic_us,
+                entry.translation,
+                definitions_json,
+                examples_json,
+                "cambridge",
+                entry.source_url,
+                "cambridge",
+                entry.cefr_level,
+            ),
+        )
 
     # Reverse index
     reverse_terms = build_reverse_terms(entry.definitions)
@@ -328,11 +390,29 @@ def write_entry(conn: sqlite3.Connection, entry: CambridgeEntry) -> None:
 
     for rank, term in enumerate(reverse_terms[:5]):
         conn.execute(
-            """INSERT OR IGNORE INTO dictionary_reverse
+            """INSERT INTO dictionary_reverse
                (zh_term, word, phonetic, source, sense_rank)
                VALUES (?, ?, ?, ?, ?)""",
             (term, entry.word, entry.phonetic_us or entry.phonetic_uk, "cambridge", rank),
         )
+
+
+class RequestThrottle:
+    def __init__(self, min_interval_s: float) -> None:
+        self.min_interval_s = max(0.0, min_interval_s)
+        self._lock = threading.Lock()
+        self._next_allowed = 0.0
+
+    def wait(self) -> None:
+        if self.min_interval_s <= 0:
+            return
+        with self._lock:
+            now = time.monotonic()
+            wait_for = self._next_allowed - now
+            if wait_for > 0:
+                time.sleep(wait_for)
+                now = time.monotonic()
+            self._next_allowed = now + self.min_interval_s + random.uniform(0, self.min_interval_s * 0.25)
 
 
 def fetch_with_retry(
@@ -340,10 +420,13 @@ def fetch_with_retry(
     url: str,
     max_retries: int = 2,
     timeout: int = 20,
+    throttle: RequestThrottle | None = None,
 ) -> str | None:
     for attempt in range(max_retries + 1):
         session.headers["User-Agent"] = random.choice(USER_AGENTS)
         try:
+            if throttle is not None:
+                throttle.wait()
             resp = session.get(url, timeout=timeout)
             if resp.status_code == 200:
                 return resp.text
@@ -368,9 +451,10 @@ def fetch_with_retry(
 def run_build(
     db_path: Path,
     wordlist_path: Path,
-    workers: int = 4,
+    workers: int = 1,
     dry_run: bool = False,
     timeout: int = 20,
+    delay: float = 1.5,
     skip_existing: bool = True,
     progress_every: int = 50,
 ) -> dict[str, int]:
@@ -397,11 +481,7 @@ def run_build(
         if not words:
             return {"total": len(load_wordlist(wordlist_path)), "updated": 0, "missing": 0, "skipped": skipped}
 
-        session = requests.Session()
-        session.headers.update({
-            "Accept-Language": "en-US,en;q=0.9",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        })
+        throttle = RequestThrottle(delay)
 
         updated = 0
         missing = 0
@@ -409,13 +489,18 @@ def run_build(
         total = len(words)
 
         def worker(word: str) -> CambridgeEntry | None:
+            session = requests.Session()
+            session.headers.update({
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            })
             slug = quote(word.lower(), safe="")
             for template in URL_TEMPLATES:
                 url = template.format(slug=slug)
-                html = fetch_with_retry(session, url, timeout=timeout)
+                html = fetch_with_retry(session, url, timeout=timeout, throttle=throttle)
                 if html:
                     entry = extract_entry(html, word, url)
-                    if entry:
+                    if entry and entry.definitions:
                         return entry
             return None
 
@@ -478,8 +563,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Build dictionary.db from Cambridge Dictionary")
     parser.add_argument("--wordlist", required=True, help="Path to wordlist file (one word per line)")
     parser.add_argument("--db", required=True, help="Path to output dictionary.db")
-    parser.add_argument("--workers", type=int, default=4, help="Concurrent workers (default 4)")
+    parser.add_argument("--workers", type=int, default=1, help="Concurrent workers (default 1)")
     parser.add_argument("--timeout", type=int, default=20, help="HTTP timeout per request (default 20s)")
+    parser.add_argument("--delay", type=float, default=1.5, help="Minimum seconds between HTTP requests (default 1.5)")
     parser.add_argument("--dry-run", action="store_true", help="Fetch but don't write to DB")
     parser.add_argument("--no-skip", action="store_true", help="Don't skip already-fetched words")
     parser.add_argument("--progress-every", type=int, default=50, help="Print progress every N words")
@@ -491,6 +577,7 @@ def main() -> int:
         workers=max(1, args.workers),
         dry_run=args.dry_run,
         timeout=args.timeout,
+        delay=max(0.0, args.delay),
         skip_existing=not args.no_skip,
         progress_every=max(0, args.progress_every),
     )

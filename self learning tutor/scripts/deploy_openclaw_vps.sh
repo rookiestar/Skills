@@ -85,8 +85,9 @@ fi
 DATA_DB_SOURCE="none"
 DB_NEEDS_REMOTE_BUILD=false
 
-local_db_has_required_rows() {
+local_db_is_acceptable() {
   python3 - "$1" <<'PY'
+import json
 import sqlite3
 import sys
 
@@ -95,13 +96,24 @@ required = {"important", "in the future"}
 
 conn = sqlite3.connect(db_path)
 try:
-    rows = {
-        row[0]
-        for row in conn.execute(
-            "SELECT word FROM dictionary WHERE word IN (?, ?)",
-            tuple(required),
-        )
-    }
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(dictionary)")}
+    if "definition" in columns or "definitions" not in columns:
+        raise SystemExit(1)
+    rows = set()
+    for word, definitions in conn.execute(
+        "SELECT word, definitions FROM dictionary WHERE word IN (?, ?)",
+        tuple(required),
+    ):
+        text = (definitions or "").strip()
+        if not text or text == "[]":
+            continue
+        try:
+            parsed = json.loads(text)
+        except Exception:
+            rows.add(word)
+            continue
+        if isinstance(parsed, list) and any(str(item).strip() for item in parsed):
+            rows.add(word)
 except Exception:
     raise SystemExit(1)
 finally:
@@ -118,28 +130,20 @@ if [[ -n "${LOCAL_DATA_DIR}" ]]; then
 else
   LOCAL_DB_CACHE="${GIT_ROOT}/data/dictionary.db"
   if [[ -s "${LOCAL_DB_CACHE}" ]]; then
-    if local_db_has_required_rows "${LOCAL_DB_CACHE}"; then
+    if local_db_is_acceptable "${LOCAL_DB_CACHE}"; then
       mkdir -p "${DEPLOY_SRC}/data"
       cp "${LOCAL_DB_CACHE}" "${DEPLOY_SRC}/data/dictionary.db"
       echo "Using cached local dictionary.db: ${LOCAL_DB_CACHE}"
       DATA_DB_SOURCE="local cache"
     else
-      echo "Local dictionary.db is missing the smoke-case rows; seeding from the current VPS copy instead"
+      echo "Local dictionary.db is not rebuilt yet; forcing a fresh build on the server"
     fi
   fi
 fi
 
 if [[ ! -s "${DEPLOY_SRC}/data/dictionary.db" ]]; then
-  if ssh "${REMOTE}" "test -s '${REMOTE_ACTIVE_DB}'"; then
-    echo "Seeding dictionary.db from the current VPS active copy"
-    mkdir -p "${TEMP_DIR}/seed" "${DEPLOY_SRC}/data"
-    scp "${REMOTE}:${REMOTE_ACTIVE_DB}" "${TEMP_DIR}/seed/dictionary.db"
-    cp "${TEMP_DIR}/seed/dictionary.db" "${DEPLOY_SRC}/data/dictionary.db"
-    DATA_DB_SOURCE="remote active seed"
-  else
-    DATA_DB_SOURCE="remote migration"
-    DB_NEEDS_REMOTE_BUILD=true
-  fi
+  DATA_DB_SOURCE="remote migration"
+  DB_NEEDS_REMOTE_BUILD=true
 fi
 
 RELEASE_ID="${RELEASE_ID}" \
@@ -195,7 +199,7 @@ if [[ "${DB_NEEDS_REMOTE_BUILD}" == true ]]; then
   ssh "${REMOTE}" "cd '${REMOTE_RELEASE_DIR}' && python3 scripts/migrate_phrases_to_db.py --db data/dictionary.db --phrases data/gaokao_phrases.json"
 
   if remote_has_requests; then
-    if ! ssh "${REMOTE}" "cd '${REMOTE_RELEASE_DIR}' && python3 scripts/enrich_cambridge_phrases.py --db data/dictionary.db --phrases data/gaokao_phrases.json"; then
+    if ! ssh "${REMOTE}" "cd '${REMOTE_RELEASE_DIR}' && python3 scripts/enrich_cambridge_phrases.py --input data/gaokao_phrases.json --output data/gaokao_phrases.json --workers 1 --delay 2"; then
       echo "  remote Cambridge enrichment failed; keeping migrated database"
     fi
   else
@@ -205,7 +209,7 @@ if [[ "${DB_NEEDS_REMOTE_BUILD}" == true ]]; then
   remote_count=$(ssh "${REMOTE}" "sqlite3 '${REMOTE_RELEASE_DIR}/data/dictionary.db' 'SELECT count(*) FROM dictionary;' 2>/dev/null || echo 0")
   if [[ "${remote_count}" -lt 100 ]]; then
     if remote_has_requests; then
-      if ! ssh "${REMOTE}" "cd '${REMOTE_RELEASE_DIR}' && python3 scripts/build_cambridge_dict.py --wordlist data/cambridge_wordlist.txt --db data/dictionary.db"; then
+      if ! ssh "${REMOTE}" "cd '${REMOTE_RELEASE_DIR}' && python3 scripts/build_cambridge_dict.py --wordlist data/cambridge_wordlist.txt --db data/dictionary.db --workers 1 --delay 1.5"; then
         echo "  remote Cambridge build failed; keeping migrated database"
       fi
     else
