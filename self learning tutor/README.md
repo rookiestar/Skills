@@ -59,7 +59,7 @@ bash scripts/deploy_openclaw_vps.sh
 
 烟雾测试会检查 `important`、`in the future`、`sit down` 和 `put on` 这几类典型场景。
 
-如果本地已经有 `data/dictionary.db`，脚本会直接带上；如果没有，它会先从当前线上工作区借一个种子，避免在 VPS 上现场构建。你如果改了词库来源，还是应该先把本地 `data/dictionary.db` 刷新好，再部署。
+如果本地已经有 `data/dictionary.db`，脚本会先在本机把词条和短语刷新好，再把完整结果上传到 VPS。若本地库不完整，脚本会继续在本机重建发布包，不再去 VPS 上抓取。
 
 如果你要主动刷新本地词库，直接重新走抓取和重建流程，不再需要单独的 POS 回填步骤。
 

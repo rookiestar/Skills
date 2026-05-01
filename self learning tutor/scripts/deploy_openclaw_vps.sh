@@ -14,7 +14,7 @@ Defaults:
 Flow:
   1. Require a clean git tree and archive HEAD into a release bundle
   2. Copy the bundle into a versioned release dir on the VPS
-  3. Attach dictionary.db from the local cache or seed it from the current active VPS copy
+  3. Rebuild dictionary data locally if the cached DB is stale or missing
   4. Smoke test the release directly
   5. Promote the release into the active workspace dir
   6. Restart openclaw-gateway.service when it is available
@@ -83,7 +83,6 @@ if [[ ! -d "${DEPLOY_SRC}" ]]; then
 fi
 
 DATA_DB_SOURCE="none"
-DB_NEEDS_REMOTE_BUILD=false
 
 local_db_is_acceptable() {
   python3 - "$1" <<'PY'
@@ -136,15 +135,94 @@ else
       echo "Using cached local dictionary.db: ${LOCAL_DB_CACHE}"
       DATA_DB_SOURCE="local cache"
     else
-      echo "Local dictionary.db is not rebuilt yet; forcing a fresh build on the server"
+      mkdir -p "${DEPLOY_SRC}/data"
+      cp "${LOCAL_DB_CACHE}" "${DEPLOY_SRC}/data/dictionary.db"
+      echo "Local dictionary.db is stale; refreshing it locally in the release bundle"
+      DATA_DB_SOURCE="local refresh"
     fi
   fi
 fi
 
 if [[ ! -s "${DEPLOY_SRC}/data/dictionary.db" ]]; then
-  DATA_DB_SOURCE="remote migration"
-  DB_NEEDS_REMOTE_BUILD=true
+  mkdir -p "${DEPLOY_SRC}/data"
+  echo "No local dictionary.db cache; building it locally in the release bundle"
+  DATA_DB_SOURCE="local rebuild"
 fi
+
+local_has_requests() {
+  python3 - <<'PY'
+import importlib.util
+import sys
+sys.exit(0 if importlib.util.find_spec('requests') else 1)
+PY
+}
+
+count_missing_release_phrases() {
+  python3 - "$1" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+phrases_path = Path(sys.argv[1])
+data = json.loads(phrases_path.read_text(encoding="utf-8"))
+missing = sum(1 for item in data.get("phrases", []) if not any(str(d).strip() for d in item.get("definitions", [])))
+print(missing)
+PY
+}
+
+refresh_local_release_data() {
+  local release_dir="$1"
+  local db_path="${release_dir}/data/dictionary.db"
+  local phrases_path="${release_dir}/data/gaokao_phrases.json"
+  local missing_count
+  missing_count="$(count_missing_release_phrases "${phrases_path}")"
+
+  if [[ "${missing_count}" -gt 0 ]]; then
+    if ! local_has_requests; then
+      echo "Local Python has no requests module; cannot refresh Cambridge phrases locally" >&2
+      exit 1
+    fi
+
+    if ! (cd "${release_dir}" && python3 scripts/enrich_cambridge_phrases.py --input data/gaokao_phrases.json --output data/gaokao_phrases.json --workers 1 --delay 2); then
+      echo "Local Cambridge enrichment failed" >&2
+      exit 1
+    fi
+  fi
+
+  if ! (cd "${release_dir}" && python3 scripts/migrate_phrases_to_db.py --db data/dictionary.db --phrases data/gaokao_phrases.json); then
+    echo "Local phrase migration failed" >&2
+    exit 1
+  fi
+
+  if local_db_is_acceptable "${db_path}"; then
+    if [[ "${DATA_DB_SOURCE}" == "local cache" ]]; then
+      DATA_DB_SOURCE="local cache + refresh"
+    fi
+    return 0
+  fi
+
+  echo "Local dictionary.db is still incomplete; building Cambridge core locally"
+  if ! local_has_requests; then
+    echo "Local Python has no requests module; cannot build Cambridge core locally" >&2
+    exit 1
+  fi
+  if ! (cd "${release_dir}" && python3 scripts/build_cambridge_dict.py --wordlist data/cambridge_wordlist.txt --db data/dictionary.db --workers 1 --delay 1.5); then
+    echo "Local Cambridge build failed" >&2
+    exit 1
+  fi
+
+  if ! (cd "${release_dir}" && python3 scripts/migrate_phrases_to_db.py --db data/dictionary.db --phrases data/gaokao_phrases.json); then
+    echo "Local phrase migration after core build failed" >&2
+    exit 1
+  fi
+
+  if ! local_db_is_acceptable "${db_path}"; then
+    echo "Local dictionary.db is still not acceptable after local rebuild" >&2
+    exit 1
+  fi
+}
+
+refresh_local_release_data "${DEPLOY_SRC}"
 
 RELEASE_ID="${RELEASE_ID}" \
 SOURCE_COMMIT="${SOURCE_COMMIT}" \
@@ -185,41 +263,8 @@ scp -r \
 scp -r "${DEPLOY_SRC}/data" "${REMOTE}:${REMOTE_RELEASE_DIR}/"
 scp "${TEMP_DIR}/release-manifest.json" "${REMOTE}:${REMOTE_RELEASE_DIR}/release-manifest.json"
 
-remote_has_requests() {
-  ssh "${REMOTE}" "python3 - <<'PY'
-import importlib.util
-import sys
-sys.exit(0 if importlib.util.find_spec('requests') else 1)
-PY"
-}
-
-if [[ "${DB_NEEDS_REMOTE_BUILD}" == true ]]; then
-  echo ""
-  echo "--- No local dictionary.db cache, building on server (slow) ---"
-  ssh "${REMOTE}" "cd '${REMOTE_RELEASE_DIR}' && python3 scripts/migrate_phrases_to_db.py --db data/dictionary.db --phrases data/gaokao_phrases.json"
-
-  if remote_has_requests; then
-    if ! ssh "${REMOTE}" "cd '${REMOTE_RELEASE_DIR}' && python3 scripts/enrich_cambridge_phrases.py --input data/gaokao_phrases.json --output data/gaokao_phrases.json --workers 1 --delay 2"; then
-      echo "  remote Cambridge enrichment failed; keeping migrated database"
-    fi
-  else
-    echo "  remote Python has no requests module; skipping Cambridge enrichment"
-  fi
-
-  remote_count=$(ssh "${REMOTE}" "sqlite3 '${REMOTE_RELEASE_DIR}/data/dictionary.db' 'SELECT count(*) FROM dictionary;' 2>/dev/null || echo 0")
-  if [[ "${remote_count}" -lt 100 ]]; then
-    if remote_has_requests; then
-      if ! ssh "${REMOTE}" "cd '${REMOTE_RELEASE_DIR}' && python3 scripts/build_cambridge_dict.py --wordlist data/cambridge_wordlist.txt --db data/dictionary.db --workers 1 --delay 1.5"; then
-        echo "  remote Cambridge build failed; keeping migrated database"
-      fi
-    else
-      echo "  remote Python has no requests module; skipping Cambridge rebuild"
-    fi
-  fi
-else
-  echo ""
-  echo "--- dictionary.db ready from ${DATA_DB_SOURCE} ---"
-fi
+echo ""
+echo "--- dictionary.db ready from ${DATA_DB_SOURCE} ---"
 
 smoke_release() {
   local target_dir="$1"
