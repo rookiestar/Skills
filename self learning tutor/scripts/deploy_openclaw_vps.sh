@@ -538,6 +538,79 @@ if 'LOOKUP_WORKSPACE_DIR' not in text or 'runDirectLookup' not in text:
         raise SystemExit('classifyLookupMessage anchor not found')
     text = text.replace(marker, helper_block + '\n' + marker, 1)
 
+card_helper_block = '''async function sendDirectLookupCardReply(replyCtx, replyToMessageId, query, lookupPromise, startedAt) {
+    try {
+        const cardId = await cardkit_1.createCardEntity({
+            cfg: replyCtx.cfg,
+            card: builder_1.buildStreamingThinkingCard(false),
+            accountId: replyCtx.accountId,
+        });
+        const sent = await cardkit_1.sendCardByCardId({
+            cfg: replyCtx.cfg,
+            to: replyCtx.chatId,
+            cardId,
+            replyToMessageId: replyToMessageId ?? replyCtx.messageId,
+            replyInThread: replyCtx.replyInThread,
+            accountId: replyCtx.accountId,
+        });
+        let sequence = 1;
+        await cardkit_1.streamCardContent({
+            cfg: replyCtx.cfg,
+            cardId,
+            elementId: builder_1.STREAMING_ELEMENT_ID,
+            content: '**' + query + '**\\n\\n🔍 正在整理词条…',
+            sequence: ++sequence,
+            accountId: replyCtx.accountId,
+        });
+        const lookupText = await lookupPromise;
+        const lines = String(lookupText).split(/\\r?\\n/);
+        let rendered = '';
+        for (const line of lines) {
+            rendered = rendered ? rendered + '\\n' + line : line;
+            await cardkit_1.streamCardContent({
+                cfg: replyCtx.cfg,
+                cardId,
+                elementId: builder_1.STREAMING_ELEMENT_ID,
+                content: rendered,
+                sequence: ++sequence,
+                accountId: replyCtx.accountId,
+            });
+        }
+        await cardkit_1.setCardStreamingMode({
+            cfg: replyCtx.cfg,
+            cardId,
+            streamingMode: false,
+            sequence: ++sequence,
+            accountId: replyCtx.accountId,
+        });
+        const completeCard = builder_1.buildCardContent('complete', {
+            text: String(lookupText),
+            elapsedMs: Date.now() - startedAt,
+            footer: { status: true, elapsed: true, model: true },
+            footerMetrics: { model: '本地查词' },
+        });
+        await cardkit_1.updateCardKitCard({
+            cfg: replyCtx.cfg,
+            cardId,
+            card: builder_1.toCardKit2(completeCard),
+            sequence: ++sequence,
+            accountId: replyCtx.accountId,
+        });
+        logger.info('lookup card sent', { messageId: sent.messageId, cardId, query });
+        return true;
+    }
+    catch (err) {
+        logger.warn('lookup card flow failed, falling back to text', { error: String(err), query });
+        return false;
+    }
+}
+'''
+if 'sendDirectLookupCardReply' not in text:
+    card_marker = 'function classifyLookupMessage(text, lastTerm) {'
+    if card_marker not in text:
+        raise SystemExit('card helper anchor not found')
+    text = text.replace(card_marker, card_helper_block + '\n' + card_marker, 1)
+
 old_router_candidates = [
     '''    const routerResult = classifyLookupMessage(ctx.content ?? '', undefined);
     if (routerResult.replyText && !routerResult.command) {
