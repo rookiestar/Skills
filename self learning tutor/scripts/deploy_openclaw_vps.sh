@@ -605,7 +605,7 @@ card_helper_block = '''async function sendDirectLookupCardReply(replyCtx, replyT
     }
 }
 '''
-if 'sendDirectLookupCardReply' not in text:
+if 'async function sendDirectLookupCardReply' not in text:
     card_marker = 'function classifyLookupMessage(text, lastTerm) {'
     if card_marker not in text:
         raise SystemExit('card helper anchor not found')
