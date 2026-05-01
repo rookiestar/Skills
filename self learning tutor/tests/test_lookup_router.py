@@ -23,6 +23,13 @@ def test_single_word_lookup_routes_to_query() -> None:
     assert result.lookup_query == "quiet"
 
 
+def test_restart_routes_to_lookup_instead_of_silence() -> None:
+    result = classify_input("restart")
+    assert result.category == "english_lookup_en_to_zh"
+    assert result.reply_key == "english_card_en_to_zh"
+    assert result.lookup_query == "restart"
+
+
 def test_chinese_cue_routes_to_zh_to_en_lookup() -> None:
     result = classify_input("重要的英语怎么说")
     assert result.category == "english_lookup_zh_to_en"
