@@ -82,10 +82,10 @@ If the card contains anything outside the template, reject it and regenerate or 
 
 Minimum OpenClaw tool policy for this skill:
 
-- Allow: `exec`
-- Deny: `memory_search`, `memory_get`, `read`, `write`, `edit`, `apply_patch`, `process`, `sessions_send`, `sessions_spawn`, `sessions_history`, web search/fetch tools, image/video tools
+- Allow: `read`, `exec`
+- Deny: `memory_search`, `memory_get`, `write`, `edit`, `apply_patch`, `process`, `sessions_send`, `sessions_spawn`, `sessions_history`, web search/fetch tools, image/video tools
 
-`exec` is still needed because `SKILL.md` calls `scripts/dict_lookup.py`. The model must not receive memory or file-editing tools for lookup requests.
+`read` is needed because OpenClaw loads the full `SKILL.md` through the read tool. `exec` is needed because `SKILL.md` calls `scripts/dict_lookup.py`. The model must not receive memory or file-editing tools for lookup requests.
 
 ## Follow-Up Path
 

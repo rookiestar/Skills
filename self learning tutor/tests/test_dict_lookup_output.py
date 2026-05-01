@@ -150,3 +150,40 @@ def test_zh_to_en_does_not_match_substrings_inside_unknown_query() -> None:
     assert result.returncode == 0
     assert result.stdout.strip() == "📖 '火星词条不存在' 这个词/短语暂时不在我的词典库中呢"
     assert "absence" not in result.stdout
+
+
+def test_default_cli_call_returns_strict_text_for_english_word() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS_DIR / "dict_lookup.py"),
+            "trace",
+            "--mode",
+            "en_to_zh",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=20,
+    )
+    assert result.stdout.startswith("**trace**")
+    assert not result.stdout.lstrip().startswith("{")
+    rc, stderr = _validate(result.stdout, "en_to_zh")
+    assert rc == 0, stderr
+
+
+def test_bare_cli_call_infers_english_lookup_and_returns_strict_text() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS_DIR / "dict_lookup.py"),
+            "trace",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=20,
+    )
+    assert result.stdout.startswith("**trace**")
+    rc, stderr = _validate(result.stdout, "en_to_zh")
+    assert rc == 0, stderr

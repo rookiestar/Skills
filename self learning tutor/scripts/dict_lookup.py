@@ -746,15 +746,19 @@ def format_not_found_text(result: dict[str, Any]) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Local dictionary lookup")
-    parser.add_argument("--mode", required=True, choices=("en_to_zh", "zh_to_en"))
+    parser.add_argument("--mode", default=None, choices=("en_to_zh", "zh_to_en"))
     parser.add_argument("query", nargs="*", help="Word or phrase to look up (auto-joins if unquoted)")
     parser.add_argument("--data-dir", default=None, help="Directory with dictionary assets")
     parser.add_argument("--db", default=None, help="Path to dictionary.db")
     parser.add_argument("--sample", default=None, help="Path to sample_dictionary.json")
-    parser.add_argument("--format", default="json", choices=("json", "text"), help="Output format")
+    parser.add_argument("--format", default=None, choices=("json", "text"), help="Output format")
     parser.add_argument("--style", default="strict", choices=("strict",), help="Text output contract")
     args = parser.parse_args()
     args.query = " ".join(args.query) if isinstance(args.query, list) else args.query
+    if args.mode is None:
+        args.mode = "zh_to_en" if re.search(r"[\u4e00-\u9fff]", args.query or "") else "en_to_zh"
+    if args.format is None:
+        args.format = "text"
 
     data_dir = resolve_path(args.data_dir, "SELF_LEARNING_TUTOR_DATA_DIR", ROOT / "data")
     db_path = resolve_path(args.db, "SELF_LEARNING_TUTOR_DB", data_dir / "dictionary.db")

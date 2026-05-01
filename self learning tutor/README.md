@@ -60,7 +60,7 @@ bash scripts/deploy_openclaw_vps.sh
 
 部署时会清理 `~/.openclaw/workspace/skills/self-learning-tutor.bak.*` 这类旧快照，避免新会话继续命中过期 skill。
 
-线上 OpenClaw agent 需要收窄工具权限：保留 `exec`，禁用 `memory_search`、`memory_get`、`read`、`write`、`edit`、`apply_patch`、`process` 和跨会话工具。否则单词如 `memory` 可能被模型误判成“保存记忆”请求。
+线上 OpenClaw agent 需要收窄工具权限：保留 `read` 和 `exec`，禁用 `memory_search`、`memory_get`、`write`、`edit`、`apply_patch`、`process` 和跨会话工具。否则单词如 `memory` 可能被模型误判成“保存记忆”请求。
 
 烟雾测试会检查 `important`、`in the future`、`sit down` 和 `put on` 这几类典型场景。
 
