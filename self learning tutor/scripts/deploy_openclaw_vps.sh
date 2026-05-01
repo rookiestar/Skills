@@ -175,6 +175,11 @@ refresh_local_release_data() {
   local db_path="${release_dir}/data/dictionary.db"
   local phrases_path="${release_dir}/data/gaokao_phrases.json"
   local missing_count
+
+  if [[ "${DATA_DB_SOURCE}" == "local cache" ]]; then
+    return 0
+  fi
+
   missing_count="$(count_missing_release_phrases "${phrases_path}")"
 
   if [[ "${missing_count}" -gt 0 ]]; then
