@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-import shlex
 from dataclasses import dataclass
 
 from scripts.dictionary_utils import normalize_query, strip_lookup_cues_en, strip_lookup_cues_zh
@@ -113,26 +112,16 @@ QUESTION_WORDS = {
     "here",
 }
 
-LOOKUP_COMMAND_PREFIX = (
-    "/self_learning_tutor "
-    "python3 scripts/dict_lookup.py --format text --style strict --db data/dictionary.db"
-)
-
-
 @dataclass(frozen=True)
 class RouteResult:
     category: str
     reply_key: str
-    command: str | None = None
+    lookup_query: str | None = None
     reply_text: str | None = None
 
 
 def normalize(text: str) -> str:
     return normalize_query(text)
-
-
-def shell_quote(text: str) -> str:
-    return shlex.quote(text)
 
 
 def is_english_term(text: str) -> bool:
@@ -150,11 +139,6 @@ def looks_like_sentence_translation(text: str) -> bool:
             return True
     english_words = ENGLISH_WORD_COUNT_RE.findall(text)
     return len(english_words) >= 5 and any(p in text for p in ".!?。！？")
-
-
-def build_lookup_command(query: str) -> str:
-    cleaned = normalize(query)
-    return f"{LOOKUP_COMMAND_PREFIX} {shell_quote(cleaned)}"
 
 
 def classify_input(text: str, last_term: str | None = None) -> RouteResult:
@@ -191,18 +175,18 @@ def classify_input(text: str, last_term: str | None = None) -> RouteResult:
 
     stripped_en = strip_lookup_cues_en(text)
     if stripped_en != text and is_english_term(stripped_en):
-        return RouteResult("english_lookup_en_to_zh", "english_card_en_to_zh", command=build_lookup_command(stripped_en))
+        return RouteResult("english_lookup_en_to_zh", "english_card_en_to_zh", lookup_query=normalize(stripped_en))
 
     stripped_zh = strip_lookup_cues_zh(text)
     if stripped_zh != text and stripped_zh:
-        return RouteResult("english_lookup_zh_to_en", "english_card_zh_to_en", command=build_lookup_command(stripped_zh))
+        return RouteResult("english_lookup_zh_to_en", "english_card_zh_to_en", lookup_query=normalize(stripped_zh))
 
     if is_english_term(text):
-        return RouteResult("english_lookup_en_to_zh", "english_card_en_to_zh", command=build_lookup_command(text))
+        return RouteResult("english_lookup_en_to_zh", "english_card_en_to_zh", lookup_query=normalize(text))
 
     if any(cue in text for cue in ZH_TO_EN_CUES):
         cleaned = strip_lookup_cues_zh(text)
         if cleaned:
-            return RouteResult("english_lookup_zh_to_en", "english_card_zh_to_en", command=build_lookup_command(cleaned))
+            return RouteResult("english_lookup_zh_to_en", "english_card_zh_to_en", lookup_query=normalize(cleaned))
 
     return RouteResult("ambiguous", "clarify_subject", reply_text="你是要查英语单词，还是语文的内容呀？")

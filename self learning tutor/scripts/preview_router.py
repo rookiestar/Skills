@@ -32,7 +32,7 @@ def main() -> int:
             {
                 "category": result.category,
                 "reply_key": result.reply_key,
-                **({"command": result.command} if result.command else {}),
+                **({"lookup_query": result.lookup_query} if result.lookup_query else {}),
                 **({"reply_text": result.reply_text} if result.reply_text else {}),
             },
             ensure_ascii=False,

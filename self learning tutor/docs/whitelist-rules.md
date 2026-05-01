@@ -70,7 +70,7 @@ Before sending the answer back to Feishu, check that it still matches the lookup
 
 If the reply contains any extra explanation, example note, memory tip, collocation note, AI-domain note, or closing question, treat it as invalid and do not send it as-is.
 
-Lookup requests should be rewritten into the deterministic `self-learning-tutor` skill command and executed through `exec` only. The model does not get a chance to expand the card.
+Lookup requests should be executed by the router directly. The model does not get a chance to expand the card.
 
 ## 6. Practical Regex Hints
 

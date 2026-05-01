@@ -7,28 +7,26 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.lookup_router import build_lookup_command, classify_input  # noqa: E402
+from scripts.lookup_router import classify_input  # noqa: E402
 
 
-def test_english_lookup_builds_deterministic_skill_command() -> None:
+def test_english_lookup_builds_deterministic_query() -> None:
     result = classify_input("in the future")
     assert result.category == "english_lookup_en_to_zh"
     assert result.reply_key == "english_card_en_to_zh"
-    assert result.command == build_lookup_command("in the future")
-    assert result.command is not None
-    assert "'in the future'" in result.command
+    assert result.lookup_query == "in the future"
 
 
-def test_single_word_lookup_routes_to_skill_command() -> None:
+def test_single_word_lookup_routes_to_query() -> None:
     result = classify_input("quiet")
     assert result.category == "english_lookup_en_to_zh"
-    assert result.command == build_lookup_command("quiet")
+    assert result.lookup_query == "quiet"
 
 
 def test_chinese_cue_routes_to_zh_to_en_lookup() -> None:
     result = classify_input("重要的英语怎么说")
     assert result.category == "english_lookup_zh_to_en"
-    assert result.command == build_lookup_command("重要的")
+    assert result.lookup_query == "重要的"
 
 
 def test_off_topic_chat_is_rejected_without_model() -> None:

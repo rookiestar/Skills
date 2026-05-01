@@ -18,8 +18,9 @@ Flow:
   4. Smoke test the release directly
   5. Promote the release into the active workspace dir
   6. Remove stale self-learning-tutor.bak.* workspace snapshots
-  7. Restart openclaw-gateway.service when it is available
-  8. Smoke test the active workspace copy
+  7. Patch the openclaw-lark inbound handler to run lookup directly
+  8. Restart openclaw-gateway.service when it is available
+  9. Smoke test the active workspace copy
 EOF
 }
 
@@ -387,6 +388,129 @@ PY"
 echo ""
 echo "--- Removing stale skill backup snapshots ---"
 ssh "${REMOTE}" "find '$(dirname "${ACTIVE_DIR}")' -maxdepth 1 -type d -name 'self-learning-tutor.bak.*' -exec rm -rf {} +"
+
+patch_remote_lark_handler() {
+  echo ""
+  echo "--- Patching openclaw-lark inbound handler ---"
+  ssh "${REMOTE}" "python3 - <<'PY'
+from pathlib import Path
+
+path = Path.home() / '.openclaw' / 'extensions' / 'openclaw-lark' / 'src' / 'messaging' / 'inbound' / 'handler.js'
+text = path.read_text(encoding='utf-8')
+if 'LOOKUP_WORKSPACE_DIR' in text and 'runDirectLookup' in text:
+    print(f'already patched: {path}')
+    raise SystemExit(0)
+
+old_import = 'const parse_1 = require(\"./parse.js\");\\n'
+new_import = (
+    'const parse_1 = require(\"./parse.js\");\\n'
+    'const child_process_1 = require(\"child_process\");\\n'
+    'const os_1 = require(\"os\");\\n'
+    'const path_1 = require(\"path\");\\n'
+    'const util_1 = require(\"util\");\\n'
+    'const execFileAsync = (0, util_1.promisify)(child_process_1.execFile);\\n'
+)
+if old_import not in text:
+    raise SystemExit('import anchor not found')
+text = text.replace(old_import, new_import, 1)
+
+old_block = '''function buildLookupCommand(text) {
+    return LOOKUP_COMMAND_PREFIX + " " + shellQuote(normalizeLookupText(text));
+}
+'''
+new_block = '''function buildLookupCommand(text) {
+    return LOOKUP_COMMAND_PREFIX + " " + shellQuote(normalizeLookupText(text));
+}
+
+const LOOKUP_WORKSPACE_DIR = (0, path_1.join)((0, os_1.homedir)(), '.openclaw', 'workspace', 'skills', 'self-learning-tutor');
+const LOOKUP_SCRIPT_PATH = (0, path_1.join)(LOOKUP_WORKSPACE_DIR, 'scripts', 'dict_lookup.py');
+const LOOKUP_DB_PATH = (0, path_1.join)(LOOKUP_WORKSPACE_DIR, 'data', 'dictionary.db');
+const LOOKUP_PYTHON = process.env.SELF_LEARNING_TUTOR_PYTHON || 'python3';
+
+function extractLookupQuery(text) {
+    const normalized = normalizeLookupText(text);
+    const strippedEn = stripLookupCuesEn(normalized);
+    if (strippedEn !== normalized && isEnglishTerm(strippedEn)) {
+        return strippedEn;
+    }
+    const strippedZh = stripLookupCuesZh(normalized);
+    if (strippedZh !== normalized && strippedZh) {
+        return strippedZh;
+    }
+    if (isEnglishTerm(normalized)) {
+        return normalized;
+    }
+    if (ZH_LOOKUP_CUES.some((cue) => normalized.includes(cue))) {
+        const cleaned = stripLookupCuesZh(normalized);
+        if (cleaned) {
+            return cleaned;
+        }
+    }
+    return null;
+}
+
+async function runDirectLookup(query) {
+    try {
+        const { stdout, stderr } = await execFileAsync(LOOKUP_PYTHON, [LOOKUP_SCRIPT_PATH, '--format', 'text', '--style', 'strict', '--db', LOOKUP_DB_PATH, query], {
+            cwd: LOOKUP_WORKSPACE_DIR,
+            maxBuffer: 1024 * 1024,
+        });
+        if (stderr) {
+            logger.info(`lookup stderr: ${String(stderr).trim()}`);
+        }
+        return stdout;
+    }
+    catch (err) {
+        const stdout = err?.stdout ?? '';
+        const stderr = err?.stderr ?? '';
+        if (stdout) {
+            return stdout;
+        }
+        logger.error(`lookup failed for "${query}": ${String(err)}${stderr ? ` stderr=${String(stderr).trim()}` : ''}`);
+        return '词典查询暂时失败了，你稍后再试一下。';
+    }
+}
+'''
+if old_block not in text:
+    raise SystemExit('lookup helper anchor not found')
+text = text.replace(old_block, new_block, 1)
+
+old_router = '''    const routerResult = classifyLookupMessage(ctx.content ?? '', undefined);
+    if (routerResult.replyText && !routerResult.command) {
+        await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, routerResult.replyText);
+        return;
+    }
+    if (routerResult.command) {
+        ctx = { ...ctx, content: routerResult.command };
+    }
+'''
+new_router = '''    const routerResult = classifyLookupMessage(ctx.content ?? '', undefined);
+    if (routerResult.replyText && !routerResult.command) {
+        await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, routerResult.replyText);
+        return;
+    }
+    if (routerResult.command) {
+        const lookupQuery = extractLookupQuery(ctx.content ?? '');
+        if (!lookupQuery) {
+            logger.error(`lookup routing failed: could not extract query from "${ctx.content ?? ''}"`);
+            await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, '词典查询暂时失败了，你稍后再试一下。');
+            return;
+        }
+        const lookupText = await runDirectLookup(lookupQuery);
+        await sendRouterReply({ cfg: accountScopedCfg, chatId: ctx.chatId, accountId: account.accountId, messageId: ctx.messageId, replyInThread: Boolean(ctx.threadId) }, params.replyToMessageId, lookupText);
+        return;
+    }
+'''
+if old_router not in text:
+    raise SystemExit('router block anchor not found')
+text = text.replace(old_router, new_router, 1)
+
+path.write_text(text, encoding='utf-8')
+print(f'patched {path}')
+  PY"
+}
+
+patch_remote_lark_handler
 
 restart_service_if_present() {
   if ssh "${REMOTE}" "systemctl --user show -p LoadState --value '${SERVICE_NAME}' 2>/dev/null | grep -qx loaded"; then

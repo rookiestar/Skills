@@ -71,20 +71,15 @@ Use the fixed reply from `references/boundary_rules.md`.
 
 If the message is allowed:
 
-- rewrite the text into the deterministic `self-learning-tutor` skill command
-- send the command through `exec` only; do not let the model rewrite the result
-- expose only the minimum tool set needed for lookup
+- extract the deterministic lookup query
+- run `scripts/dict_lookup.py` directly in the router/plugin layer
 - validate the returned card before sending it back to Feishu
+- do not let the model rewrite the result
 - do not add any extra prose around the lookup card
 
 If the card contains anything outside the template, reject it and fall back to a short safe reply.
 
-Minimum OpenClaw tool policy for this skill:
-
-- Allow: `read`, `exec`
-- Deny: `memory_search`, `memory_get`, `write`, `edit`, `apply_patch`, `process`, `sessions_send`, `sessions_spawn`, `sessions_history`, web search/fetch tools, image/video tools
-
-`read` is needed because OpenClaw loads the full `SKILL.md` through the read tool. `exec` is needed because `SKILL.md` calls `scripts/dict_lookup.py`. The model must not receive memory or file-editing tools for lookup requests.
+This lookup path should stay outside the model. The router executes the script directly and only the final card is sent back.
 
 ## Follow-Up Path
 
